@@ -42,7 +42,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -98,6 +101,14 @@ import com.movtery.zalithlauncher.bridge.ZLBridgeStates
 import com.movtery.zalithlauncher.bridge.ZLNativeInvoker
 import com.oracle.dalvik.VMLauncher
 import com.movtery.zalithlauncher.game.sdl.SdlBridge
+import android.Manifest
+import android.content.pm.PackageManager
+import android.media.projection.MediaProjectionManager
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.israadev.nuxlauncher.core.recorder.ScreenRecordConfig
+import com.israadev.nuxlauncher.core.recorder.ScreenRecordManager
+import com.israadev.nuxlauncher.ui.dialogs.NuxPremiumDialog
 import org.libsdl.app.SDLActivity
 import org.libsdl.app.SDLSurface
 import org.lwjgl.glfw.CallbackBridge
@@ -124,10 +135,65 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         const val EXTRA_USER_TYPE = "extra_user_type"
         const val EXTRA_AUTHLIB_INJECTOR_PATH = "extra_authlib_injector_path"
         const val EXTRA_AUTHLIB_URL = "extra_authlib_url"
+        const val EXTRA_SKIN_PATH = "extra_skin_path"
+        const val EXTRA_CAPE_PATH = "extra_cape_path"
+        const val EXTRA_SKIN_MODEL = "extra_skin_model"
         const val EXTRA_USE_WRAPPER = "extra_use_wrapper"
         const val EXTRA_LOADER = "extra_loader"
         const val EXTRA_LOADER_VERSION = "extra_loader_version"
         const val EXTRA_INSTALLED_MODS = "extra_installed_mods"
+        const val EXTRA_LAUNCHER_UID = "extra_launcher_uid"
+    }
+
+    private var pendingRecordConfig: ScreenRecordConfig = ScreenRecordConfig()
+    private val screenCaptureLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            ScreenRecordManager.startRecording(
+                context = this,
+                resultCode = result.resultCode,
+                resultData = result.data!!,
+                config = pendingRecordConfig
+            )
+            Toast.makeText(this, "Screen recording started!", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Screen recording permission was denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val audioPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            pendingRecordConfig = pendingRecordConfig.copy(recordAudio = false)
+            Toast.makeText(this, "Audio permission denied. Recording without mic audio.", Toast.LENGTH_SHORT).show()
+        }
+        try {
+            val mpManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+            screenCaptureLauncher.launch(mpManager.createScreenCaptureIntent())
+        } catch (e: Exception) {
+            Toast.makeText(this, "Failed to launch screen recorder: ${e.message}", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun requestStartScreenRecording(config: ScreenRecordConfig, onNeedPremiumDialog: () -> Unit = {}) {
+        pendingRecordConfig = config
+        if (config.recordAudio && ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        } else {
+            try {
+                val mpManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                screenCaptureLauncher.launch(mpManager.createScreenCaptureIntent())
+            } catch (e: Exception) {
+                Toast.makeText(this, "Failed to launch screen recorder: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    fun requestStopScreenRecording() {
+        ScreenRecordManager.stopRecording(this)
+        Toast.makeText(this, "Recording stopped and saved to Movies/NUX-Launcher!", Toast.LENGTH_SHORT).show()
     }
 
     private val liveLogs = mutableStateListOf<String>()
@@ -140,6 +206,9 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
     private var sessionStartTime = System.currentTimeMillis()
 
     private fun handleGameExit(exitCode: Int, isSignal: Boolean, errorDetail: String? = null) {
+        if (ScreenRecordManager.recordState.value.isRecording) {
+            ScreenRecordManager.stopRecording(this)
+        }
         // Cek apakah game keluar bersih secara normal atas instruksi user (klik quit game / pause exit)
         val isNormalExit = isManualExit || (exitCode == 0 && !isSignal)
 
@@ -204,9 +273,42 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         terminateGameProcess()
     }
 
+    private var launcherUid: String = ""
+    private var presenceHeartbeatJob: Job? = null
+    private val presenceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private fun startInGamePresenceHeartbeat() {
+        if (launcherUid.isBlank()) return
+        presenceHeartbeatJob?.cancel()
+        presenceHeartbeatJob = presenceScope.launch {
+            while (isActive) {
+                try {
+                    val payload = org.json.JSONObject().apply {
+                        put("uid", launcherUid)
+                        put("status", "in_game")
+                        put("platform", "android")
+                        put("instanceName", instanceName)
+                    }
+                    com.israadev.nuxlauncher.core.auth.AuthService.postApiSync("/api/presence", payload.toString(), timeoutSec = 2)
+                } catch (_: Throwable) {}
+                delay(18_000L)
+            }
+        }
+    }
+
     private fun notifyPresenceGameExit() {
         try {
-            com.israadev.nuxlauncher.core.social.NuxSocialManager.notifyGameExitSync()
+            presenceHeartbeatJob?.cancel()
+            presenceHeartbeatJob = null
+            if (launcherUid.isNotBlank()) {
+                val payload = org.json.JSONObject().apply {
+                    put("uid", launcherUid)
+                    put("status", "online")
+                    put("platform", "android")
+                }
+                com.israadev.nuxlauncher.core.auth.AuthService.postApiSync("/api/presence", payload.toString(), timeoutSec = 2)
+            }
+            com.israadev.nuxlauncher.core.social.NuxSocialManager.notifyGameExitSync(launcherUid.ifBlank { null })
         } catch (_: Throwable) {}
     }
 
@@ -252,6 +354,9 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
     private var userType = "mojang"
     private var authlibInjectorPath: String? = null
     private var authlibUrl: String? = null
+    private var skinPath: String? = null
+    private var capePath: String? = null
+    private var skinModel = "default"
     private var useWrapper = false
     private var loader = "vanilla"
     private var loaderVersion: String? = null
@@ -285,7 +390,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         val (targetW, targetH) = getScaledDisplayDimensions()
         surfaceHolderRef?.setFixedSize(targetW, targetH)
         CallbackBridge.sendUpdateWindowSize(targetW, targetH)
-        LoggerBridge.append("▷ [In-Game Resolution] Dinamis diperbarui ke $newRatio% (${targetW}x${targetH})")
+        LoggerBridge.append("▷ [In-Game Resolution] Dynamically updated to $newRatio% (${targetW}x${targetH})")
     }
 
     private fun applyImmersiveFullscreen() {
@@ -331,6 +436,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         super.onCreate(savedInstanceState)
         PhysicalMouseChecker.initChecker(this)
         SettingsManager.init(this)
+        com.israadev.nuxlauncher.core.lang.NuxLanguageManager.init(this)
         ControlLayoutManager.init(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && SettingsManager.settings.value.sustainedPerformanceMode) {
             window.setSustainedPerformanceMode(true)
@@ -365,10 +471,15 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         userType = intent.getStringExtra(EXTRA_USER_TYPE) ?: "mojang"
         authlibInjectorPath = intent.getStringExtra(EXTRA_AUTHLIB_INJECTOR_PATH)
         authlibUrl = intent.getStringExtra(EXTRA_AUTHLIB_URL)
+        skinPath = intent.getStringExtra(EXTRA_SKIN_PATH)
+        capePath = intent.getStringExtra(EXTRA_CAPE_PATH)
+        skinModel = intent.getStringExtra(EXTRA_SKIN_MODEL) ?: "default"
         useWrapper = intent.getBooleanExtra(EXTRA_USE_WRAPPER, false)
         loader = intent.getStringExtra(EXTRA_LOADER) ?: "vanilla"
         loaderVersion = intent.getStringExtra(EXTRA_LOADER_VERSION)
         installedMods = intent.getStringArrayListExtra(EXTRA_INSTALLED_MODS) ?: CrashManager.getInstalledMods(gameDirPath)
+        launcherUid = intent.getStringExtra(EXTRA_LAUNCHER_UID) ?: ""
+        startInGamePresenceHeartbeat()
 
         // Setup real-time native LoggerBridge
         setupLogger()
@@ -415,6 +526,12 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                     onExit = {
                         isManualExit = true
                         terminateGameProcess()
+                    },
+                    onRequestStartRecord = { config ->
+                        requestStartScreenRecording(config)
+                    },
+                    onRequestStopRecord = {
+                        requestStopScreenRecording()
                     }
                 )
             }
@@ -589,11 +706,11 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                     }
                     if (extRes.isFailure) {
                         val errMsg = extRes.exceptionOrNull()?.message ?: "Extraction failed"
-                        liveLogs.add("[ERROR] Gagal mengekstrak OpenJDK $runtimeName: $errMsg")
-                        LoggerBridge.append("[ERROR] Gagal mengekstrak OpenJDK: $errMsg")
-                        throw Exception("Gagal menyiapkan OpenJDK ($runtimeName): $errMsg")
+                        liveLogs.add("[ERROR] Failed to extract OpenJDK $runtimeName: $errMsg")
+                        LoggerBridge.append("[ERROR] Failed to extract OpenJDK: $errMsg")
+                        throw Exception("Failed to prepare OpenJDK ($runtimeName): $errMsg")
                     }
-                    liveLogs.add("[NUX Runtime] OpenJDK ($runtimeName) siap digunakan!")
+                    liveLogs.add("[NUX Runtime] OpenJDK ($runtimeName) is ready for use!")
                 }
 
                 // Combined Library Path (Include Java runtime libraries for pojavexec dlopen)
@@ -727,7 +844,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                         LoggerBridge.append("▷ [Renderer V2 Env] $k = $v")
                     }
                 } catch (e: Exception) {
-                    LoggerBridge.append("▷ [Renderer V2 Env Warning] Gagal menginjeksi V2 env: ${e.message}")
+                    LoggerBridge.append("▷ [Renderer V2 Env Warning] Failed to inject V2 env: ${e.message}")
                 }
 
                 // Apply EGL specific library path if specified
@@ -1061,13 +1178,50 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                     LoggerBridge.append("▷ Enabled MioLibPatcher bytecode agent")
                 }
 
-                // Enable authlib-injector if using Ely.by or custom auth server
-                if (!authlibInjectorPath.isNullOrBlank() && !authlibUrl.isNullOrBlank()) {
+                // Enable authlib-injector if using Ely.by, custom auth server, or offline custom skin/cape
+                if (!authlibInjectorPath.isNullOrBlank()) {
                     val authlibJar = File(authlibInjectorPath!!)
                     if (authlibJar.exists()) {
-                        jvmArgs.add("-javaagent:${authlibJar.absolutePath}=$authlibUrl")
-                        jvmArgs.add("-Dauthlibinjector.side=client")
-                        LoggerBridge.append("▷ Enabled authlib-injector for external auth ($authlibUrl)")
+                        var effectiveAuthlibUrl: String? = null
+
+                        // 1. External auth server (e.g., Ely.by)
+                        if (!authlibUrl.isNullOrBlank() && !authlibUrl!!.contains("127.0.0.1") && !authlibUrl!!.contains("localhost")) {
+                            effectiveAuthlibUrl = authlibUrl
+                        } else {
+                            // 2. Offline custom skin/cape: Run local server directly inside :game process
+                            val skinFile = skinPath?.let { File(it) }?.takeIf { it.exists() }
+                            val capeFile = capePath?.let { File(it) }?.takeIf { it.exists() }
+
+                            if (skinFile != null || capeFile != null) {
+                                try {
+                                    com.israadev.nuxlauncher.core.account.offline.OfflineYggdrasilServer.activeInstance?.stop()
+                                    val server = com.israadev.nuxlauncher.core.account.offline.OfflineYggdrasilServer(0)
+                                    server.addCharacter(
+                                        username = username,
+                                        uuid = uuid,
+                                        skinFile = skinFile,
+                                        capeFile = capeFile,
+                                        isSlim = skinModel == "slim"
+                                    )
+                                    val port = server.start()
+                                    if (port > 0 && server.isAliveAndResponding()) {
+                                        effectiveAuthlibUrl = "http://127.0.0.1:$port"
+                                        LoggerBridge.append("▷ Offline Yggdrasil skin server running on port $port")
+                                    } else {
+                                        LoggerBridge.append("⚠️ Offline skin server failed to start, skipping authlib-injector")
+                                        server.stop()
+                                    }
+                                } catch (e: Exception) {
+                                    LoggerBridge.append("⚠️ Offline skin server error: ${e.message}, skipping authlib-injector")
+                                }
+                            }
+                        }
+
+                        if (!effectiveAuthlibUrl.isNullOrBlank()) {
+                            jvmArgs.add("-javaagent:${authlibJar.absolutePath}=$effectiveAuthlibUrl")
+                            jvmArgs.add("-Dauthlibinjector.side=client")
+                            LoggerBridge.append("▷ Enabled authlib-injector for auth ($effectiveAuthlibUrl)")
+                        }
                     }
                 }
 
@@ -1144,7 +1298,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                 )
                 liveLogs.add("[NUX Engine] Memulai eksekusi VMLauncher.launchJVM()...")
                 val exitCode = VMLauncher.launchJVM(jvmArgs.toTypedArray())
-                liveLogs.add("[NUX Engine] JVM selesai dengan kode keluar: $exitCode")
+                liveLogs.add("[NUX Engine] JVM terminated with exit code: $exitCode")
                 runOnUiThread {
                     handleGameExit(exitCode, false)
                 }
@@ -1177,7 +1331,9 @@ fun GameScreen(
     isGameRenderingState: MutableState<Boolean>,
     onSurfaceReady: (SurfaceHolder) -> Unit,
     onResolutionChange: (Int) -> Unit = {},
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    onRequestStartRecord: (ScreenRecordConfig) -> Unit = {},
+    onRequestStopRecord: () -> Unit = {}
 ) {
     var isControlVisible by isControlVisibleState
     var isGameRendering by isGameRenderingState
@@ -1185,6 +1341,9 @@ fun GameScreen(
     val showLoadingOverlay = !isGameRendering && !isManualLoadingDismissed
 
     var showInGameSettingsDialog by remember { mutableStateOf(false) }
+    var inGameSettingsInitialTab by remember { mutableIntStateOf(0) }
+    var showPremiumDialog by remember { mutableStateOf(false) }
+    val recordState by ScreenRecordManager.recordState.collectAsState()
     var isCustomGuiEditorActive by remember { mutableStateOf(false) }
     var isKeyboardRequested by remember { mutableStateOf(false) }
     var isConsoleVisible by remember { mutableStateOf(false) }
@@ -1194,6 +1353,7 @@ fun GameScreen(
     var fpsMode by remember { mutableStateOf(FpsMode.NORMAL) }
     val listState = rememberLazyListState()
     val context = LocalContext.current
+    val gameActivity = context as? GameActivity
 
     // Handler siklus 3-klik tombol FPS
     val cycleFpsMode: () -> Unit = {
@@ -1201,17 +1361,17 @@ fun GameScreen(
             FpsMode.NORMAL -> {
                 fpsMode = FpsMode.PINNED
                 isConsoleVisible = false
-                Toast.makeText(context, "📌 FPS Di-Pin (Tetap tampil saat GUI disembunyikan)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "📌 FPS Pinned (Visible even when GUI is hidden)", Toast.LENGTH_SHORT).show()
             }
             FpsMode.PINNED -> {
                 fpsMode = FpsMode.SHOW_LOG
                 isConsoleVisible = true
-                Toast.makeText(context, "📜 Menampilkan Live Log Minecraft", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "📜 Showing Minecraft Live Logs", Toast.LENGTH_SHORT).show()
             }
             FpsMode.SHOW_LOG -> {
                 fpsMode = FpsMode.NORMAL
                 isConsoleVisible = false
-                Toast.makeText(context, "FPS Mode Normal (Mengikuti visibilitas GUI)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "FPS Normal Mode (Follows GUI visibility)", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -1383,6 +1543,45 @@ fun GameScreen(
             )
         }
 
+        // Floating Cyber REC Indicator (Tap to stop recording)
+        if (recordState.isRecording) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 10.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(Color(0xD9180808))
+                    .border(1.2.dp, Color(0xFFEF4444), RoundedCornerShape(20.dp))
+                    .clickable {
+                        onRequestStopRecord()
+                    }
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(9.dp)
+                            .background(Color(0xFFEF4444), CircleShape)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "REC ${recordState.formattedDuration}",
+                        color = Color.White,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "TAP TO STOP",
+                        color = Color(0xFFFCA5A5),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 9.sp
+                    )
+                }
+            }
+        }
+
         // 3. HUD / Live Debug Console Layer (Obsidian Cyber-Glass)
         if (isConsoleVisible) {
             Column(
@@ -1401,7 +1600,10 @@ fun GameScreen(
                 ) {
                     // Clickable FPS badge in console (Klik untuk membuka menu in-game)
                     Box(
-                        modifier = Modifier.clickable { showInGameSettingsDialog = true }
+                        modifier = Modifier.clickable {
+                            inGameSettingsInitialTab = 0
+                            showInGameSettingsDialog = true
+                        }
                     ) {
                         NuxBadge(
                             text = if (currentFps > 0) "$currentFps FPS" else "FPS: --",
@@ -1523,7 +1725,10 @@ fun GameScreen(
                                         if (isPinned) Color(0xFF38BDF8) else Color(0x3834D399),
                                         RoundedCornerShape(btn.cornerRadiusDp.dp)
                                     )
-                                    .clickable { showInGameSettingsDialog = true },
+                                    .clickable {
+                                        inGameSettingsInitialTab = 0
+                                        showInGameSettingsDialog = true
+                                    },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Row(
@@ -1634,6 +1839,53 @@ fun GameScreen(
                             }
                         }
                     }
+                    "RECORD" -> {
+                        // Virtual On-Screen Screen Recorder Button
+                        if (isControlVisible) {
+                            val isRec = recordState.isRecording
+                            Box(
+                                modifier = buttonModifier
+                                    .size(width = btn.widthDp.dp, height = btn.heightDp.dp)
+                                    .alpha(btn.opacity)
+                                    .background(
+                                        if (isRec) Color(0xCCEF4444) else Color(0x730A0E17),
+                                        RoundedCornerShape(btn.cornerRadiusDp.dp)
+                                    )
+                                    .border(
+                                        1.5.dp,
+                                        if (isRec) Color(0xFFEF4444) else Color(0xFFF59E0B),
+                                        RoundedCornerShape(btn.cornerRadiusDp.dp)
+                                    )
+                                    .clickable {
+                                        inGameSettingsInitialTab = 3
+                                        showInGameSettingsDialog = true
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(7.dp)
+                                            .background(
+                                                if (isRec) Color.White else Color(0xFFEF4444),
+                                                CircleShape
+                                            )
+                                    )
+                                    Spacer(modifier = Modifier.width(3.dp))
+                                    Text(
+                                        text = if (isRec) recordState.formattedDuration else "REC",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 10.sp,
+                                        maxLines = 1
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             } else {
                 // Regular Minecraft Touch Control Button or Joystick
@@ -1680,14 +1932,14 @@ fun GameScreen(
                                 .padding(18.dp)
                         ) {
                             Text(
-                                text = "KELUAR DARI MINECRAFT?",
+                                text = "EXIT MINECRAFT?",
                                 color = NuxColors.DarkGray,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 15.sp
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "Proses JVM Minecraft akan dihentikan dan Anda akan kembali ke menu launcher.",
+                                text = "The Minecraft JVM process will be stopped and you will return to the launcher.",
                                 color = NuxColors.GrayNeutral,
                                 fontSize = 12.sp,
                                 lineHeight = 16.sp
@@ -1706,7 +1958,7 @@ fun GameScreen(
                                     cornerRadius = 8.dp,
                                     modifier = Modifier.height(36.dp)
                                 ) {
-                                    Text("BATAL", fontWeight = FontWeight.Black, fontSize = 11.sp)
+                                    Text("CANCEL", fontWeight = FontWeight.Black, fontSize = 11.sp)
                                 }
                                 Spacer(modifier = Modifier.width(10.dp))
                                 NuxButton(
@@ -1720,7 +1972,7 @@ fun GameScreen(
                                     cornerRadius = 8.dp,
                                     modifier = Modifier.height(36.dp)
                                 ) {
-                                    Text("KELUAR ✕", fontWeight = FontWeight.Black, fontSize = 11.sp, color = Color.White)
+                                    Text("QUIT ✕", fontWeight = FontWeight.Black, fontSize = 11.sp, color = Color.White)
                                 }
                             }
                         }
@@ -1733,6 +1985,7 @@ fun GameScreen(
         InGameSettingsDialog(
             visible = showInGameSettingsDialog,
             onDismissRequest = { showInGameSettingsDialog = false },
+            initialTab = inGameSettingsInitialTab,
             currentFps = currentFps,
             instanceName = instanceName,
             mcVersion = mcVersion,
@@ -1786,8 +2039,26 @@ fun GameScreen(
             onOpenCustomGui = {
                 showInGameSettingsDialog = false
                 isCustomGuiEditorActive = true
+            },
+            isRecording = recordState.isRecording,
+            recordingDurationSeconds = recordState.durationSeconds,
+            onRequestStartRecord = { config ->
+                onRequestStartRecord(config)
+            },
+            onStopRecord = {
+                onRequestStopRecord()
+            },
+            onOpenPremium = {
+                showPremiumDialog = true
             }
         )
+
+        // Nux Premium Dialog in-game
+        if (showPremiumDialog) {
+            NuxPremiumDialog(
+                onDismissRequest = { showPremiumDialog = false }
+            )
+        }
         }
     }
 }

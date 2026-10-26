@@ -135,7 +135,7 @@ fun FloatingVoiceBar(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = if (isConnecting) "Menyambungkan..." else "$participantCount online",
+                        text = if (isConnecting) "Connecting..." else "$participantCount online",
                         color = Color(0xFFA1A1AA),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium
@@ -174,7 +174,7 @@ fun FloatingVoiceBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.OpenInFull,
-                    contentDescription = "Buka Room",
+                    contentDescription = "Open Room",
                     tint = Color.White,
                     modifier = Modifier.size(15.dp)
                 )
@@ -192,7 +192,7 @@ fun FloatingVoiceBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.CallEnd,
-                    contentDescription = "Keluar Room",
+                    contentDescription = "Leave Room",
                     tint = Color(0xFFF43F5E),
                     modifier = Modifier.size(16.dp)
                 )

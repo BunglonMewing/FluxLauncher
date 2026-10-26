@@ -34,8 +34,8 @@ object SkinUtils {
     val PRESET_CAPES = listOf(
         CapePreset("none", "Tanpa Cape", "Reset / Lepas cape", 0xFF6B7280),
         CapePreset("mojang_red", "Mojang Studios", "Klasik merah resmi Mojang", 0xFFEF4444),
-        CapePreset("anniversary_15", "15th Anniversary", "Creeper emas peringatan 15 tahun", 0xFF10B981),
-        CapePreset("migrator", "Migrator Cape", "Jubah biru kehormatan migrasi", 0xFF3B82F6),
+        CapePreset("anniversary_15", "15th Anniversary", "15th Anniversary Golden Creeper Cape", 0xFF10B981),
+        CapePreset("migrator", "Migrator Cape", "Migrator Blue Honor Cape", 0xFF3B82F6),
         CapePreset("cherry_blossom", "Cherry Blossom", "Motif sakura edisi 1.20", 0xFFEC4899),
         CapePreset("founders", "Founder's Cape", "Edisi emas pencipta", 0xFFF59E0B),
         CapePreset("vanilla", "Vanilla Cape", "Edisi Java & Bedrock bundle", 0xFF8B5CF6)
@@ -333,11 +333,11 @@ object SkinUtils {
                 FileOutputStream(targetFile).use { output ->
                     input.copyTo(output)
                 }
-            } ?: throw Exception("Gagal membaca file dari penyimpanan.")
+            } ?: throw Exception("Failed to read file from storage.")
 
             if (!validateSkinFile(targetFile)) {
                 targetFile.delete()
-                throw Exception("Format skin tidak valid. Ukuran harus 64x64 atau 64x32 piksel.")
+                throw Exception("Invalid skin format. Dimensions must be 64x64 or 64x32 pixels.")
             }
             invalidateHeadCache(accountId)
             targetFile
@@ -351,11 +351,11 @@ object SkinUtils {
                 FileOutputStream(targetFile).use { output ->
                     input.copyTo(output)
                 }
-            } ?: throw Exception("Gagal membaca file dari penyimpanan.")
+            } ?: throw Exception("Failed to read file from storage.")
 
             if (!validateCapeFile(targetFile)) {
                 targetFile.delete()
-                throw Exception("Format cape tidak valid. Ukuran harus 64x32 atau 128x64 piksel.")
+                throw Exception("Invalid cape format. Dimensions must be 64x32 or 128x64 pixels.")
             }
             targetFile
         }

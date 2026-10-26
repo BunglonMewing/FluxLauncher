@@ -11,12 +11,12 @@ object CrashUtils {
 
     fun getSignalName(signal: Int): String {
         return when (signal) {
-            4 -> "SIGILL (Instruksi CPU Tidak Didukung)"
+            4 -> "SIGILL (Illegal CPU Instruction)"
             6 -> "SIGABRT (Native Assertion / Abort)"
-            7 -> "SIGBUS (Kesalahan Bus Memori)"
-            8 -> "SIGFPE (Kesalahan Perhitungan Float)"
+            7 -> "SIGBUS (Bus Error)"
+            8 -> "SIGFPE (Floating Point Exception)"
             9 -> "SIGKILL (Dihentikan OS / Kehabisan RAM)"
-            11 -> "SIGSEGV (Akses Memori Ilegal / Segfault)"
+            11 -> "SIGSEGV (Illegal Memory Access / Segfault)"
             15 -> "SIGTERM (Permintaan Terminasi)"
             else -> "Signal $signal"
         }
@@ -24,31 +24,31 @@ object CrashUtils {
 
     fun getExitCodeDescription(exitCode: Int): String {
         return when (exitCode) {
-            0 -> "Selesai Normal (0)"
-            1 -> "Kesalahan Inisialisasi Mod / Java Exception (1)"
+            0 -> "Normal Exit (0)"
+            1 -> "Mod Initialization Error / Java Exception (1)"
             130 -> "Dihentikan Pengguna (SIGINT 130)"
             134 -> "Native Driver Abort (SIGABRT 134)"
-            137 -> "Kehabisan Memori RAM / OOM (SIGKILL 137)"
+            137 -> "Out of Memory / OOM (SIGKILL 137)"
             139 -> "Crash Driver Grafis / Segfault (SIGSEGV 139)"
-            -1 -> "Kegagalan Bootstrap Mesin Virtual (-1)"
-            else -> "Kode Keluar $exitCode"
+            -1 -> "Virtual Machine Bootstrap Failure (-1)"
+            else -> "Exit Code $exitCode"
         }
     }
 
-    const val CRASH_LOG_NOTE = "Untuk detail penyebabnya, silahkan periksa file log. Jika Anda tidak bisa menyelesaikan masalah sendiri, silakan kirim file log kepada seseorang atau tim yang dapat menganalisisnya. Jangan hanya mengambil screenshot dari layar saat ini, karena screenshot tidak bisa memberikan informasi teknis yang cukup untuk menyelesaikan masalah."
+    const val CRASH_LOG_NOTE = "For root cause details, please check the log file. If you cannot resolve the issue on your own, share the log file with someone or a support team who can analyze it. Avoid taking just a screenshot of this dialog, as screenshots lack sufficient technical details to diagnose."
 
     fun getExitMessage(exitCode: Int, isSignal: Boolean): String {
         return if (isSignal) {
             "JVM digugurkan karena sinyal fatal $exitCode (${getSignalName(exitCode)})."
         } else {
-            "JVM keluar dengan kode $exitCode (${getExitCodeDescription(exitCode)})."
+            "JVM process exited with code $exitCode (${getExitCodeDescription(exitCode)})."
         }
     }
 
     fun shareLogFile(context: Context, file: File) {
         try {
             if (!file.exists()) {
-                Toast.makeText(context, "File log tidak ditemukan.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Log file not found.", Toast.LENGTH_SHORT).show()
                 return
             }
 
@@ -66,9 +66,9 @@ object CrashUtils {
             }
             context.startActivity(chooser)
         } catch (e: ActivityNotFoundException) {
-            Toast.makeText(context, "Tidak ada aplikasi untuk membagikan file ini.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "No app found to share this file.", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(context, "Gagal membagikan file: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Failed to share file: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

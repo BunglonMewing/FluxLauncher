@@ -75,7 +75,7 @@ fun NuxMicrosoftAuthDialog(
     LaunchedEffect(deviceCode.userCode) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
         clipboard?.setPrimaryClip(ClipData.newPlainText("Microsoft User Code", deviceCode.userCode))
-        Toast.makeText(context, "Kode '${deviceCode.userCode}' telah disalin!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Code '${deviceCode.userCode}' copied!", Toast.LENGTH_SHORT).show()
     }
 
     // Polling Coroutine yang aktif selama dialog terbuka
@@ -109,7 +109,7 @@ fun NuxMicrosoftAuthDialog(
                         onFailure = { err ->
                             if (err !is CancellationException && !isCancelled) {
                                 withContext(Dispatchers.Main) {
-                                    onError(err.message ?: "Gagal memproses autentikasi Minecraft.")
+                                    onError(err.message ?: "Failed to process Minecraft authentication.")
                                 }
                             }
                         }
@@ -118,7 +118,7 @@ fun NuxMicrosoftAuthDialog(
                 onFailure = { err ->
                     if (err !is CancellationException && !isCancelled) {
                         withContext(Dispatchers.Main) {
-                            onError(err.message ?: "Otorisasi Microsoft gagal.")
+                            onError(err.message ?: "Microsoft authorization failed.")
                         }
                     }
                 }
@@ -185,14 +185,14 @@ fun NuxMicrosoftAuthDialog(
 
                     Column {
                         Text(
-                            text = "LOGIN AKUN MICROSOFT",
+                            text = "MICROSOFT ACCOUNT LOGIN",
                             color = NuxColors.DarkGray,
                             fontWeight = FontWeight.Black,
                             fontSize = 13.sp,
                             letterSpacing = 0.5.sp
                         )
                         Text(
-                            text = "Masuk dan konfirmasi langsung di jendela aman ini",
+                            text = "Sign in and authorize directly in this secure window",
                             color = NuxColors.GrayNeutral,
                             fontSize = 9.sp
                         )
@@ -212,14 +212,14 @@ fun NuxMicrosoftAuthDialog(
                             .clickable {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
                                 clipboard?.setPrimaryClip(ClipData.newPlainText("Microsoft User Code", deviceCode.userCode))
-                                Toast.makeText(context, "Kode '${deviceCode.userCode}' disalin!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Code '${deviceCode.userCode}' copied!", Toast.LENGTH_SHORT).show()
                             }
                             .padding(horizontal = 10.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = "KODE:",
+                            text = "CODE:",
                             color = NuxColors.GrayNeutral,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
@@ -233,7 +233,7 @@ fun NuxMicrosoftAuthDialog(
                         )
                         Icon(
                             imageVector = Icons.Outlined.ContentCopy,
-                            contentDescription = "Salin Kode",
+                            contentDescription = "Copy Code",
                             tint = Color(0xFF0078D4),
                             modifier = Modifier.size(13.dp)
                         )
@@ -256,7 +256,7 @@ fun NuxMicrosoftAuthDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.OpenInNew,
-                            contentDescription = "Buka di Browser Eksternal",
+                            contentDescription = "Open in External Browser",
                             tint = NuxColors.GrayNeutral,
                             modifier = Modifier.size(15.dp)
                         )
@@ -276,7 +276,7 @@ fun NuxMicrosoftAuthDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Close,
-                            contentDescription = "Tutup",
+                            contentDescription = "Close",
                             tint = NuxColors.GrayNeutral,
                             modifier = Modifier.size(15.dp)
                         )
@@ -363,7 +363,7 @@ fun NuxMicrosoftAuthDialog(
                 )
 
                 Text(
-                    text = "Klik 'Lanjutkan' di halaman atas setelah memasukkan kode",
+                    text = "Click 'Continue' on the page above after entering the code",
                     color = NuxColors.GrayNeutral,
                     fontSize = 9.sp
                 )

@@ -92,13 +92,15 @@ class OfflineYggdrasilServer(
         }
 
         try {
-            val socket = ServerSocket(preferredPort)
+            val loopback = java.net.InetAddress.getByName("127.0.0.1")
+            val socket = ServerSocket(preferredPort, 50, loopback)
+            socket.reuseAddress = true
             serverSocket = socket
             isRunning.set(true)
             activeInstance = this
 
             val port = socket.localPort
-            Log.i(TAG, "Offline Yggdrasil server listening on port $port")
+            Log.i(TAG, "Offline Yggdrasil server listening on 127.0.0.1:$port")
 
             executor.execute {
                 while (isRunning.get() && !socket.isClosed) {
@@ -120,6 +122,19 @@ class OfflineYggdrasilServer(
         }
     }
 
+    fun isAliveAndResponding(): Boolean {
+        val port = getPort()
+        if (port <= 0 || !isRunning.get()) return false
+        return try {
+            Socket().use { s ->
+                s.connect(java.net.InetSocketAddress("127.0.0.1", port), 800)
+                true
+            }
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     @Synchronized
     fun stop() {
         isRunning.set(false)
@@ -130,6 +145,9 @@ class OfflineYggdrasilServer(
         if (activeInstance == this) {
             activeInstance = null
         }
+        try {
+            executor.shutdownNow()
+        } catch (_: Exception) {}
         Log.i(TAG, "Offline Yggdrasil server stopped")
     }
 

@@ -51,9 +51,9 @@ data class GameCrashInfo(
 
     fun getMainMessage(): String {
         return when {
-            isLauncherCrash -> "Peluncur mengalami kesalahan tak terduga (Uncaught Exception)."
+            isLauncherCrash -> "Launcher encountered an unexpected uncaught exception."
             isSignal -> "JVM dihentikan karena sinyal fatal $exitCode (${CrashUtils.getSignalName(exitCode)})."
-            else -> "JVM keluar dengan kode $exitCode (${CrashUtils.getExitCodeDescription(exitCode)})."
+            else -> "JVM exited with code $exitCode (${CrashUtils.getExitCodeDescription(exitCode)})."
         }
     }
 }
@@ -172,7 +172,7 @@ object CrashManager {
                     liveLogs.takeLast(80).joinToString("\n")
                 }
                 else -> {
-                    "JVM keluar dengan kode $exitCode (Signal: $isSignal).\nPeriksa file log untuk rincian lebih lanjut."
+                    "JVM exited with code $exitCode (Signal: $isSignal).\nCheck log file for further details."
                 }
             }
 
@@ -293,7 +293,7 @@ object CrashManager {
                             recentHsErrFile.readLines().take(80).joinToString("\n")
                         }
                         tail.isNotBlank() -> tail
-                        else -> "Proses game terhenti mendadak (Kemungkinan dihentikan sistem karena kehabisan RAM atau crash driver native)."
+                        else -> "Game process terminated abruptly (likely killed by system due to Out Of Memory or native GPU driver crash)."
                     }
 
                     var exitCode = when {

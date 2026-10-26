@@ -94,7 +94,7 @@ fun NuxDownloadProgressDialog(
                                 letterSpacing = 1.2.sp
                             )
                             Text(
-                                text = "Mengunduh Game",
+                                text = "Downloading Game",
                                 color = Color.White,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 16.sp,
@@ -204,7 +204,7 @@ fun NuxDownloadProgressDialog(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = message.ifBlank { "Menyiapkan dependensi game & checksum..." },
+                        text = message.ifBlank { "Preparing game dependencies & checksums..." },
                         color = Color(0xFFA1A1AA),
                         fontWeight = FontWeight.Medium,
                         fontSize = 11.5.sp,

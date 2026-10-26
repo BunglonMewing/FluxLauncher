@@ -50,7 +50,7 @@ class MinecraftDownloader(
             val manifest = manifestRes.getOrNull() ?: return@withContext Result.failure(manifestRes.exceptionOrNull()!!)
 
             val versionItem = manifest.versions.find { it.id == instance.mcVersion }
-                ?: return@withContext Result.failure(IllegalStateException("Versi ${instance.mcVersion} tidak ditemukan di manifest Mojang"))
+                ?: return@withContext Result.failure(IllegalStateException("Version ${instance.mcVersion} not found in Mojang manifest"))
 
             onProgress(0.10f, "Membaca konfigurasi versi...")
             val detailRes = MojangManifestService.getVersionDetail(versionItem.url)
@@ -82,7 +82,7 @@ class MinecraftDownloader(
                         val frac = if (total > 0) (bytesRead.toFloat() / total).coerceIn(0f, 1f) else 0f
                         val p = 0.20f + frac * 0.15f
                         val percent = (frac * 100).toInt()
-                        onProgress(p, String.format(java.util.Locale.US, "Mengunduh client Minecraft (%.1f / %.1f MB - %d%%)...", mbRead, mbTotal, percent))
+                        onProgress(p, String.format(java.util.Locale.US, "Downloading Minecraft client (%.1f / %.1f MB - %d%%)...", mbRead, mbTotal, percent))
                     }
                 )
             }
@@ -120,7 +120,7 @@ class MinecraftDownloader(
                             }
                             val count = downloadedLibs.incrementAndGet()
                             val p = 0.20f + (count.toFloat() / totalLibs) * 0.40f
-                            onProgress(p, "Mengunduh libraries ($count/$totalLibs)...")
+                            onProgress(p, "Downloading libraries ($count/$totalLibs)...")
                         }
                     }
                 }
@@ -167,7 +167,7 @@ class MinecraftDownloader(
                                     }
                                     val count = downloadedAssets.incrementAndGet()
                                     val p = 0.65f + (count.toFloat() / totalObjects) * 0.27f
-                                    onProgress(p, "Mengunduh aset game ($count/$totalObjects)...")
+                                    onProgress(p, "Downloading game assets ($count/$totalObjects)...")
                                 }
                             }
                         }
@@ -180,7 +180,7 @@ class MinecraftDownloader(
 
             // 5. Download Fabric Loader & Libraries if instance uses Fabric
             if (instance.loader.equals("fabric", ignoreCase = true)) {
-                onProgress(0.92f, "Menyiapkan Fabric Loader...")
+                onProgress(0.92f, "Setting up Fabric Loader...")
                 var loaderVer = instance.loaderVersion
                 if (loaderVer.isBlank()) {
                     val loaderListRes = com.israadev.nuxlauncher.core.fabric.FabricService.getFabricLoaders(instance.mcVersion)
@@ -189,14 +189,14 @@ class MinecraftDownloader(
                         loaderVer = list.first()
                         instance.loaderVersion = loaderVer
                     } else {
-                        throw IllegalStateException("Tidak dapat menemukan Fabric loader untuk versi ${instance.mcVersion}")
+                        throw IllegalStateException("Cannot find Fabric loader for version ${instance.mcVersion}")
                     }
                 }
 
-                onProgress(0.94f, "Mengambil profil Fabric ($loaderVer)...")
+                onProgress(0.94f, "Fetching Fabric profile ($loaderVer)...")
                 val profileRes = com.israadev.nuxlauncher.core.fabric.FabricService.getFabricProfile(instance.mcVersion, loaderVer)
                 val profile = profileRes.getOrNull()
-                    ?: throw IllegalStateException("Gagal memuat profil Fabric: ${profileRes.exceptionOrNull()?.message}")
+                    ?: throw IllegalStateException("Failed to load Fabric profile: ${profileRes.exceptionOrNull()?.message}")
 
                 // Simpan file profil Fabric
                 val fabricJsonFile = File(versionDir, "fabric-$loaderVer.json")
@@ -230,13 +230,13 @@ class MinecraftDownloader(
                                             } catch (_: Exception) {}
                                         }
                                         if (!success) {
-                                            android.util.Log.w("MinecraftDownloader", "Gagal mengunduh library Fabric: ${lib.name}")
+                                            android.util.Log.w("MinecraftDownloader", "Failed to download Fabric library: ${lib.name}")
                                         }
                                     }
                                 }
                                 val count = downloadedFabric.incrementAndGet()
                                 val p = 0.94f + (count.toFloat() / totalFabricLibs) * 0.05f
-                                onProgress(p, "Mengunduh library Fabric ($count/$totalFabricLibs)...")
+                                onProgress(p, "Downloading Fabric libraries ($count/$totalFabricLibs)...")
                             }
                         }
                     }
@@ -244,7 +244,7 @@ class MinecraftDownloader(
                 }
             }
 
-            onProgress(1.0f, "Instalasi selesai!")
+            onProgress(1.0f, "Installation complete!")
             instance.isDownloaded = true
             InstanceManager.updateInstance(context, instance)
             Result.success(Unit)

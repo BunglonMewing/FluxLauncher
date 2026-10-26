@@ -74,7 +74,7 @@ object MicrosoftWardrobeService {
             "Menace" -> "Menace Cape"
             "Yearn" -> "Yearn Cape"
             "Common" -> "Common Cape"
-            null, "" -> "Jubah Resmi Minecraft"
+            null, "" -> "Official Minecraft Cape"
             else -> "$alias Cape"
         }
     }
@@ -163,7 +163,7 @@ object MicrosoftWardrobeService {
                             id = "mojang_active_cape",
                             state = "ACTIVE",
                             url = sessionCapeUrl,
-                            alias = "Jubah Aktif Minecraft"
+                            alias = "Active Minecraft Cape"
                         )
                     )
                 }
@@ -183,7 +183,7 @@ object MicrosoftWardrobeService {
                         id = "mojang_active_cape",
                         state = "ACTIVE",
                         url = sessionCapeUrl,
-                        alias = "Jubah Aktif Minecraft"
+                        alias = "Active Minecraft Cape"
                     )
                 )
             )
@@ -191,7 +191,7 @@ object MicrosoftWardrobeService {
         }
 
         // Jika semua gagal, teruskan exception
-        Result.failure(firstResult.exceptionOrNull() ?: IOException("Gagal memuat jubah Minecraft."))
+        Result.failure(firstResult.exceptionOrNull() ?: IOException("Failed to load Minecraft capes."))
     }
 
     private fun fetchProfileWithToken(accessToken: String): Result<MicrosoftProfileResponse> {
@@ -206,7 +206,7 @@ object MicrosoftWardrobeService {
                 if (!resp.isSuccessful) {
                     return Result.failure(IOException("HTTP ${resp.code}: ${resp.message}"))
                 }
-                val body = resp.body?.string() ?: return Result.failure(IOException("Respon profil kosong"))
+                val body = resp.body?.string() ?: return Result.failure(IOException("Profile response was empty"))
                 val profile = gson.fromJson(body, MicrosoftProfileResponse::class.java)
                 Result.success(profile)
             }
@@ -238,7 +238,7 @@ object MicrosoftWardrobeService {
         if (res.isSuccess) {
             Result.success(currentAcc)
         } else {
-            Result.failure(res.exceptionOrNull() ?: IOException("Gagal mengubah jubah."))
+            Result.failure(res.exceptionOrNull() ?: IOException("Failed to update cape."))
         }
     }
 
@@ -298,7 +298,7 @@ object MicrosoftWardrobeService {
         if (res.isSuccess) {
             Result.success(currentAcc)
         } else {
-            Result.failure(res.exceptionOrNull() ?: IOException("Gagal mengunggah skin."))
+            Result.failure(res.exceptionOrNull() ?: IOException("Failed to upload skin."))
         }
     }
 

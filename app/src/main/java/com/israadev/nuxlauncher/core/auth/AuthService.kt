@@ -147,7 +147,7 @@ object AuthService {
                         }
                         val isSuccess = errorJson.get("success").asBooleanOrDefault(true)
                         if (!isSuccess) {
-                            val msg = errorJson.get("message").asStringOrNull() ?: "Permintaan ditolak oleh server."
+                            val msg = errorJson.get("message").asStringOrNull() ?: "Request rejected by server."
                             return@withContext Result.failure(Exception(msg))
                         }
                     }
@@ -160,7 +160,7 @@ object AuthService {
                 // Tangani kode error gateway Cloudflare (502, 503, 504, 520, 521, 522, 524, 530)
                 if (response.code in listOf(502, 503, 504, 520, 521, 522, 524, 530)) {
                     return@withContext Result.failure(
-                        Exception("Server sedang sibuk atau mengalami kendala gateway (kode: ${response.code}). Harap coba beberapa saat lagi.")
+                        Exception("Server is busy or experiencing gateway issues (code: ${response.code}). Please try again shortly.")
                     )
                 }
 
@@ -169,14 +169,14 @@ object AuthService {
                 lastError = Exception(
                     when (e) {
                         is java.net.SocketTimeoutException -> "Koneksi ke server timeout. Periksa koneksi internet kamu dan coba lagi."
-                        is java.net.UnknownHostException -> "Tidak dapat menemukan server autentikasi. Pastikan HP terhubung ke internet."
-                        else -> e.message ?: "Gagal terhubung ke server autentikasi"
+                        is java.net.UnknownHostException -> "Cannot connect to authentication server. Please check your internet connection."
+                        else -> e.message ?: "Failed to connect to authentication server"
                     }
                 )
             }
         }
 
-        Result.failure(lastError ?: Exception("Gagal menghubungi server autentikasi"))
+        Result.failure(lastError ?: Exception("Failed to reach authentication server"))
     }
 
     /**
@@ -249,7 +249,7 @@ object AuthService {
             }
         }
 
-        Result.failure(lastError ?: Exception("Gagal menghubungi server autentikasi"))
+        Result.failure(lastError ?: Exception("Failed to reach authentication server"))
     }
 
     /**
@@ -461,13 +461,13 @@ object AuthService {
 
                     if (!isSuccess || !isActivated || errorMsg != null) {
                         return@withContext Result.failure(
-                            Exception(errorMsg ?: "Key lisensi tidak valid atau sudah digunakan oleh akun lain.")
+                            Exception(errorMsg ?: "License key is invalid or already registered to another account.")
                         )
                     }
 
                     val tier = obj.get("tier").asStringOrNull() ?: "lifetime"
                     val expiresAt = obj.get("expiresAt").asStringOrNull() ?: "lifetime"
-                    val msg = obj.get("message").asStringOrNull() ?: "Aktivasi berhasil!"
+                    val msg = obj.get("message").asStringOrNull() ?: "Activation successful!"
                     Result.success(
                         ActivateResult(
                             success = true,
@@ -541,7 +541,7 @@ object AuthService {
         return result.mapCatching { json ->
             val obj = gson.fromJson(json, JsonObject::class.java)
             obj.get("message")?.asString
-                ?: "Link reset kata sandi telah dikirim oleh Firebase ke email kamu. Silakan periksa Inbox atau folder SPAM kamu."
+                ?: "Password reset link has been sent to your email. Please check your Inbox or SPAM folder."
         }
     }
 
@@ -614,7 +614,7 @@ object AuthService {
                 } else {
                     null
                 }
-            } ?: return@withContext Result.failure(Exception("Gagal membaca file gambar dari galeri"))
+            } ?: return@withContext Result.failure(Exception("Failed to read image file from gallery"))
 
             val requestBody = bytes.toRequestBody("image/jpeg".toMediaType())
 
@@ -679,7 +679,7 @@ object AuthService {
                 android.util.Log.w("AuthService", "ImgBB upload error: ${e.message}")
             }
 
-            return@withContext Result.failure(Exception("Gagal mengunggah foto profil. Silakan periksa koneksi internet."))
+            return@withContext Result.failure(Exception("Failed to upload profile picture. Please check your internet connection."))
         } catch (e: Exception) {
             Result.failure(e)
         }

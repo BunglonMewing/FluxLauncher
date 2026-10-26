@@ -52,6 +52,8 @@ import com.israadev.nuxlauncher.ui.dialogs.NuxPremiumDialog
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.israadev.nuxlauncher.ui.theme.NuxSizes
 import com.israadev.nuxlauncher.ui.theme.resp
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.trStr
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -131,13 +133,13 @@ fun AccountsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = tr("common.back"),
                             tint = NuxColors.ForestGreen,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "DASHBOARD",
+                            text = tr("dashboard.title"),
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.sp,
@@ -149,7 +151,7 @@ fun AccountsScreen(
                 Spacer(modifier = Modifier.width(10.dp))
 
                 Text(
-                    text = "PROFIL MINECRAFT",
+                    text = tr("accounts.title"),
                     color = Color.White,
                     fontWeight = FontWeight.Black,
                     fontSize = 14.sp,
@@ -166,7 +168,7 @@ fun AccountsScreen(
                     .border(1.dp, NuxColors.ForestGreen.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
                     .clickable {
                         if (accounts.size >= 2 && launcherUser?.isActivated != true) {
-                            premiumInitialPrompt = "Pengguna Free dibatasi maksimal 2 akun tersimpan. Upgrade ke NUX Premium untuk menyimpan dan beralih antarakun tanpa batas!"
+                            premiumInitialPrompt = "Free users are limited to 2 saved accounts. Upgrade to NUX Premium to save and switch unlimited accounts!"
                             showPremiumDialog = true
                         } else {
                             showAddAccountDialog = true
@@ -177,7 +179,7 @@ fun AccountsScreen(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "+ TAMBAH AKUN",
+                        text = tr("accounts.btn_add_account"),
                         color = NuxColors.ForestGreen,
                         fontWeight = FontWeight.Bold,
                         fontSize = 9.5.sp,
@@ -233,7 +235,7 @@ fun AccountsScreen(
                                         .background(NuxColors.ForestGreen, CircleShape)
                                 )
                                 Text(
-                                    text = "PROFIL AKTIF",
+                                    text = tr("accounts.active_profile"),
                                     color = NuxColors.ForestGreen,
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
@@ -308,9 +310,9 @@ fun AccountsScreen(
                             Spacer(modifier = Modifier.height(1.dp))
                             Text(
                                 text = when (acc.safeAccountType) {
-                                    "microsoft" -> "Akun Resmi Microsoft"
-                                    "elyby" -> "Akun Terverifikasi Ely.by"
-                                    else -> "Akun Offline / Lokal"
+                                    "microsoft" -> tr("accounts.type_microsoft")
+                                    "elyby" -> tr("accounts.type_elyby")
+                                    else -> tr("accounts.type_offline")
                                 },
                                 color = NuxColors.GrayNeutral,
                                 fontSize = 9.sp,
@@ -329,20 +331,20 @@ fun AccountsScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.Person,
-                            contentDescription = "Belum ada akun",
+                            contentDescription = tr("accounts.no_profile_selected"),
                             tint = NuxColors.GrayNeutral,
                             modifier = Modifier.size(42.dp)
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                         Text(
-                            text = "Belum Ada Profil",
+                            text = tr("accounts.no_profile_selected"),
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Tambahkan akun untuk mulai bermain.",
+                            text = tr("accounts.no_profile_hint"),
                             color = NuxColors.GrayNeutral,
                             fontSize = 10.sp
                         )
@@ -373,7 +375,7 @@ fun AccountsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "DAFTAR AKUN (${accounts.size})",
+                            text = "${tr("accounts.account_roster")} (${accounts.size})",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 11.sp,
@@ -381,7 +383,7 @@ fun AccountsScreen(
                         )
 
                         Text(
-                            text = "Pilih untuk berganti profil",
+                            text = tr("accounts.switch_hint"),
                             color = NuxColors.GrayNeutral,
                             fontSize = 9.sp
                         )
@@ -398,7 +400,7 @@ fun AccountsScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "Belum ada akun tersimpan.",
+                                text = tr("accounts.empty_accounts"),
                                 color = NuxColors.GrayNeutral,
                                 fontSize = 11.sp
                             )
@@ -517,7 +519,7 @@ fun AccountsScreen(
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Default.Check,
-                                                    contentDescription = "Aktif",
+                                                    contentDescription = tr("common.selected"),
                                                     tint = Color(0xFF09090B),
                                                     modifier = Modifier.size(13.dp)
                                                 )
@@ -540,7 +542,7 @@ fun AccountsScreen(
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
-                                                    text = "GUNAKAN",
+                                                    text = tr("common.select"),
                                                     color = Color.White,
                                                     fontSize = 8.5.sp,
                                                     fontWeight = FontWeight.Bold
@@ -560,7 +562,7 @@ fun AccountsScreen(
                                                     } else {
                                                         Toast.makeText(
                                                             context,
-                                                            "Skin & Jubah akun Ely.by dikelola langsung di https://account.ely.by",
+                                                            "Skins & Capes for Ely.by accounts are managed directly at https://account.ely.by",
                                                             Toast.LENGTH_LONG
                                                         ).show()
                                                     }
@@ -569,7 +571,7 @@ fun AccountsScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Outlined.Checkroom,
-                                                contentDescription = "Skin & Cape",
+                                                contentDescription = tr("accounts.btn_wardrobe"),
                                                 tint = if (isSkinChangeAllowed) Color(0xFF71717A) else Color(0xFF3F3F46),
                                                 modifier = Modifier.size(14.dp)
                                             )
@@ -585,7 +587,7 @@ fun AccountsScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Outlined.DeleteOutline,
-                                                contentDescription = "Hapus",
+                                                contentDescription = tr("common.delete"),
                                                 tint = Color(0xFF71717A),
                                                 modifier = Modifier.size(14.dp)
                                             )
@@ -622,7 +624,7 @@ fun AccountsScreen(
             onDismiss = { showAddAccountDialog = false },
             onAccountAdded = { newAcc ->
                 AccountManager.addAccount(context, newAcc)
-                Toast.makeText(context, "Akun ${newAcc.username} berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Account ${newAcc.username} added successfully!", Toast.LENGTH_SHORT).show()
                 showAddAccountDialog = false
             }
         )
@@ -660,14 +662,14 @@ fun AccountsScreen(
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "Hapus Akun?",
+                    text = tr("accounts.delete_confirm_title"),
                     color = NuxColors.DarkGray,
                     fontWeight = FontWeight.Black,
                     fontSize = 15.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Hapus profil '${target.username}' (${target.safeAccountType.uppercase()}) dari perangkat?",
+                    text = tr("accounts.delete_confirm_desc", target.username),
                     color = NuxColors.GrayNeutral,
                     fontSize = 11.sp,
                     lineHeight = 15.sp
@@ -683,19 +685,19 @@ fun AccountsScreen(
                         contentColor = NuxColors.DarkGray,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("BATAL", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        Text(tr("common.cancel"), fontWeight = FontWeight.Bold, fontSize = 11.sp)
                     }
                     NuxButton(
                         onClick = {
                             AccountManager.removeAccount(context, target)
-                            Toast.makeText(context, "Profil '${target.username}' dihapus", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, trStr("common.success"), Toast.LENGTH_SHORT).show()
                             accountToDelete = null
                         },
                         backgroundColor = NuxColors.ErrorRed,
                         contentColor = Color.White,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("HAPUS", fontWeight = FontWeight.Black, fontSize = 11.sp)
+                        Text(tr("common.delete"), fontWeight = FontWeight.Black, fontSize = 11.sp)
                     }
                 }
             }
@@ -743,7 +745,7 @@ private fun AddAccountModal(
     LaunchedEffect(elyLoginState) {
         val state = elyLoginState
         if (state is ElyByLoginState.Success) {
-            Toast.makeText(context, "Akun ${state.account.username} berhasil ditambahkan!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Account ${state.account.username} added successfully!", Toast.LENGTH_SHORT).show()
             ElyByAuthService.resetState()
             onDismiss()
         }
@@ -771,7 +773,7 @@ private fun AddAccountModal(
             ) {
                 Column {
                     Text(
-                        text = "HUBUNGKAN AKUN",
+                        text = tr("accounts.dialog_add_title"),
                         color = NuxColors.DarkGray,
                         fontWeight = FontWeight.Black,
                         fontSize = 14.sp,
@@ -779,7 +781,7 @@ private fun AddAccountModal(
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Pilih penyedia profil Minecraft yang ingin kamu gunakan",
+                        text = "Select your preferred Minecraft profile provider",
                         color = NuxColors.GrayNeutral,
                         fontSize = 10.sp
                     )
@@ -797,7 +799,7 @@ private fun AddAccountModal(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "Tutup",
+                        contentDescription = tr("common.close"),
                         tint = NuxColors.GrayNeutral,
                         modifier = Modifier.size(14.dp)
                     )
@@ -813,9 +815,9 @@ private fun AddAccountModal(
             ) {
                 // Card 1: Offline
                 ProviderCard(
-                    title = "Offline",
-                    badge = "Gratis",
-                    description = "Main lokal tanpa login",
+                    title = tr("accounts.tab_offline"),
+                    badge = "Free",
+                    description = "Play offline without login",
                     isSelected = selectedTab == "offline",
                     accentColor = NuxColors.ForestGreen,
                     icon = Icons.Outlined.Person,
@@ -825,9 +827,9 @@ private fun AddAccountModal(
 
                 // Card 2: Microsoft
                 ProviderCard(
-                    title = "Microsoft",
-                    badge = "Resmi",
-                    description = "Akun resmi Mojang",
+                    title = tr("accounts.tab_microsoft"),
+                    badge = "Official",
+                    description = "Official Mojang account",
                     isSelected = selectedTab == "microsoft",
                     accentColor = Color(0xFF0078D4),
                     icon = Icons.Outlined.Language,
@@ -837,9 +839,9 @@ private fun AddAccountModal(
 
                 // Card 3: Ely.by
                 ProviderCard(
-                    title = "Ely.by",
+                    title = tr("accounts.tab_elyby"),
                     badge = "Browser",
-                    description = "Skin & jubah online",
+                    description = "Online skins & capes",
                     isSelected = selectedTab == "elyby",
                     accentColor = Color(0xFFA855F7),
                     icon = Icons.Outlined.Public,
@@ -894,7 +896,7 @@ private fun AddAccountModal(
                             NuxTextField(
                                 value = offlineName,
                                 onValueChange = { offlineName = it },
-                                placeholder = "Masukkan nama pemain (Steve/Alex...)"
+                                placeholder = tr("accounts.offline_username_placeholder")
                             )
                         }
 
@@ -903,7 +905,7 @@ private fun AddAccountModal(
                             onClick = {
                                 val cleanName = offlineName.trim()
                                 if (cleanName.isBlank()) {
-                                    Toast.makeText(context, "Username tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Username cannot be empty", Toast.LENGTH_SHORT).show()
                                     return@NuxButton
                                 }
                                 val offlineUuid = UUID.nameUUIDFromBytes("OfflinePlayer:$cleanName".toByteArray(Charsets.UTF_8))
@@ -933,7 +935,7 @@ private fun AddAccountModal(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "SIMPAN",
+                                text = tr("accounts.btn_save_account"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 11.sp,
                                 letterSpacing = 0.5.sp
@@ -953,14 +955,14 @@ private fun AddAccountModal(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Otorisasi Akun Microsoft / Xbox Live",
+                                text = "Microsoft / Xbox Live Authorization",
                                 color = Color(0xFF0078D4),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 12.sp
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Jendela otorisasi web dibuka langsung di launcher tanpa perlu keluar aplikasi.",
+                                text = "Secure web authorization window opens directly inside the launcher.",
                                 color = NuxColors.GrayNeutral,
                                 fontSize = 10.sp
                             )
@@ -989,7 +991,7 @@ private fun AddAccountModal(
                                             msDeviceCode = dc
                                         },
                                         onFailure = { err ->
-                                            msErrorMsg = err.message ?: "Gagal memulai otorisasi Microsoft."
+                                            msErrorMsg = err.message ?: "Failed to start Microsoft authorization."
                                         }
                                     )
                                 }
@@ -1003,11 +1005,11 @@ private fun AddAccountModal(
                             if (isMsLoading) {
                                 CircularProgressIndicator(modifier = Modifier.size(12.dp), color = Color.White, strokeWidth = 2.dp)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("MENGHUBUNGI...", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                Text("CONNECTING...", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                             } else {
                                 Icon(imageVector = Icons.Outlined.Language, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("MASUK DENGAN MICROSOFT", fontWeight = FontWeight.Black, fontSize = 10.sp)
+                                Text("SIGN IN WITH MICROSOFT", fontWeight = FontWeight.Black, fontSize = 10.sp)
                             }
                         }
                     }
@@ -1034,7 +1036,7 @@ private fun AddAccountModal(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = state.statusMsg.ifBlank { "Menunggu otorisasi di browser Ely.by..." },
+                                            text = state.statusMsg.ifBlank { "Waiting for authorization in Ely.by browser..." },
                                             color = NuxColors.DarkGray,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold
@@ -1043,7 +1045,7 @@ private fun AddAccountModal(
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            text = "Kode: ${dc.userCode}",
+                                            text = "Code: ${dc.userCode}",
                                             color = Color(0xFFA855F7),
                                             fontSize = 13.sp,
                                             fontFamily = FontFamily.Monospace,
@@ -1051,12 +1053,12 @@ private fun AddAccountModal(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         Text(
-                                            text = "(Salin)",
+                                            text = "(Copy)",
                                             color = NuxColors.GrayNeutral,
                                             fontSize = 10.sp,
                                             modifier = Modifier.clickable {
                                                 clipboardManager.setText(AnnotatedString(dc.userCode))
-                                                Toast.makeText(context, "Kode disalin", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Code copied", Toast.LENGTH_SHORT).show()
                                             }
                                         )
                                     }
@@ -1072,7 +1074,7 @@ private fun AddAccountModal(
                                         cornerRadius = NuxSizes.CornerRadiusSmall,
                                         modifier = Modifier.height(36.dp)
                                     ) {
-                                        Text("BUKA LAGI", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                        Text("REOPEN", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                     }
                                     NuxButton(
                                         onClick = {
@@ -1083,7 +1085,7 @@ private fun AddAccountModal(
                                         cornerRadius = NuxSizes.CornerRadiusSmall,
                                         modifier = Modifier.height(36.dp)
                                     ) {
-                                        Text("BATAL", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                        Text("CANCEL", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                     }
                                 }
                             }
@@ -1099,14 +1101,14 @@ private fun AddAccountModal(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "Otorisasi Akun Ely.by",
+                                        text = "Ely.by Account Authorization",
                                         color = Color(0xFFA855F7),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.sp
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "Browser dibuka otomatis untuk konfirmasi akun Ely.by tanpa mengetik password.",
+                                        text = "Browser will open automatically to authorize your Ely.by account.",
                                         color = NuxColors.GrayNeutral,
                                         fontSize = 10.sp
                                     )
@@ -1135,7 +1137,7 @@ private fun AddAccountModal(
                                             strokeWidth = 2.dp
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("MENGHUBUNGI...", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                        Text("CONNECTING...", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                                     } else {
                                         Icon(
                                             imageVector = Icons.Outlined.OpenInBrowser,
@@ -1144,7 +1146,7 @@ private fun AddAccountModal(
                                             modifier = Modifier.size(15.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("BUKA BROWSER ELY.BY", fontWeight = FontWeight.Black, fontSize = 10.sp)
+                                        Text("OPEN ELY.BY BROWSER", fontWeight = FontWeight.Black, fontSize = 10.sp)
                                     }
                                 }
                             }

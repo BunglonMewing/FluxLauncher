@@ -162,7 +162,7 @@ public class CallbackBridge {
                             if (clipboard != null) {
                                 ClipData clip = ClipData.newPlainText("NuxLauncher", copyContent);
                                 clipboard.setPrimaryClip(clip);
-                                android.widget.Toast.makeText(finalCtx, "Teks error berhasil disalin ke papan klip", android.widget.Toast.LENGTH_SHORT).show();
+                                android.widget.Toast.makeText(finalCtx, "Error text copied to clipboard", android.widget.Toast.LENGTH_SHORT).show();
                             }
                         } catch (Throwable t) {
                             Log.e("CallbackBridge", "Failed to setPrimaryClip on UI thread", t);

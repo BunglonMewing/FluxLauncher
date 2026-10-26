@@ -37,7 +37,7 @@ object ZLNativeInvoker {
                     }
                     ctx.startActivity(intent)
                 } catch (e: Exception) {
-                    Toast.makeText(ctx, "Gagal membuka link: $link", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, "Failed to open link: $link", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -74,7 +74,7 @@ object ZLNativeInvoker {
                         else -> ClipData.newPlainText("NuxLauncher", data)
                     }
                     clipboard?.setPrimaryClip(clip)
-                    Toast.makeText(ctx, "Teks error berhasil disalin ke papan klip", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, "Error text copied to clipboard", Toast.LENGTH_SHORT).show()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

@@ -32,6 +32,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.trStr
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
 import com.israadev.nuxlauncher.core.ai.AIChatMessage
 import com.israadev.nuxlauncher.core.ai.NuxAIEngine
 import com.israadev.nuxlauncher.core.crash.AICrashAnalyzer
@@ -53,6 +56,7 @@ fun AIScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
 
     val instances by InstanceManager.instances.collectAsState()
     val settings by SettingsManager.settings.collectAsState()
@@ -110,7 +114,7 @@ fun AIScreen(
         }
 
         if (!AICrashQuotaManager.hasQuota(context, settings)) {
-            Toast.makeText(context, "Batas kuota gratis AI hari ini telah habis (reset 00:00 WIB).", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Today's free AI quota has been reached (resets at 00:00).", Toast.LENGTH_LONG).show()
             streamState = AIStreamState.QuotaExceeded
             return
         }
@@ -154,7 +158,7 @@ fun AIScreen(
                         val index = chatMessages.indexOfFirst { it.id == aiMsgId }
                         if (index != -1) {
                             chatMessages[index] = chatMessages[index].copy(
-                                content = "⚠️ **Terjadi Kesalahan:** ${state.errorMessage}\n\nSilakan coba tanyakan kembali atau periksa koneksi internet."
+                                content = "⚠️ **Error Occurred:** ${state.errorMessage}\n\nPlease try again or check your internet connection."
                             )
                         }
                     }
@@ -162,7 +166,7 @@ fun AIScreen(
                         val index = chatMessages.indexOfFirst { it.id == aiMsgId }
                         if (index != -1) {
                             chatMessages[index] = chatMessages[index].copy(
-                                content = "⏱️ **Kuota Harian AI Telah Habis (5/5)**\n\nBatas penggunaan gratis harian telah tercapai. Kuota akan otomatis di-reset pada jam 00:00 WIB besok. Anda juga dapat menggunakan Custom API Key pribadi di Pengaturan untuk akses Unlimited."
+                                content = "⏱️ **Daily AI Quota Reached (5/5)**\n\nDaily free usage limit has been reached. Quota will reset tomorrow. You can also configure a custom API key in Settings for unlimited access."
                             )
                         }
                     }
@@ -220,7 +224,7 @@ fun AIScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = tr("common.back"),
                             tint = Color.White,
                             modifier = Modifier.size(15.dp)
                         )
@@ -254,7 +258,7 @@ fun AIScreen(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "NUX AI ASSISTANT",
+                                text = tr("ai.title"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White,
@@ -289,7 +293,7 @@ fun AIScreen(
                             }
                         }
                         Text(
-                            text = "Diagnosa Mod, Log Crash, Analisis Renderer & Konsultasi Minecraft",
+                            text = tr("ai.subtitle"),
                             fontSize = 8.5.sp,
                             color = Color(0xFF94A3B8)
                         )
@@ -303,7 +307,7 @@ fun AIScreen(
                 ) {
                     // Badge Kuota
                     val isUnlimited = remainingQuota < 0
-                    val quotaText = if (isUnlimited) "UNLIMITED" else "KUOTA: $remainingQuota/5"
+                    val quotaText = if (isUnlimited) tr("ai.quota_unlimited") else tr("ai.quota_badge", remainingQuota)
                     val quotaColor = when {
                         isUnlimited -> Color(0xFF38BDF8)
                         remainingQuota > 1 -> Color(0xFF10B981)
@@ -350,7 +354,7 @@ fun AIScreen(
                                 )
                                 Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    text = "BERSIHKAN",
+                                    text = tr("common.clear"),
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFFCBD5E1)
@@ -389,13 +393,13 @@ fun AIScreen(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = "INSTANCE AKTIF: ",
+                            text = tr("ai.active_instance_label"),
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF94A3B8)
                         )
                         Text(
-                            text = currentInstance?.name ?: "(Tidak ada)",
+                            text = currentInstance?.name ?: "(None)",
                             fontSize = 8.5.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White,
@@ -424,7 +428,7 @@ fun AIScreen(
                                     .padding(horizontal = 6.dp, vertical = 2.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("GANTI", fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF38BDF8))
+                                Text(tr("ai.btn_switch"), fontSize = 7.5.sp, fontWeight = FontWeight.Bold, color = Color(0xFF38BDF8))
                                 Icon(Icons.Outlined.ArrowDropDown, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(12.dp))
                             }
 
@@ -491,7 +495,7 @@ fun AIScreen(
                         Spacer(modifier = Modifier.height(10.dp))
 
                         Text(
-                            text = "Selamat Datang di NUX AI Assistant",
+                            text = tr("ai.welcome_title"),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White
@@ -500,7 +504,7 @@ fun AIScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = "AI ini otomatis membaca metadata versi Minecraft, daftar mod, konfigurasi renderer grafis, dan log game terakhir Anda untuk memberikan analisa paling akurat.",
+                            text = tr("ai.welcome_desc"),
                             fontSize = 9.5.sp,
                             color = Color(0xFF94A3B8),
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -561,7 +565,7 @@ fun AIScreen(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = "NUX AI DIAGNOSTICIAN",
+                                                    text = tr("ai.agent_name"),
                                                     fontWeight = FontWeight.Black,
                                                     fontSize = 7.5.sp,
                                                     color = Color(0xFF34D399),
@@ -572,14 +576,14 @@ fun AIScreen(
                                                 if (msg.content.isNotBlank() && !isStreamingThis) {
                                                     Icon(
                                                         imageVector = Icons.Outlined.ContentCopy,
-                                                        contentDescription = "Salin",
+                                                        contentDescription = "Copy",
                                                         tint = Color(0xFF64748B),
                                                         modifier = Modifier
                                                             .size(13.dp)
                                                             .clickable {
                                                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                                 clipboard.setPrimaryClip(ClipData.newPlainText("AI Answer", msg.content))
-                                                                Toast.makeText(context, "Respon AI disalin ke clipboard!", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, trStr("common.copied"), Toast.LENGTH_SHORT).show()
                                                             }
                                                     )
                                                 }
@@ -607,7 +611,7 @@ fun AIScreen(
                                                     )
                                                     Spacer(modifier = Modifier.width(6.dp))
                                                     Text(
-                                                        text = "AI sedang membaca konteks & berpikir...",
+                                                        text = tr("ai.thinking"),
                                                         fontSize = 8.5.sp,
                                                         color = Color(0xFF94A3B8)
                                                     )
@@ -651,7 +655,7 @@ fun AIScreen(
                 ) {
                     if (currentInputText.isEmpty()) {
                         Text(
-                            text = "Tanyakan seputar mod, error log, renderer, atau masalah game...",
+                            text = tr("ai.input_placeholder"),
                             fontSize = 8.5.sp,
                             color = Color(0xFF64748B),
                             maxLines = 1,
@@ -701,7 +705,7 @@ fun AIScreen(
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "KIRIM",
+                                text = tr("ai.btn_send"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 8.sp,
                                 color = if (currentInputText.isNotBlank()) Color.White else Color(0xFF64748B)
@@ -709,7 +713,7 @@ fun AIScreen(
                             Spacer(modifier = Modifier.width(3.dp))
                             Icon(
                                 imageVector = Icons.Outlined.Send,
-                                contentDescription = "Kirim",
+                                contentDescription = tr("ai.btn_send"),
                                 tint = if (currentInputText.isNotBlank()) Color.White else Color(0xFF64748B),
                                 modifier = Modifier.size(9.dp)
                             )

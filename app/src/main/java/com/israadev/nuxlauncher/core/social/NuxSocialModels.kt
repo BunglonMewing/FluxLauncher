@@ -16,7 +16,8 @@ data class NuxUserProfile(
     val platform: String = "android",
     val isAndroid: Boolean = true,
     val isVerified: Boolean = false,
-    val isPremium: Boolean = false
+    val isPremium: Boolean = false,
+    val inGameInstance: String? = null
 ) {
     val isOnline: Boolean get() = status == "online" || status == "in_game"
     val isInGame: Boolean get() = status == "in_game"
@@ -41,7 +42,8 @@ data class NuxFriend(
     val isAndroid: Boolean = false,
     val isTyping: Boolean = false,
     val isVerified: Boolean = false,
-    val isPremium: Boolean = false
+    val isPremium: Boolean = false,
+    val inGameInstance: String? = null
 ) {
     val isAccepted: Boolean get() = status == "accepted"
     val isPendingSent: Boolean get() = status == "pending_sent"

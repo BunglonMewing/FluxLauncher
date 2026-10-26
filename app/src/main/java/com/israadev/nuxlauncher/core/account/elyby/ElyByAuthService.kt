@@ -115,7 +115,7 @@ object ElyByAuthService {
                 val dcRes = startDeviceCodeFlow()
                 if (dcRes.isFailure) {
                     _loginState.value = ElyByLoginState.Error(
-                        dcRes.exceptionOrNull()?.message ?: "Gagal memulai otorisasi Ely.by."
+                        dcRes.exceptionOrNull()?.message ?: "Failed to initiate Ely.by authorization."
                     )
                     return@launch
                 }
@@ -155,12 +155,12 @@ object ElyByAuthService {
                     _loginState.value = ElyByLoginState.Success(cachedAcc)
                 } else {
                     _loginState.value = ElyByLoginState.Error(
-                        pollRes.exceptionOrNull()?.message ?: "Otorisasi Ely.by gagal."
+                        pollRes.exceptionOrNull()?.message ?: "Ely.by authorization failed."
                     )
                 }
             } catch (e: Exception) {
                 _loginState.value = ElyByLoginState.Error(
-                    e.message ?: "Terjadi kesalahan saat login Ely.by."
+                    e.message ?: "An error occurred during Ely.by login."
                 )
             }
         }
@@ -184,7 +184,7 @@ object ElyByAuthService {
             httpClient.newCall(request).execute().use { response ->
                 val bodyStr = response.body?.string() ?: ""
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(Exception("Gagal memulai login Ely.by Device Code (${response.code}): $bodyStr"))
+                    return@withContext Result.failure(Exception("Failed to initiate Ely.by Device Code login (${response.code}): $bodyStr"))
                 }
 
                 val json = JsonParser.parseString(bodyStr).asJsonObject
@@ -225,13 +225,13 @@ object ElyByAuthService {
 
         while (System.currentTimeMillis() - startTime < timeoutMs) {
             if (isCancelled()) {
-                return@withContext Result.failure(Exception("Login dibatalkan oleh pengguna."))
+                return@withContext Result.failure(Exception("Login was cancelled by user."))
             }
 
             delay(pollIntervalMs)
 
             if (isCancelled()) {
-                return@withContext Result.failure(Exception("Login dibatalkan oleh pengguna."))
+                return@withContext Result.failure(Exception("Login was cancelled by user."))
             }
 
             try {
@@ -285,7 +285,7 @@ object ElyByAuthService {
         val token = accessToken ?: return@withContext Result.failure(Exception("Waktu otorisasi Ely.by habis."))
 
         // Step 2: Ambil info akun (username & email)
-        onStatusUpdate("Mengambil informasi akun Ely.by...")
+        onStatusUpdate("Fetching Ely.by account details...")
         val infoReq = Request.Builder()
             .url("https://account.ely.by/api/account/v1/info")
             .header("Authorization", "Bearer $token")
@@ -297,7 +297,7 @@ object ElyByAuthService {
         httpClient.newCall(infoReq).execute().use { response ->
             val bodyStr = response.body?.string() ?: ""
             if (!response.isSuccessful) {
-                return@withContext Result.failure(Exception("Gagal mengambil info akun Ely.by (${response.code})"))
+                return@withContext Result.failure(Exception("Failed to retrieve Ely.by account info (${response.code})"))
             }
             val json = JsonParser.parseString(bodyStr).asJsonObject
             username = json.get("username")?.asString ?: "Player"
@@ -305,7 +305,7 @@ object ElyByAuthService {
         }
 
         // Step 3: Ambil Minecraft UUID dari server Ely.by
-        onStatusUpdate("Mengambil UUID Minecraft untuk $username...")
+        onStatusUpdate("Fetching Minecraft UUID for $username...")
         var playerUuid = UUID.nameUUIDFromBytes("OfflinePlayer:$username".toByteArray(Charsets.UTF_8)).toString().replace("-", "")
         try {
             val uuidReq = Request.Builder()
@@ -401,13 +401,13 @@ object ElyByAuthService {
                 }
 
                 if (!response.isSuccessful || json == null) {
-                    return@withContext Result.failure(Exception("Gagal login ke Ely.by (HTTP ${response.code}): $bodyStr"))
+                    return@withContext Result.failure(Exception("Failed to log in to Ely.by (HTTP ${response.code}): $bodyStr"))
                 }
 
                 val accessToken = json.get("accessToken")?.asString ?: "0"
                 val resClientToken = json.get("clientToken")?.asString ?: clientToken
                 val selectedProfile = json.getAsJsonObject("selectedProfile")
-                    ?: return@withContext Result.failure(Exception("Profil Ely.by tidak ditemukan dalam respon."))
+                    ?: return@withContext Result.failure(Exception("Ely.by profile not found in response."))
 
                 val profileId = selectedProfile.get("id")?.asString ?: UUID.randomUUID().toString().replace("-", "")
                 val profileName = selectedProfile.get("name")?.asString ?: usernameOrEmail.trim()

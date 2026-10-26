@@ -48,6 +48,7 @@ import com.israadev.nuxlauncher.ui.components.NuxCard
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.israadev.nuxlauncher.ui.theme.NuxSizes
 import com.israadev.nuxlauncher.ui.theme.resp
+import com.israadev.nuxlauncher.core.lang.tr
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -218,7 +219,7 @@ fun AuthScreen(
                         )
 
                         Text(
-                            text = "Mainkan Minecraft Java Edition di perangkat Android kamu dengan performa maksimal, kontrol kustom, dan room suara.",
+                            text = "Play Minecraft Java Edition on your Android device with maximum performance, custom controls, and voice rooms.",
                             color = Color(0xFFD4D4D8),
                             fontSize = 11.sp,
                             lineHeight = 15.sp,
@@ -242,7 +243,7 @@ fun AuthScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             GamingFeaturePill(text = "CUSTOM GUI", icon = Icons.Default.TouchApp, modifier = Modifier.weight(1f))
-                            GamingFeaturePill(text = "RESMI & AMAN", icon = Icons.Default.Shield, modifier = Modifier.weight(1f))
+                            GamingFeaturePill(text = "OFFICIAL & SAFE", icon = Icons.Default.Shield, modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -307,7 +308,7 @@ fun AuthScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "MASUK KE AKUN",
+                                    text = tr("auth.sign_in"),
                                     fontSize = 11.5.sp,
                                     fontWeight = if (isLogin) FontWeight.Black else FontWeight.SemiBold,
                                     color = if (isLogin) Color.White else Color(0xFF71717A)
@@ -334,7 +335,7 @@ fun AuthScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "DAFTAR BARU",
+                                    text = tr("auth.sign_up"),
                                     fontSize = 11.5.sp,
                                     fontWeight = if (isRegister) FontWeight.Black else FontWeight.SemiBold,
                                     color = if (isRegister) Color.White else Color(0xFF71717A)
@@ -391,7 +392,7 @@ fun AuthScreen(
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(Icons.Default.Info, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(16.dp))
                             Text(
-                                text = "Kode belum masuk ke Inbox? Pastikan untuk memeriksa folder SPAM / JUNK email Anda. Harap tunggu cooldown sebelum meminta ulang.",
+                                text = "Code didn't arrive in Inbox? Make sure to check your SPAM / JUNK email folder. Please wait for cooldown before requesting again.",
                                 color = Color(0xFFFCD34D),
                                 fontSize = 10.5.sp,
                                 fontWeight = FontWeight.SemiBold
@@ -409,16 +410,16 @@ fun AuthScreen(
                         AuthInputField(
                             value = email,
                             onValueChange = { email = it; errorMessage = "" },
-                            label = "Alamat Email",
-                            placeholder = "nama@gmail.com",
+                            label = tr("auth.email_label"),
+                            placeholder = tr("auth.email_placeholder"),
                             leadingIcon = Icons.Default.Email
                         )
 
                         AuthInputField(
                             value = password,
                             onValueChange = { password = it; errorMessage = "" },
-                            label = "Kata Sandi",
-                            placeholder = "Minimal 6 karakter",
+                            label = tr("auth.password_label"),
+                            placeholder = tr("auth.password_placeholder"),
                             leadingIcon = Icons.Default.Lock,
                             isPassword = true,
                             isPasswordVisible = isPasswordVisible,
@@ -430,7 +431,7 @@ fun AuthScreen(
                             horizontalArrangement = Arrangement.End
                         ) {
                             Text(
-                                text = "Lupa Kata Sandi?",
+                                text = tr("auth.forgot_password"),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.ForestGreen,
@@ -445,7 +446,7 @@ fun AuthScreen(
                         NuxButton(
                             onClick = {
                                 if (email.isBlank() || password.isBlank()) {
-                                    errorMessage = "Email dan kata sandi wajib diisi."
+                                    errorMessage = "Email and password are required."
                                     return@NuxButton
                                 }
                                 isLoading = true
@@ -465,7 +466,7 @@ fun AuthScreen(
                                             onAuthSuccess()
                                         },
                                         onFailure = { err ->
-                                            errorMessage = err.message ?: "Gagal masuk. Periksa kembali akun Anda."
+                                            errorMessage = err.message ?: "Sign in failed. Please check your credentials."
                                         }
                                     )
                                 }
@@ -478,7 +479,7 @@ fun AuthScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Icon(Icons.Default.SportsEsports, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                                 Text(
-                                    text = if (isLoading) "MEMVERIFIKASI..." else "MASUK & MAINKAN",
+                                    text = if (isLoading) tr("common.loading") else tr("auth.btn_sign_in"),
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
                                     color = Color.White
@@ -499,8 +500,8 @@ fun AuthScreen(
                                 AuthInputField(
                                     value = username,
                                     onValueChange = { username = it; errorMessage = "" },
-                                    label = "Username Player",
-                                    placeholder = "NuxGamer",
+                                    label = tr("auth.username_label"),
+                                    placeholder = tr("auth.username_placeholder"),
                                     leadingIcon = Icons.Default.Person
                                 )
                             }
@@ -508,8 +509,8 @@ fun AuthScreen(
                                 AuthInputField(
                                     value = email,
                                     onValueChange = { email = it; errorMessage = "" },
-                                    label = "Alamat Email",
-                                    placeholder = "nama@gmail.com",
+                                    label = tr("auth.email_label"),
+                                    placeholder = tr("auth.email_placeholder"),
                                     leadingIcon = Icons.Default.Email
                                 )
                             }
@@ -523,8 +524,8 @@ fun AuthScreen(
                                 AuthInputField(
                                     value = password,
                                     onValueChange = { password = it; errorMessage = "" },
-                                    label = "Kata Sandi",
-                                    placeholder = "Min. 6 karakter",
+                                    label = tr("auth.password_label"),
+                                    placeholder = tr("auth.password_placeholder"),
                                     leadingIcon = Icons.Default.Lock,
                                     isPassword = true,
                                     isPasswordVisible = isPasswordVisible,
@@ -535,8 +536,8 @@ fun AuthScreen(
                                 AuthInputField(
                                     value = confirmPassword,
                                     onValueChange = { confirmPassword = it; errorMessage = "" },
-                                    label = "Konfirmasi Sandi",
-                                    placeholder = "Ulangi sandi",
+                                    label = tr("auth.confirm_password_label"),
+                                    placeholder = tr("auth.confirm_password_placeholder"),
                                     leadingIcon = Icons.Default.Lock,
                                     isPassword = true,
                                     isPasswordVisible = isPasswordVisible,
@@ -550,19 +551,19 @@ fun AuthScreen(
                                 val cleanUser = username.trim()
                                 val cleanEmail = email.trim()
                                 if (cleanUser.isEmpty()) {
-                                    errorMessage = "Username wajib diisi."
+                                    errorMessage = "Username is required."
                                     return@NuxButton
                                 }
                                 if (!cleanEmail.contains("@")) {
-                                    errorMessage = "Format email tidak valid."
+                                    errorMessage = "Invalid email format."
                                     return@NuxButton
                                 }
                                 if (password.length < 6) {
-                                    errorMessage = "Kata sandi minimal 6 karakter."
+                                    errorMessage = "Password must be at least 6 characters."
                                     return@NuxButton
                                 }
                                 if (password != confirmPassword) {
-                                    errorMessage = "Konfirmasi kata sandi tidak cocok."
+                                    errorMessage = "Password confirmation does not match."
                                     return@NuxButton
                                 }
 
@@ -583,7 +584,7 @@ fun AuthScreen(
                                             onAuthSuccess()
                                         },
                                         onFailure = { err ->
-                                            errorMessage = err.message ?: "Gagal mendaftarkan akun."
+                                            errorMessage = err.message ?: "Failed to register account."
                                         }
                                     )
                                 }
@@ -596,7 +597,7 @@ fun AuthScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Icon(Icons.Default.PersonAdd, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                                 Text(
-                                    text = if (isLoading) "MENDAFTARKAN AKUN..." else "DAFTAR AKUN BARU",
+                                    text = if (isLoading) tr("common.loading") else tr("auth.btn_create_account"),
                                     fontWeight = FontWeight.Black,
                                     fontSize = 12.sp,
                                     color = Color.White
@@ -632,7 +633,7 @@ fun AuthScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = "AKUN: ${user?.username ?: "User"}",
+                                    text = "ACCOUNT: ${user?.username ?: "User"}",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color(0xFF4ADE80)
@@ -645,7 +646,7 @@ fun AuthScreen(
                             }
 
                             Text(
-                                text = "Ganti Akun",
+                                text = "Switch Account",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF38BDF8),
@@ -659,13 +660,13 @@ fun AuthScreen(
 
                         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(
-                                text = "Key Lisensi NUX Android",
+                                text = tr("auth.activate_title"),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
                             Text(
-                                text = "Format: XXXX-XXXX-XXXX-XXXX (16 karakter)",
+                                text = "Format: XXXX-XXXX-XXXX-XXXX (16 characters)",
                                 fontSize = 10.sp,
                                 color = Color(0xFF94A3B8)
                             )
@@ -681,7 +682,7 @@ fun AuthScreen(
                         ) {
                             if (licenseKey.isEmpty()) {
                                 Text(
-                                    text = "PASTE KEY LISENSI KAMU DI SINI",
+                                    text = "PASTE YOUR LICENSE KEY HERE",
                                     color = Color(0xFF64748B),
                                     fontSize = 12.sp,
                                     fontFamily = FontFamily.Monospace,
@@ -728,7 +729,7 @@ fun AuthScreen(
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(13.dp))
-                                    Text("Beli Key", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF38BDF8))
+                                    Text("Buy Key", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF38BDF8))
                                 }
                             }
 
@@ -743,12 +744,12 @@ fun AuthScreen(
                                         rawKey
                                     }
                                     if (uid.isEmpty()) {
-                                        errorMessage = "Sesi akun tidak valid. Silakan login kembali."
+                                        errorMessage = "Invalid session. Please sign in again."
                                         mode = AuthMode.LOGIN
                                         return@NuxButton
                                     }
                                     if (key.length < 8) {
-                                        errorMessage = "Format key tidak valid."
+                                        errorMessage = "Invalid license key format."
                                         return@NuxButton
                                     }
 
@@ -767,7 +768,7 @@ fun AuthScreen(
                                                     errorMessage = if (actResult.message.isNotBlank()) {
                                                         actResult.message
                                                     } else {
-                                                        "Key lisensi tidak valid atau sudah digunakan oleh akun lain."
+                                                        "License key is invalid or already registered to another account."
                                                     }
                                                     return@fold
                                                 }
@@ -782,7 +783,7 @@ fun AuthScreen(
                                                 onAuthSuccess()
                                             },
                                             onFailure = { err ->
-                                                errorMessage = err.message ?: "Aktivasi gagal. Periksa kembali key kamu."
+                                                errorMessage = err.message ?: "Activation failed. Please check your license key."
                                             }
                                         )
                                     }
@@ -794,7 +795,7 @@ fun AuthScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Icon(Icons.Default.Key, contentDescription = null, tint = Color.White, modifier = Modifier.size(15.dp))
                                     Text(
-                                        text = if (isLoading) "AKTIVASI..." else "AKTIFKAN SEKARANG",
+                                        text = if (isLoading) tr("common.loading") else tr("auth.btn_activate"),
                                         fontWeight = FontWeight.Black,
                                         fontSize = 11.sp,
                                         color = Color.White
@@ -805,8 +806,6 @@ fun AuthScreen(
                     }
 
                     // ==========================================
-                    // 5. FORGOT PASSWORD (EMAIL)
-                    // ==========================================
                     // 5. FORGOT PASSWORD (EMAIL RESET VIA FIREBASE)
                     // ==========================================
                     AuthMode.FORGOT_PASSWORD_EMAIL -> {
@@ -815,19 +814,19 @@ fun AuthScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp),
                             modifier = Modifier.clickable { mode = AuthMode.LOGIN }
                         ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color(0xFF94A3B8), modifier = Modifier.size(15.dp))
-                            Text("Kembali ke Login", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF94A3B8))
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = tr("common.back"), tint = Color(0xFF94A3B8), modifier = Modifier.size(15.dp))
+                            Text(tr("auth.btn_back_to_login"), fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color(0xFF94A3B8))
                         }
 
                         Text(
-                            text = "Reset Kata Sandi Akun",
+                            text = "Reset Account Password",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Black,
                             color = Color.White
                         )
 
                         Text(
-                            text = "Masukkan alamat email yang terdaftar. Firebase akan mengirimkan tautan (link) resmi ke email kamu untuk membuat kata sandi baru tanpa perlu kode OTP.",
+                            text = "Enter your registered email address. Firebase will send an official link to your email to create a new password without needing an OTP code.",
                             fontSize = 11.sp,
                             color = Color(0xFF94A3B8),
                             lineHeight = 16.sp
@@ -836,7 +835,7 @@ fun AuthScreen(
                         AuthInputField(
                             value = email,
                             onValueChange = { email = it; errorMessage = "" },
-                            label = "Email Akun Terdaftar",
+                            label = "Registered Email Address",
                             placeholder = "email_kamu@gmail.com",
                             leadingIcon = Icons.Default.Email
                         )
@@ -845,7 +844,7 @@ fun AuthScreen(
                             onClick = {
                                 val cleanEmail = email.trim()
                                 if (!cleanEmail.contains("@")) {
-                                    errorMessage = "Format email tidak valid."
+                                    errorMessage = "Invalid email format."
                                     return@NuxButton
                                 }
 
@@ -860,7 +859,7 @@ fun AuthScreen(
                                             mode = AuthMode.LOGIN
                                         },
                                         onFailure = { err ->
-                                            errorMessage = err.message ?: "Gagal mengirim link reset password."
+                                            errorMessage = err.message ?: "Failed to send password reset link."
                                         }
                                     )
                                 }
@@ -872,7 +871,7 @@ fun AuthScreen(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Icon(Icons.Default.Send, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                                 Text(
-                                    text = if (isLoading) "MENGIRIM LINK..." else "KIRIM LINK RESET PASSWORD",
+                                    text = if (isLoading) "SENDING LINK..." else "SEND PASSWORD RESET LINK",
                                     fontWeight = FontWeight.Black,
                                     fontSize = 12.sp,
                                     color = Color.White

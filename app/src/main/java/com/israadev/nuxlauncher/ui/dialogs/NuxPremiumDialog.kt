@@ -54,13 +54,14 @@ private data class PremiumFeatureItem(
 )
 
 private val PREMIUM_FEATURES = listOf(
-    PremiumFeatureItem(Icons.Outlined.Mic, "Voice Rooms Real-Time", "Masuk dan buat ruang obrolan suara mabar berlatensi rendah (LiveKit WebRTC)."),
-    PremiumFeatureItem(Icons.Outlined.AllInclusive, "Unlimited Game Instances", "Buat profil Minecraft dan modpack tanpa batas (Pengguna Free dibatasi maks 3)."),
-    PremiumFeatureItem(Icons.Outlined.VideoLibrary, "Custom Video Hero Banner", "Pasang video MP4 kustom sebagai latar belakang bergerak di dashboard launcher."),
-    PremiumFeatureItem(Icons.Outlined.WorkspacePremium, "Lencana Profil VIP Eksklusif", "Tampilan lencana Cyber Golden / Emerald VIP di profil, header, dan chat mabar."),
-    PremiumFeatureItem(Icons.Outlined.Science, "Akses Versi Snapshot & Beta", "Bebas unduh dan mainkan build Snapshot terbaru, Old Beta, dan Old Alpha."),
-    PremiumFeatureItem(Icons.Outlined.People, "Multi-Account Switcher Bebas", "Simpan dan beralih antarakun tanpa batas (Pengguna Free dibatasi maks 2)."),
-    PremiumFeatureItem(Icons.Outlined.Speed, "Turbo Download Multi-Thread", "Akselerasi unduhan aset dan pustaka dengan 48 parallel worker threads.")
+    PremiumFeatureItem(Icons.Outlined.Videocam, "Built-in Screen Recorder", "Record high-FPS Minecraft gameplay with internal audio directly to your gallery."),
+    PremiumFeatureItem(Icons.Outlined.Mic, "Voice Rooms Real-Time", "Join and create low-latency multiplayer voice rooms (LiveKit WebRTC)."),
+    PremiumFeatureItem(Icons.Outlined.AllInclusive, "Unlimited Game Instances", "Create unlimited Minecraft instances and modpacks (Free users limited to 3)."),
+    PremiumFeatureItem(Icons.Outlined.VideoLibrary, "Custom Video Hero Banner", "Set custom MP4 videos as animated backgrounds on the launcher dashboard."),
+    PremiumFeatureItem(Icons.Outlined.WorkspacePremium, "Exclusive Premium Profile Badge", "Cyber Golden / Emerald Premium badge in profile, header, and multiplayer chat."),
+    PremiumFeatureItem(Icons.Outlined.Science, "Snapshot & Beta Versions Access", "Freely download and play latest Snapshot builds, Old Beta, and Old Alpha."),
+    PremiumFeatureItem(Icons.Outlined.People, "Multi-Account Switcher", "Save and switch unlimited accounts (Free users limited to 2)."),
+    PremiumFeatureItem(Icons.Outlined.Speed, "Turbo Multi-Thread Downloader", "Accelerate asset and library downloads with 48 parallel worker threads.")
 )
 
 private fun formatTimestamp(timestamp: Long?): String {
@@ -92,10 +93,10 @@ private fun formatExpiry(expiresAt: String?): Pair<String, String> {
                 Pair(dateStr, "Masa Aktif Berakhir")
             }
         } else {
-            Pair(expiresAt, "Aktif")
+            Pair(expiresAt, "Active")
         }
     } catch (_: Exception) {
-        Pair(expiresAt ?: "Aktif", "Aktif")
+        Pair(expiresAt ?: "Active", "Active")
     }
 }
 
@@ -116,7 +117,7 @@ fun NuxPremiumDialog(
     var isActivating by remember { mutableStateOf(false) }
     var activationError by remember { mutableStateOf<String?>(null) }
     var activationSuccess by remember { mutableStateOf<String?>(null) }
-    var showRedeemBoxForVip by remember { mutableStateOf(false) }
+    var showRedeemBoxForPremium by remember { mutableStateOf(false) }
 
     // Live subscription info fetched from server
     var subscriptionInfo by remember { mutableStateOf<SubscriptionInfo?>(null) }
@@ -229,16 +230,16 @@ fun NuxPremiumDialog(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             NuxBadge(
-                                text = if (isUserPremium) "VIP AKTIF" else "UPGRADE",
+                                text = if (isUserPremium) "PREMIUM ACTIVE" else "UPGRADE",
                                 backgroundColor = if (isUserPremium) themeAccentColor.copy(alpha = 0.25f) else Color(0xFFF59E0B).copy(alpha = 0.2f),
                                 textColor = if (isUserPremium) themeAccentColor else Color(0xFFFBBF24)
                             )
                         }
                         Text(
                             text = if (isUserPremium)
-                                "Keanggotaan VIP aktif • Buka 7 fitur eksklusif, Voice Room, dan slot tanpa batas"
+                                "Premium Membership active • All 7 exclusive features, Voice Rooms, & unlimited slots unlocked"
                             else
-                                "Buka 7 fitur eksklusif, Voice Room mabar, dan slot tanpa batas",
+                                "Unlock all 7 exclusive features, multiplayer Voice Rooms, and unlimited slots",
                             color = NuxColors.GrayNeutral,
                             fontSize = 8.5.sp
                         )
@@ -256,7 +257,7 @@ fun NuxPremiumDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "Tutup",
+                        contentDescription = "Close",
                         tint = NuxColors.GrayNeutral,
                         modifier = Modifier.size(14.dp)
                     )
@@ -307,7 +308,7 @@ fun NuxPremiumDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "7 FITUR EKSKLUSIF NUX PREMIUM:",
+                            text = "7 EXCLUSIVE NUX PREMIUM FEATURES:",
                             color = NuxColors.GrayNeutral,
                             fontSize = 8.5.sp,
                             fontWeight = FontWeight.Black,
@@ -315,7 +316,7 @@ fun NuxPremiumDialog(
                         )
                         if (isUserPremium) {
                             Text(
-                                text = "SEMUA AKTIF ✓",
+                                text = "ALL ACTIVE ✓",
                                 color = NuxColors.MintGreen,
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Black,
@@ -383,7 +384,7 @@ fun NuxPremiumDialog(
                                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                                             ) {
                                                 Text(
-                                                    text = "AKTIF",
+                                                    text = "ACTIVE",
                                                     color = NuxColors.MintGreen,
                                                     fontSize = 6.5.sp,
                                                     fontWeight = FontWeight.Black
@@ -426,9 +427,9 @@ fun NuxPremiumDialog(
                         val activatedDateStr = formatTimestamp(effectiveActivatedAt)
 
                         val tierDisplayName = when (activeTier) {
-                            "monthly" -> "VIP 1 BULAN (BULANAN)"
-                            "yearly" -> "VIP 1 TAHUN (TAHUNAN)"
-                            else -> "VIP LIFETIME (PERMANEN)"
+                            "monthly" -> "MONTHLY PREMIUM (1 MONTH)"
+                            "yearly" -> "YEARLY PREMIUM (1 YEAR)"
+                            else -> "LIFETIME PREMIUM (PERMANENT)"
                         }
 
                         // Outer Double-Bezel Frame
@@ -487,7 +488,7 @@ fun NuxPremiumDialog(
                                                 letterSpacing = 0.5.sp
                                             )
                                             Text(
-                                                text = "Status: Terverifikasi di Server NUX",
+                                                text = "Status: Verified on NUX Server",
                                                 color = NuxColors.GrayNeutral,
                                                 fontSize = 7.sp
                                             )
@@ -509,7 +510,7 @@ fun NuxPremiumDialog(
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = "AKTIF",
+                                                text = "ACTIVE",
                                                 color = NuxColors.MintGreen,
                                                 fontSize = 7.5.sp,
                                                 fontWeight = FontWeight.Black
@@ -526,7 +527,7 @@ fun NuxPremiumDialog(
                                     // Bento 1: Masa Berlaku / Expire
                                     BentoDetailItem(
                                         icon = Icons.Outlined.Schedule,
-                                        label = "MASA BERLAKU",
+                                        label = "VALIDITY",
                                         primaryValue = expiryDateStr,
                                         secondaryValue = expiryRemainingStr,
                                         accentColor = themeAccentColor,
@@ -536,7 +537,7 @@ fun NuxPremiumDialog(
                                     // Bento 2: Tanggal Aktivasi
                                     BentoDetailItem(
                                         icon = Icons.Outlined.Verified,
-                                        label = "TERAKTIVASI PADA",
+                                        label = "ACTIVATED ON",
                                         primaryValue = activatedDateStr,
                                         secondaryValue = "Server Verified",
                                         accentColor = NuxColors.MintGreen,
@@ -551,7 +552,7 @@ fun NuxPremiumDialog(
                                     // Bento 3: Akun Pemilik
                                     BentoDetailItem(
                                         icon = Icons.Outlined.AccountCircle,
-                                        label = "AKUN TERTAUT",
+                                        label = "LINKED ACCOUNT",
                                         primaryValue = "@${launcherUser?.username ?: "User"}",
                                         secondaryValue = "UID: ${launcherUser?.uid?.take(10) ?: "-"}...",
                                         accentColor = Color(0xFF38BDF8),
@@ -591,14 +592,14 @@ fun NuxPremiumDialog(
                                                 if (!effectiveKey.isNullOrBlank()) {
                                                     Icon(
                                                         imageVector = Icons.Outlined.ContentCopy,
-                                                        contentDescription = "Salin",
+                                                        contentDescription = "Copy",
                                                         tint = NuxColors.GrayNeutral,
                                                         modifier = Modifier
                                                             .size(10.dp)
                                                             .clickable {
                                                                 val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                                 cm.setPrimaryClip(ClipData.newPlainText("License Key", effectiveKey))
-                                                                Toast.makeText(context, "Key disalin ke clipboard", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, "Key copied to clipboard", Toast.LENGTH_SHORT).show()
                                                             }
                                                     )
                                                 }
@@ -641,7 +642,7 @@ fun NuxPremiumDialog(
                                             )
                                             Spacer(modifier = Modifier.width(5.dp))
                                             Text(
-                                                text = "7 Fitur Eksklusif VIP Aktif Sepenuhnya",
+                                                text = "All 7 Premium Exclusive Features Active",
                                                 color = Color.White,
                                                 fontSize = 7.5.sp,
                                                 fontWeight = FontWeight.Bold
@@ -663,7 +664,7 @@ fun NuxPremiumDialog(
                                         .height(26.dp)
                                         .background(Color(0xFF1F2432), RoundedCornerShape(6.dp))
                                         .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(6.dp))
-                                        .clickable { showRedeemBoxForVip = !showRedeemBoxForVip },
+                                        .clickable { showRedeemBoxForPremium = !showRedeemBoxForPremium },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -675,7 +676,7 @@ fun NuxPremiumDialog(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = if (showRedeemBoxForVip) "SEMBUNYIKAN FORM TUKAR KEY" else "TUKAR / PERPANJANG LICENSE KEY",
+                                            text = if (showRedeemBoxForPremium) "HIDE KEY REDEEM FORM" else "REDEEM / EXTEND LICENSE KEY",
                                             color = Color.White,
                                             fontSize = 8.sp,
                                             fontWeight = FontWeight.Black
@@ -687,7 +688,7 @@ fun NuxPremiumDialog(
 
                         // Form input redeem opsional untuk VIP yang ingin upgrade ke Lifetime atau tukar key
                         AnimatedVisibility(
-                            visible = showRedeemBoxForVip,
+                            visible = showRedeemBoxForPremium,
                             enter = fadeIn() + expandVertically(),
                             exit = fadeOut() + shrinkVertically()
                         ) {
@@ -700,7 +701,7 @@ fun NuxPremiumDialog(
                                 onActivateClick = {
                                     val user = launcherUser
                                     if (user == null) {
-                                        activationError = "Silakan login ke akun NUX terlebih dahulu."
+                                        activationError = "Please log in to your NUX account first."
                                         return@RedeemKeyCard
                                     }
                                     val rawKey = licenseKeyInput.trim().uppercase()
@@ -710,7 +711,7 @@ fun NuxPremiumDialog(
                                         rawKey
                                     }
                                     if (cleanKey.length < 8) {
-                                        activationError = "Format key tidak valid."
+                                        activationError = "Invalid key format."
                                         return@RedeemKeyCard
                                     }
 
@@ -722,7 +723,7 @@ fun NuxPremiumDialog(
                                         res.fold(
                                             onSuccess = { actResult ->
                                                 if (!actResult.success || !actResult.isActivated) {
-                                                    activationError = actResult.message.takeIf { it.isNotBlank() } ?: "Key lisensi tidak valid atau sudah dipakai."
+                                                    activationError = actResult.message.takeIf { it.isNotBlank() } ?: "Invalid or already used license key."
                                                 } else {
                                                     val updatedUser = user.copy(
                                                         isActivated = true,
@@ -739,12 +740,12 @@ fun NuxPremiumDialog(
                                                         expiresAt = actResult.expiresAt,
                                                         redeemedKey = cleanKey
                                                     )
-                                                    activationSuccess = "Selamat! Paket diperbarui ke ${actResult.tier.uppercase()} Member!"
-                                                    Toast.makeText(context, "Aktivasi Berhasil! Paket VIP Anda Diperbarui!", Toast.LENGTH_LONG).show()
+                                                    activationSuccess = "Congratulations! Package updated to ${actResult.tier.uppercase()} Member!"
+                                                    Toast.makeText(context, "Activation Successful! Premium Package Updated!", Toast.LENGTH_LONG).show()
                                                 }
                                             },
                                             onFailure = { err ->
-                                                activationError = err.message ?: "Aktivasi gagal. Periksa koneksi internet."
+                                                activationError = err.message ?: "Activation failed. Check your internet connection."
                                             }
                                         )
                                     }
@@ -756,7 +757,7 @@ fun NuxPremiumDialog(
                         // STATE B: PENGGUNA FREE (UPGRADE PLANS + KEY)
                         // ==========================================
                         Text(
-                            text = "PILIHAN PAKET UPGRADE:",
+                            text = "UPGRADE PACKAGE OPTIONS:",
                             color = NuxColors.GrayNeutral,
                             fontSize = 8.5.sp,
                             fontWeight = FontWeight.Black,
@@ -769,9 +770,9 @@ fun NuxPremiumDialog(
                         ) {
                             // 1 Bulan
                             PlanCard(
-                                title = "1 BULAN",
+                                title = "MONTHLY PREMIUM",
                                 price = "Rp 5.000",
-                                subtext = "Coba fitur",
+                                subtext = "Try features",
                                 modifier = Modifier.weight(1f),
                                 onSelect = {
                                     try {
@@ -782,9 +783,9 @@ fun NuxPremiumDialog(
 
                             // 1 Tahun (Best Value)
                             PlanCard(
-                                title = "1 TAHUN",
+                                title = "YEARLY PREMIUM",
                                 price = "Rp 50.000",
-                                subtext = "Hemat 16%",
+                                subtext = "Save 16%",
                                 isBestValue = true,
                                 modifier = Modifier.weight(1.15f),
                                 onSelect = {
@@ -796,9 +797,9 @@ fun NuxPremiumDialog(
 
                             // Lifetime
                             PlanCard(
-                                title = "LIFETIME",
+                                title = "LIFETIME PREMIUM",
                                 price = "Rp 125.000",
-                                subtext = "Sekali beli",
+                                subtext = "One-time purchase",
                                 modifier = Modifier.weight(1f),
                                 onSelect = {
                                     try {
@@ -818,7 +819,7 @@ fun NuxPremiumDialog(
                             onActivateClick = {
                                 val user = launcherUser
                                 if (user == null) {
-                                    activationError = "Silakan login ke akun NUX terlebih dahulu."
+                                    activationError = "Please log in to your NUX account first."
                                     return@RedeemKeyCard
                                 }
                                 val rawKey = licenseKeyInput.trim().uppercase()
@@ -828,7 +829,7 @@ fun NuxPremiumDialog(
                                     rawKey
                                 }
                                 if (cleanKey.length < 8) {
-                                    activationError = "Format key tidak valid."
+                                    activationError = "Invalid key format."
                                     return@RedeemKeyCard
                                 }
 
@@ -840,7 +841,7 @@ fun NuxPremiumDialog(
                                     res.fold(
                                         onSuccess = { actResult ->
                                             if (!actResult.success || !actResult.isActivated) {
-                                                activationError = actResult.message.takeIf { it.isNotBlank() } ?: "Key lisensi tidak valid atau sudah dipakai."
+                                                activationError = actResult.message.takeIf { it.isNotBlank() } ?: "Invalid or already used license key."
                                             } else {
                                                 val updatedUser = user.copy(
                                                     isActivated = true,
@@ -857,12 +858,12 @@ fun NuxPremiumDialog(
                                                     expiresAt = actResult.expiresAt,
                                                     redeemedKey = cleanKey
                                                 )
-                                                activationSuccess = "Selamat! Akun Anda kini aktif sebagai ${actResult.tier.uppercase()} Member!"
-                                                Toast.makeText(context, "Aktivasi Berhasil! Fitur Premium Terbuka!", Toast.LENGTH_LONG).show()
+                                                activationSuccess = "Congratulations! Your account is now active as a ${actResult.tier.uppercase()} Member!"
+                                                Toast.makeText(context, "Activation Successful! Premium Features Unlocked!", Toast.LENGTH_LONG).show()
                                             }
                                         },
                                         onFailure = { err ->
-                                            activationError = err.message ?: "Aktivasi gagal. Periksa koneksi internet."
+                                            activationError = err.message ?: "Activation failed. Check your internet connection."
                                         }
                                     )
                                 }
@@ -958,7 +959,7 @@ private fun RedeemKeyCard(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "AKTIVASI / MASUKKAN LICENSE KEY",
+                    text = "ACTIVATE / ENTER LICENSE KEY",
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 9.sp
@@ -1000,7 +1001,7 @@ private fun RedeemKeyCard(
                 )
                 if (licenseKeyInput.isEmpty()) {
                     Text(
-                        text = "Contoh: XXXX-XXXX-XXXX-XXXX",
+                        text = "e.g. XXXX-XXXX-XXXX-XXXX",
                         color = Color(0xFF52525B),
                         fontSize = 9.5.sp
                     )
@@ -1035,7 +1036,7 @@ private fun RedeemKeyCard(
                     .height(30.dp)
             ) {
                 Text(
-                    text = if (isActivating) "MEMVERIFIKASI..." else "AKTIFKAN KEY SEKARANG",
+                    text = if (isActivating) "VERIFYING..." else "ACTIVATE KEY NOW",
                     fontWeight = FontWeight.Black,
                     fontSize = 9.sp
                 )
@@ -1083,7 +1084,7 @@ private fun PlanCard(
                         .background(Color(0xFFF59E0B), RoundedCornerShape(3.dp))
                         .padding(horizontal = 4.dp, vertical = 1.dp)
                 ) {
-                    Text("POPULER", color = Color.Black, fontSize = 6.5.sp, fontWeight = FontWeight.Black)
+                    Text("POPULAR", color = Color.Black, fontSize = 6.5.sp, fontWeight = FontWeight.Black)
                 }
                 Spacer(modifier = Modifier.height(2.dp))
             }
@@ -1100,7 +1101,7 @@ private fun PlanCard(
                 contentAlignment = Alignment.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Beli", color = if (isBestValue) Color.Black else Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+                    Text("Buy", color = if (isBestValue) Color.Black else Color.White, fontSize = 8.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(2.dp))
                     Icon(
                         imageVector = Icons.Outlined.OpenInNew,

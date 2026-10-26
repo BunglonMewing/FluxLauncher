@@ -107,14 +107,14 @@ fun NuxDeleteInstanceDialog(
 
                             Column {
                                 Text(
-                                    text = "KONFIRMASI TINDAKAN",
+                                    text = "CONFIRM ACTION",
                                     color = Color(0xFFF87171),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 7.5.sp,
                                     letterSpacing = 1.sp
                                 )
                                 Text(
-                                    text = "Hapus Instance",
+                                    text = "Delete Instance",
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
@@ -135,7 +135,7 @@ fun NuxDeleteInstanceDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
-                                contentDescription = "Tutup",
+                                contentDescription = "Close",
                                 tint = Color(0xFFA1A1AA),
                                 modifier = Modifier.size(13.dp)
                             )
@@ -162,7 +162,7 @@ fun NuxDeleteInstanceDialog(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Versi: ${instance.mcVersion} · Loader: ${instance.loader.uppercase()}${if (instance.loaderVersion.isNotBlank()) " (${instance.loaderVersion})" else ""}",
+                                text = "Version: ${instance.mcVersion} · Loader: ${instance.loader.uppercase()}${if (instance.loaderVersion.isNotBlank()) " (${instance.loaderVersion})" else ""}",
                                 color = Color(0xFFA1A1AA),
                                 fontWeight = FontWeight.Medium,
                                 fontSize = 9.sp
@@ -174,7 +174,7 @@ fun NuxDeleteInstanceDialog(
 
                     // Warning explanation
                     Text(
-                        text = "Apakah Anda yakin ingin menghapus instance ini? Semua dunia game, file modifikasi, savegame, dan konfigurasi akan dihapus secara permanen.",
+                        text = "Are you sure you want to delete this instance? All game worlds, mods, saves, and configs will be permanently removed.",
                         color = Color(0xFFD4D4D8),
                         fontSize = 9.sp,
                         lineHeight = 13.sp,
@@ -198,7 +198,7 @@ fun NuxDeleteInstanceDialog(
                                 .height(34.dp)
                         ) {
                             Text(
-                                text = "BATAL",
+                                text = "CANCEL",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
                                 color = Color.White,
@@ -216,7 +216,7 @@ fun NuxDeleteInstanceDialog(
                                 .height(34.dp)
                         ) {
                             Text(
-                                text = "HAPUS INSTANCE",
+                                text = "DELETE INSTANCE",
                                 fontWeight = FontWeight.Black,
                                 fontSize = 10.sp,
                                 color = Color.White,

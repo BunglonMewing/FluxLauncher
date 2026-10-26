@@ -56,22 +56,22 @@ import com.israadev.nuxlauncher.ui.theme.NuxColors
 import kotlinx.coroutines.delay
 
 private val GAME_TIPS = listOf(
-    "Klik FPS untuk membuka setingan launcher di dalam game.",
-    "Bug itu hal yang biasa, karena tiada yang sepurna melainkan tuhan yang maha kuasa.",
-    "Matikan Vertical Sync (VSync) di pengaturan Renderer jika mengalami stuttering atau layar blank hitam setelah logo Mojang.",
-    "Jika tampilan layar Minecraft terpotong atau vertikal, aktifkan rotasi otomatis HP dan posisikan layar mendatar (Landscape) sebelum menekan Mainkan.",
-    "Gunakan MobileGlues Renderer untuk efisiensi baterai dan kompatibilitas shaderpack terbaik.",
-    "Jika Minecraft crash saat startup pada GPU Mali/Adreno, coba aktifkan 'DISABLE_SUBGROUP' di pengaturan renderer.",
-    "Aktifkan OpenGL NoError di pengaturan MobileGlues untuk meningkatkan FPS saat bermain.",
-    "Gunakan tombol HIDE GUI untuk menyembunyikan tombol virtual di layar saat bermain dengan keyboard & mouse fisik.",
-    "Atur alokasi RAM sesuai spesifikasi HP: 2GB–3GB sudah sangat cukup untuk Minecraft versi 1.20+ tanpa modpack berat.",
-    "Ubah sensitivitas kursor di Pengaturan Kontrol untuk membidik dan mengarahkan pandangan lebih akurat.",
-    "Pilih Vulkan Driver Turnip di perangkat Snapdragon untuk performa grafis dan stabilitas maksimal.",
-    "Kamu bisa menyesuaikan posisi dan ukuran tombol kontrol sesukamu di menu Kustomisasi Tombol.",
-    "Gunakan fitur Import Addon untuk memasang Modpack (.mrpack), Mod (.jar), dan Resource Pack secara instan!",
-    "Tekan tombol ESC di layar untuk membuka pause menu atau kembali ke menu sebelumnya.",
-    "Tekan tombol F3 untuk melihat informasi koordinat, biome, dan grafik performa FPS di dalam game.",
-    "Aktifkan mode Fullscreen di Pengaturan untuk mengabaikan notch/kamera depan dan memperluas pandangan."
+    "Tap the FPS counter to open launcher settings in-game.",
+    "Bugs are natural in software development; continuous improvement makes perfection.",
+    "Disable Vertical Sync (VSync) in Renderer settings if you experience stuttering or a black screen after the Mojang logo.",
+    "If Minecraft appears cropped or vertical, enable auto-rotate and hold your phone horizontally (Landscape) before tapping Play.",
+    "Use MobileGlues Renderer for optimal battery efficiency and shaderpack compatibility.",
+    "If Minecraft crashes on startup on Mali/Adreno GPUs, try enabling 'DISABLE_SUBGROUP' in renderer settings.",
+    "Enable OpenGL NoError in MobileGlues settings to boost in-game FPS.",
+    "Use the HIDE GUI button to conceal on-screen virtual buttons when using a physical keyboard & mouse.",
+    "Set RAM allocation according to your device specs: 2GB–3GB is ideal for Minecraft 1.20+ without heavy modpacks.",
+    "Adjust cursor sensitivity in Control Settings for smoother aiming and viewing.",
+    "Select the Turnip Vulkan Driver on Snapdragon devices for peak graphics performance and stability.",
+    "Customize virtual button positions and sizes anytime in the Button Customization menu.",
+    "Use Import Addon to instantly install Modpacks (.mrpack), Mods (.jar), and Resource Packs!",
+    "Press the ESC on-screen button to open pause menu or return to previous screen.",
+    "Press the F3 button to view coordinates, biome info, and FPS performance overlay in-game.",
+    "Enable Fullscreen mode in Settings to maximize display area and bypass device notch."
 )
 
 @Composable
@@ -168,7 +168,7 @@ fun GameLoadingOverlay(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
-                                    text = "MEMUAT PERMAINAN",
+                                    text = "LOADING GAME",
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 14.sp,
@@ -194,7 +194,7 @@ fun GameLoadingOverlay(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Tutup Loading",
+                                contentDescription = "Close Loading",
                                 tint = Color(0xFFA1A1AA),
                                 modifier = Modifier.size(16.dp)
                             )
@@ -227,7 +227,7 @@ fun GameLoadingOverlay(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (latestLog.isNotBlank()) latestLog else "Menyiapkan mesin Java & Grafis...",
+                            text = if (latestLog.isNotBlank()) latestLog else "Preparing Java & Graphics engine...",
                             color = Color(0xFF94A3B8),
                             fontSize = 10.5.sp,
                             fontFamily = FontFamily.Monospace,
@@ -259,7 +259,7 @@ fun GameLoadingOverlay(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "TIPS NUX LAUNCHER",
+                                    text = "NUX LAUNCHER TIPS",
                                     color = Color(0xFFFBBF24),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.sp,
@@ -296,7 +296,7 @@ fun GameLoadingOverlay(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Menunggu logo Mojang muncul...",
+                            text = "Waiting for Mojang logo...",
                             color = Color(0xFF64748B),
                             fontSize = 10.sp,
                             modifier = Modifier.alpha(pulseAlpha)
@@ -318,7 +318,7 @@ fun GameLoadingOverlay(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Lihat Log",
+                                text = "View Logs",
                                 color = NuxColors.MintGreen,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp

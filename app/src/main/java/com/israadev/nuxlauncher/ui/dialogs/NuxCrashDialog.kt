@@ -1,5 +1,9 @@
 package com.israadev.nuxlauncher.ui.dialogs
 
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.trStr
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -51,6 +55,7 @@ fun NuxCrashDialog(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     var isUploading by remember { mutableStateOf(false) }
     var uploadSuccessUrl by remember { mutableStateOf<String?>(null) }
@@ -113,7 +118,7 @@ fun NuxCrashDialog(
 
     val exitDetailMessage = remember(crashInfo) {
         if (crashInfo.isLauncherCrash) {
-            "Peluncur mengalami kesalahan internal pada komponen UI atau proses background sistem."
+            "Launcher encountered an internal error in UI component or background system process."
         } else {
             CrashUtils.getExitMessage(crashInfo.exitCode, crashInfo.isSignal)
         }
@@ -168,7 +173,7 @@ fun NuxCrashDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = "INCIDENT DIAGNOSTICS · JVM TERMINATION",
+                                text = tr("dialogs.crash_incident"),
                                 color = Color(0xFFF43F5E).copy(alpha = 0.85f),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 8.5.sp,
@@ -213,7 +218,7 @@ fun NuxCrashDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = tr("common.close"),
                             tint = Color(0xFFFDA4AF),
                             modifier = Modifier.size(14.dp)
                         )
@@ -260,7 +265,7 @@ fun NuxCrashDialog(
                                         .padding(10.dp)
                                 ) {
                                     Text(
-                                        text = if (crashInfo.isLauncherCrash) "STATUS PELUNCUR" else "INFORMASI SESI GAME",
+                                        text = if (crashInfo.isLauncherCrash) tr("dialogs.crash_launcher_status") else tr("dialogs.crash_session_info"),
                                         color = Color(0xFFA1A1AA),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 8.5.sp,
@@ -298,7 +303,7 @@ fun NuxCrashDialog(
                                                 .padding(horizontal = 5.dp, vertical = 1.5.dp)
                                         ) {
                                             Text(
-                                                text = "${crashInfo.installedMods.size} Mod",
+                                                text = "${crashInfo.installedMods.size} Mods",
                                                 color = Color(0xFFA1A1AA),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 8.sp
@@ -340,10 +345,10 @@ fun NuxCrashDialog(
                                         .padding(10.dp)
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("⚠️", fontSize = 11.sp)
+                                        Icon(painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_warning_triangle), contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(13.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "DIAGNOSA KELUAR SISTEM",
+                                            text = "SYSTEM EXIT DIAGNOSIS",
                                             color = Color(0xFFFDA4AF),
                                             fontWeight = FontWeight.Black,
                                             fontSize = 9.sp,
@@ -378,7 +383,7 @@ fun NuxCrashDialog(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "SOLUSI & SARAN PEMULIHAN",
+                                            text = "RECOVERY & SOLUTION",
                                             color = Color(0xFFA1A1AA),
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 8.5.sp,
@@ -442,7 +447,7 @@ fun NuxCrashDialog(
                                                         uploadSuccessUrl = url
                                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                         clipboard.setPrimaryClip(ClipData.newPlainText("mclo.gs link", url))
-                                                        Toast.makeText(context, "Log berhasil diunggah & tautan disalin!", Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context, "Log uploaded & link copied to clipboard!", Toast.LENGTH_LONG).show()
                                                         try {
                                                             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                                                                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -451,7 +456,7 @@ fun NuxCrashDialog(
                                                         } catch (_: Exception) {}
                                                     },
                                                     onFailure = { err ->
-                                                        Toast.makeText(context, "Gagal mengunggah: ${err.message}", Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context, "Failed to upload: ${err.message}", Toast.LENGTH_LONG).show()
                                                     }
                                                 )
                                             }
@@ -471,7 +476,7 @@ fun NuxCrashDialog(
                                             )
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
-                                                text = "MENGUNGGAH LOG...",
+                                                text = "UPLOADING LOG...",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Black,
                                                 fontSize = 11.sp
@@ -480,7 +485,7 @@ fun NuxCrashDialog(
                                             Icon(imageVector = Icons.Default.OpenInNew, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
-                                                text = "BUKA TAUTAN MCLO.GS",
+                                                text = "OPEN MCLO.GS LINK",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Black,
                                                 fontSize = 11.sp
@@ -489,7 +494,7 @@ fun NuxCrashDialog(
                                             Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
-                                                text = "UNGGAH TAUTAN LOG (MCLO.GS)",
+                                                text = "UPLOAD LOG LINK (MCLO.GS)",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Black,
                                                 fontSize = 11.sp
@@ -518,7 +523,7 @@ fun NuxCrashDialog(
                                             Icon(imageVector = Icons.Default.Share, contentDescription = null, tint = Color(0xFFA1A1AA), modifier = Modifier.size(12.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = "BAGIKAN",
+                                                text = "SHARE",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 10.sp
@@ -537,7 +542,7 @@ fun NuxCrashDialog(
                                             .clickable {
                                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                 clipboard.setPrimaryClip(ClipData.newPlainText("Crash Log", crashInfo.logSnippet))
-                                                Toast.makeText(context, "Log disalin ke clipboard!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Log copied to clipboard!", Toast.LENGTH_SHORT).show()
                                             },
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -545,7 +550,7 @@ fun NuxCrashDialog(
                                             Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, tint = Color(0xFFA1A1AA), modifier = Modifier.size(12.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = "SALIN",
+                                                text = "COPY",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 10.sp
@@ -651,7 +656,7 @@ fun NuxCrashDialog(
                                             .padding(horizontal = 5.dp, vertical = 1.5.dp)
                                     ) {
                                         Text(
-                                            text = "KUOTA: $quotaText",
+                                            text = "QUOTA: $quotaText",
                                             color = quotaColor,
                                             fontSize = 7.5.sp,
                                             fontWeight = FontWeight.Black
@@ -675,7 +680,7 @@ fun NuxCrashDialog(
                                             .padding(horizontal = 6.dp, vertical = 2.dp)
                                     ) {
                                         Text(
-                                            text = if (rightViewMode == "ai") "LOG MENTAH" else "AI ANALISIS",
+                                            text = if (rightViewMode == "ai") "RAW LOG" else "AI ANALYSIS",
                                             color = if (rightViewMode == "ai") Color(0xFF94A3B8) else Color(0xFF38BDF8),
                                             fontSize = 8.sp,
                                             fontWeight = FontWeight.Bold
@@ -693,7 +698,7 @@ fun NuxCrashDialog(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Refresh,
-                                            contentDescription = "Analisis Ulang",
+                                            contentDescription = "Re-analyze",
                                             tint = Color(0xFF38BDF8),
                                             modifier = Modifier.size(11.dp)
                                         )
@@ -709,13 +714,13 @@ fun NuxCrashDialog(
                                                 val textToCopy = if (rightViewMode == "ai" && activeAiText.isNotBlank()) activeAiText else crashInfo.logSnippet
                                                 val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                                 cm.setPrimaryClip(ClipData.newPlainText("Crash Analysis", textToCopy))
-                                                Toast.makeText(context, "Disalin ke papan klip!", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show()
                                             },
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.ContentCopy,
-                                            contentDescription = "Salin",
+                                            contentDescription = "Copy",
                                             tint = Color(0xFFA1A1AA),
                                             modifier = Modifier.size(11.dp)
                                         )
@@ -773,7 +778,7 @@ fun NuxCrashDialog(
                                                 }
                                                 Spacer(modifier = Modifier.height(8.dp))
                                                 Text(
-                                                    text = if (remainingQuota == 0) "KUOTA HARIAN AI HABIS" else "DIAGNOSA CRASH OTOMATIS",
+                                                    text = if (remainingQuota == 0) "DAILY AI QUOTA EXCEEDED" else "AUTOMATED CRASH DIAGNOSIS",
                                                     fontWeight = FontWeight.Black,
                                                     fontSize = 11.sp,
                                                     color = Color.White
@@ -781,9 +786,9 @@ fun NuxCrashDialog(
                                                 Spacer(modifier = Modifier.height(4.dp))
                                                 Text(
                                                     text = if (remainingQuota == 0)
-                                                        "Batas 5 kali penggunaan AI hari ini telah tercapai. Kuota di-reset besok atau salin log ke Discord kami."
+                                                        "Daily 5-use AI limit reached. Quota resets tomorrow or copy the log to our Discord community."
                                                     else
-                                                        "AI akan menganalisis cuplikan error game untuk mendeteksi penyebab pasti & solusi perbaikan.",
+                                                        "AI will analyze game error snippets to identify root causes and immediate solutions.",
                                                     color = Color(0xFF94A3B8),
                                                     fontSize = 9.sp,
                                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -803,7 +808,7 @@ fun NuxCrashDialog(
                                                     ) {
                                                         Text(if (remainingQuota == 0) "⚠️" else "✨", fontSize = 10.sp)
                                                         Text(
-                                                            text = if (remainingQuota == 0) "LIHAT SOLUSI & TIKET DISCORD" else "MULAI ANALISIS DENGAN AI",
+                                                            text = if (remainingQuota == 0) "VIEW SOLUTIONS & DISCORD TICKET" else "ANALYZE WITH AI",
                                                             fontWeight = FontWeight.Black,
                                                             fontSize = 9.sp
                                                         )
@@ -827,14 +832,14 @@ fun NuxCrashDialog(
                                                 )
                                                 Spacer(modifier = Modifier.height(10.dp))
                                                 Text(
-                                                    text = "AI sedang menganalisis crash...",
+                                                    text = "AI is analyzing crash logs...",
                                                     color = Color.White,
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = 10.sp
                                                 )
                                                 Spacer(modifier = Modifier.height(3.dp))
                                                 Text(
-                                                    text = "Membedah log error dan metadata instance ($effectiveModel)",
+                                                    text = "Parsing error stack trace and instance metadata ($effectiveModel)",
                                                     color = Color(0xFF64748B),
                                                     fontSize = 8.5.sp
                                                 )
@@ -887,7 +892,7 @@ fun NuxCrashDialog(
                                                         color = Color(0xFF64748B)
                                                     )
                                                     Text(
-                                                        text = "Analisis Selesai ✓",
+                                                        text = "Analysis Complete ✓",
                                                         fontSize = 8.sp,
                                                         fontWeight = FontWeight.Bold,
                                                         color = Color(0xFF10B981)
@@ -911,11 +916,11 @@ fun NuxCrashDialog(
                                                         .background(Color(0x33EF4444)),
                                                     contentAlignment = Alignment.Center
                                                 ) {
-                                                    Text("⚠️", fontSize = 14.sp)
+                                                    Icon(painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_warning_triangle), contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(16.dp))
                                                 }
                                                 Spacer(modifier = Modifier.height(8.dp))
                                                 Text(
-                                                    text = "Gagal Menganalisis Log",
+                                                    text = "Failed to Analyze Log",
                                                     fontWeight = FontWeight.Black,
                                                     fontSize = 11.sp,
                                                     color = Color(0xFFF87171)
@@ -936,7 +941,7 @@ fun NuxCrashDialog(
                                                     cornerRadius = 6.dp,
                                                     modifier = Modifier.height(28.dp)
                                                 ) {
-                                                    Text("COBA LAGI", fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
+                                                    Text(tr("dialogs.btn_try_again"), fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
                                                 }
                                             }
                                         }
@@ -963,7 +968,7 @@ fun NuxCrashDialog(
                                                 }
                                                 Spacer(modifier = Modifier.height(8.dp))
                                                 Text(
-                                                    text = "KUOTA HARIAN AI TELAH HABIS",
+                                                    text = tr("dialogs.quota_reached_title"),
                                                     fontWeight = FontWeight.Black,
                                                     fontSize = 11.sp,
                                                     color = Color(0xFFF43F5E),
@@ -971,7 +976,7 @@ fun NuxCrashDialog(
                                                 )
                                                 Spacer(modifier = Modifier.height(4.dp))
                                                 Text(
-                                                    text = "Batas penggunaan analisis AI gratis adalah 5 kali per hari. Kuota harian Anda akan di-reset otomatis besok.",
+                                                    text = "The daily free AI analysis limit is 5 times per day. Your quota will automatically reset tomorrow.",
                                                     color = Color(0xFFCBD5E1),
                                                     fontSize = 9.sp,
                                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -987,7 +992,7 @@ fun NuxCrashDialog(
                                                         .padding(10.dp)
                                                 ) {
                                                     Text(
-                                                        text = "Silakan klik tombol SALIN LOG di bawah, lalu buka tiket pengaduan di server Discord resmi kami agar tim developer atau komunitas dapat membantu mendiagnosa penyebab crash game Anda.",
+                                                        text = "Please tap COPY LOG below, then open a support ticket in our official Discord server so our team or community can assist you.",
                                                         color = Color(0xFF93C5FD),
                                                         fontSize = 8.5.sp,
                                                         lineHeight = 12.sp,
@@ -1009,7 +1014,7 @@ fun NuxCrashDialog(
                                                                 crashInfo.logSnippet
                                                             }
                                                             cm.setPrimaryClip(ClipData.newPlainText("Crash Log", textToCopy))
-                                                            Toast.makeText(context, "Log crash berhasil disalin ke papan klip!", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context, "Crash log copied to clipboard!", Toast.LENGTH_SHORT).show()
                                                         },
                                                         backgroundColor = Color(0xFF334155),
                                                         contentColor = Color.White,
@@ -1026,7 +1031,7 @@ fun NuxCrashDialog(
                                                                 modifier = Modifier.size(11.dp),
                                                                 tint = Color.White
                                                             )
-                                                            Text("SALIN LOG", fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
+                                                            Text(tr("dialogs.btn_copy_logs"), fontWeight = FontWeight.Bold, fontSize = 8.5.sp)
                                                         }
                                                     }
 
@@ -1051,14 +1056,14 @@ fun NuxCrashDialog(
                                                                 modifier = Modifier.size(11.dp),
                                                                 tint = Color.White
                                                             )
-                                                            Text("OPEN TICKET DISCORD", fontWeight = FontWeight.Black, fontSize = 8.5.sp)
+                                                            Text(tr("dialogs.btn_discord_ticket"), fontWeight = FontWeight.Black, fontSize = 8.5.sp)
                                                         }
                                                     }
                                                 }
 
                                                 Spacer(modifier = Modifier.height(10.dp))
                                                 Text(
-                                                    text = "Tips: Anda dapat memasukkan API Key pribadi (OpenRouter / Gemini) di Pengaturan > Integrasi AI untuk penggunaan tanpa batas.",
+                                                    text = "Tip: You can configure a personal API Key (OpenRouter / Gemini) in Settings > AI Integration for unlimited usage.",
                                                     fontSize = 7.5.sp,
                                                     color = Color(0xFF64748B),
                                                     textAlign = androidx.compose.ui.text.style.TextAlign.Center

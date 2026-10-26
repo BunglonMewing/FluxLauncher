@@ -27,8 +27,8 @@ android {
         applicationId = "com.israadev.nuxlauncher"
         minSdk = 26
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.1.3"
+        versionCode = 16
+        versionName = "1.1.5"
 
         buildConfigField("String", "SERVER_BASE_URL", "\"$rawServerUrl\"")
         buildConfigField("String", "SERVER_API_KEY", "\"$rawServerApiKey\"")

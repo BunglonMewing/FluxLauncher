@@ -85,7 +85,7 @@ object AICrashAnalyzer {
     suspend fun testConnection(apiKey: String, model: String): Result<String> = withContext(Dispatchers.IO) {
         val keysToTry = if (apiKey.isNotBlank()) listOf(apiKey.trim()) else FALLBACK_KEYS
         val m = if (model.isNotBlank()) model.trim() else DEFAULT_MODEL
-        var lastError: Exception = Exception("Koneksi gagal.")
+        var lastError: Exception = Exception("Connection failed.")
 
         for ((index, key) in keysToTry.withIndex()) {
             try {
@@ -124,7 +124,7 @@ object AICrashAnalyzer {
                             }
                             return@withContext Result.failure(err)
                         }
-                        return@withContext Result.success("Koneksi berhasil ke Google Gemini API ($geminiModel)!")
+                        return@withContext Result.success("Successfully connected to Google Gemini API ($geminiModel)!")
                     }
                 } else {
                     val payload = JsonObject().apply {
@@ -164,7 +164,7 @@ object AICrashAnalyzer {
                         } else {
                             "OK"
                         }
-                        return@withContext Result.success("Koneksi berhasil! Model aktif: $m ($reply) [Key #${index + 1}]")
+                        return@withContext Result.success("Connection successful! Active model: $m ($reply) [Key #${index + 1}]")
                     }
                 }
             } catch (e: Exception) {
@@ -207,7 +207,7 @@ object AICrashAnalyzer {
         val modListStr = if (crashInfo.installedMods.isNotEmpty()) {
             crashInfo.installedMods.joinToString("\n") { "- $it" }
         } else {
-            "- (Tidak ada mod / Vanilla)"
+            "- (No mods installed / Vanilla)"
         }
 
         val systemPrompt = """
@@ -257,7 +257,7 @@ object AICrashAnalyzer {
         """.trimIndent()
 
         var streamSucceeded = false
-        var lastErrorMessage = "Gagal menghubungi AI."
+        var lastErrorMessage = "Failed to reach AI service."
 
         for ((index, currentKey) in keysToTry.withIndex()) {
             if (currentKey.startsWith("AIzaSy")) {
@@ -304,7 +304,7 @@ object AICrashAnalyzer {
                             android.util.Log.w("AICrashAnalyzer", "Gemini Key #${index + 1} terkena limit (HTTP 429). Mengalihkan ke Key #${index + 2}...")
                             continue
                         }
-                        lastErrorMessage = "Gagal menghubungi Google Gemini (HTTP $code): $msg"
+                        lastErrorMessage = "Failed to contact Google Gemini (HTTP $code): $msg"
                         if (index < keysToTry.size - 1) continue else break
                     }
 
@@ -348,7 +348,7 @@ object AICrashAnalyzer {
                         break
                     } else {
                         if (index < keysToTry.size - 1) continue
-                        lastErrorMessage = "Google Gemini tidak mengembalikan analisis untuk log ini."
+                        lastErrorMessage = "Google Gemini returned no analysis for this log."
                     }
                 } catch (e: Exception) {
                     if (index < keysToTry.size - 1) {
@@ -397,7 +397,7 @@ object AICrashAnalyzer {
                                 errBody.contains("No endpoints", ignoreCase = true)
 
                         if (isModelUnavailable && payload.get("model")?.asString != DEFAULT_MODEL) {
-                            android.util.Log.w("AICrashAnalyzer", "Model ${payload.get("model")?.asString} tidak tersedia ($code), otomatis beralih ke $DEFAULT_MODEL...")
+                            android.util.Log.w("AICrashAnalyzer", "Model ${payload.get("model")?.asString} is unavailable ($code), automatically falling back to $DEFAULT_MODEL...")
                             payload.addProperty("model", DEFAULT_MODEL)
                             val fbReq = Request.Builder()
                                 .url(OPENROUTER_ENDPOINT)
@@ -452,7 +452,7 @@ object AICrashAnalyzer {
                             android.util.Log.w("AICrashAnalyzer", "OpenRouter Key #${index + 1} terkena limit/error (HTTP $code: $msg). Mengalihkan otomatis ke Key #${index + 2}...")
                             continue // Failover to next key!
                         } else {
-                            lastErrorMessage = "Gagal menghubungi AI (HTTP $code): $msg"
+                            lastErrorMessage = "Failed to contact AI service (HTTP $code): $msg"
                             if (index < keysToTry.size - 1) continue else break
                         }
                     }
@@ -502,7 +502,7 @@ object AICrashAnalyzer {
                         if (index < keysToTry.size - 1) {
                             continue
                         }
-                        lastErrorMessage = "AI tidak mengembalikan analisis untuk log ini."
+                        lastErrorMessage = "AI returned no analysis for this log."
                     }
                 } catch (e: Exception) {
                     if (index < keysToTry.size - 1) {

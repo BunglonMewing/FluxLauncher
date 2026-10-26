@@ -61,7 +61,7 @@ object FabricService {
                 lastException = e
             }
         }
-        Result.failure(lastException ?: IOException("Tidak dapat memuat versi Fabric untuk $gameVersion"))
+        Result.failure(lastException ?: IOException("Cannot load Fabric version for $gameVersion"))
     }
 
     /**
@@ -91,7 +91,7 @@ object FabricService {
                 lastException = e
             }
         }
-        Result.failure(lastException ?: IOException("Gagal memuat profil Fabric untuk $gameVersion ($loaderVersion)"))
+        Result.failure(lastException ?: IOException("Failed to load Fabric profile for $gameVersion ($loaderVersion)"))
     }
 
     /**

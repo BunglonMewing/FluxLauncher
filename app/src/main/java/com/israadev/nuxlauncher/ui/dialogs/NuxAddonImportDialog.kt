@@ -319,7 +319,7 @@ fun NuxAddonImportDialog(
                                     .padding(10.dp)
                             ) {
                                 Text(
-                                    text = "⚠️ Belum ada instance Minecraft yang dibuat! Buat instance terlebih dahulu di Dashboard.",
+                                    text = "⚠️ No Minecraft instances found! Create an instance first in Dashboard.",
                                     color = Color(0xFFFECDD3),
                                     fontSize = 11.sp
                                 )
@@ -405,7 +405,7 @@ fun NuxAddonImportDialog(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Text(
-                                            text = if (importStatusText.isNotBlank()) importStatusText else "Memasang addon...",
+                                            text = if (importStatusText.isNotBlank()) importStatusText else "Installing addon...",
                                             color = NuxColors.MintGreen,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.SemiBold
@@ -458,7 +458,7 @@ fun NuxAddonImportDialog(
                                     .padding(10.dp)
                             ) {
                                 Text(
-                                    text = "Gagal: $err",
+                                    text = "Failed: $err",
                                     color = Color(0xFFFECDD3),
                                     fontSize = 11.sp
                                 )
@@ -485,7 +485,7 @@ fun NuxAddonImportDialog(
                                     .padding(horizontal = 16.dp, vertical = 10.dp)
                             ) {
                                 Text(
-                                    text = "BATAL",
+                                    text = "CANCEL",
                                     color = Color(0xFFA1A1AA),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp
@@ -521,17 +521,17 @@ fun NuxAddonImportDialog(
                                     if (result.isSuccess) {
                                         Toast.makeText(
                                             context,
-                                            "✓ Berhasil memasang \"${pendingImport.fileName}\" ke ${target.name}!",
+                                            "✓ Successfully installed \"${pendingImport.fileName}\" to ${target.name}!",
                                             Toast.LENGTH_LONG
                                         ).show()
                                         NuxAddonImportManager.clearPendingImport()
                                         onDismiss()
                                     } else {
-                                        val err = result.exceptionOrNull()?.message ?: "Terjadi kesalahan yang tidak diketahui"
+                                        val err = result.exceptionOrNull()?.message ?: "An unknown error occurred"
                                         errorMessage = err
                                         Toast.makeText(
                                             context,
-                                            "Gagal memasang: $err",
+                                            "Installation failed: $err",
                                             Toast.LENGTH_LONG
                                         ).show()
                                     }
@@ -552,7 +552,7 @@ fun NuxAddonImportDialog(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "MEMASANG...",
+                                        text = "INSTALLING...",
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 11.sp
@@ -560,7 +560,7 @@ fun NuxAddonImportDialog(
                                 }
                             } else {
                                 Text(
-                                    text = "PASANG SEKARANG",
+                                    text = "INSTALL NOW",
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp

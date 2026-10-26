@@ -17,7 +17,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
+import com.israadev.nuxlauncher.core.lang.tr
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.Close
@@ -48,6 +53,7 @@ import com.israadev.nuxlauncher.core.renderer.NuxRendererRegistry
 import com.israadev.nuxlauncher.core.renderer.NuxRendererPluginManager
 import com.israadev.nuxlauncher.core.renderer.NuxRendererInfo
 import com.israadev.nuxlauncher.core.settings.SettingsManager
+import com.israadev.nuxlauncher.core.recorder.ScreenRecordManager
 import com.israadev.nuxlauncher.core.utils.NuxVersionUtils
 import com.israadev.nuxlauncher.ui.components.*
 import com.israadev.nuxlauncher.ui.dialogs.NuxRendererV2ConfigDialog
@@ -70,6 +76,10 @@ fun SettingsScreen(
     val launcherUser by AccountManager.launcherUser.collectAsState()
 
     var activeSettingsTab by remember { mutableStateOf("profile") } // "profile" or "game"
+    val availableLanguages by NuxLanguageManager.availableLanguages.collectAsState()
+    val activeLanguage by NuxLanguageManager.currentLanguage.collectAsState()
+    var isTopLangMenuExpanded by remember { mutableStateOf(false) }
+    var isCardLangMenuExpanded by remember { mutableStateOf(false) }
 
     // Profile state
     var editUsername by remember(launcherUser?.username) { mutableStateOf(launcherUser?.username ?: "") }
@@ -98,12 +108,12 @@ fun SettingsScreen(
                     )
                     updateRes.onSuccess {
                         AccountManager.updateProfile(context, newPhotoUrl = cloudUrl)
-                        Toast.makeText(context, "Foto profil berhasil diperbarui!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Profile picture updated successfully!", Toast.LENGTH_SHORT).show()
                     }.onFailure { err ->
-                        Toast.makeText(context, "Gagal update profil: ${err.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Failed to update profile: ${err.message}", Toast.LENGTH_LONG).show()
                     }
                 }.onFailure { err ->
-                    Toast.makeText(context, "Gagal upload gambar: ${err.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Failed to upload image: ${err.message}", Toast.LENGTH_LONG).show()
                 }
                 isUploadingAvatar = false
             }
@@ -113,6 +123,9 @@ fun SettingsScreen(
     var aiAutoAnalyze by remember(currentSettings.aiAutoAnalyze) { mutableStateOf(currentSettings.aiAutoAnalyze) }
     var aiApiKey by remember(currentSettings.aiApiKey) { mutableStateOf(currentSettings.aiApiKey) }
     var aiModel by remember(currentSettings.aiModel) { mutableStateOf(currentSettings.aiModel) }
+    var recorderResolution by remember(currentSettings.recorderResolution) { mutableStateOf(currentSettings.recorderResolution) }
+    var recorderFps by remember(currentSettings.recorderFps) { mutableIntStateOf(currentSettings.recorderFps) }
+    var recorderAudioEnabled by remember(currentSettings.recorderAudioEnabled) { mutableStateOf(currentSettings.recorderAudioEnabled) }
     var isTestingAiConnection by remember { mutableStateOf(false) }
     var aiConnectionTestResult by remember { mutableStateOf<String?>(null) }
     var isAiConnectionSuccess by remember { mutableStateOf(false) }
@@ -121,22 +134,22 @@ fun SettingsScreen(
     fun handleSaveUsername() {
         val cleanName = editUsername.trim()
         if (cleanName.isBlank()) {
-            usernameError = "Username tidak boleh kosong"
+            usernameError = "Username cannot be empty"
             return
         }
         if (cleanName.length < 3 || cleanName.length > 20) {
-            usernameError = "Panjang username harus 3 - 20 karakter"
+            usernameError = "Username must be 3 - 20 characters"
             return
         }
         if (!cleanName.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-            usernameError = "Hanya huruf, angka, dan garis bawah (_)"
+            usernameError = "Letters, numbers, and underscores (_) only"
             return
         }
         val user = launcherUser ?: return
         val uid = user.uid
         if (cleanName == user.username) {
             usernameError = null
-            Toast.makeText(context, "Username tidak berubah.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Username unchanged.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -146,10 +159,10 @@ fun SettingsScreen(
             val res = AuthService.updateProfile(uid = uid, newUsername = cleanName)
             res.onSuccess {
                 AccountManager.updateProfile(context, newUsername = cleanName)
-                Toast.makeText(context, "Username berhasil diubah menjadi $cleanName!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Username successfully changed to $cleanName!", Toast.LENGTH_SHORT).show()
             }.onFailure { err ->
-                usernameError = err.message ?: "Gagal memperbarui username"
-                Toast.makeText(context, err.message ?: "Gagal memperbarui username", Toast.LENGTH_LONG).show()
+                usernameError = err.message ?: "Failed to update username"
+                Toast.makeText(context, err.message ?: "Failed to update username", Toast.LENGTH_LONG).show()
             }
             isSavingUsername = false
         }
@@ -247,13 +260,13 @@ fun SettingsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = "Back",
                             tint = NuxColors.ForestGreen,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "DASHBOARD",
+                            text = tr("settings.dashboard_nav"),
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 9.sp,
@@ -263,7 +276,7 @@ fun SettingsScreen(
                 }
 
                 Text(
-                    text = "SETTINGS",
+                    text = tr("settings.title"),
                     color = Color.White,
                     fontWeight = FontWeight.Black,
                     fontSize = 14.sp,
@@ -302,7 +315,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "PROFIL AKUN",
+                                text = tr("settings.tab_profile"),
                                 color = if (isProfileTab) Color.White else NuxColors.GrayNeutral,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.5.sp
@@ -331,7 +344,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "PREFERENSI GAME",
+                                text = tr("settings.tab_game"),
                                 color = if (isGameTab) Color.White else NuxColors.GrayNeutral,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.5.sp
@@ -361,7 +374,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "AI ANALITIK",
+                                text = tr("settings.tab_ai"),
                                 color = if (isAiTab) Color.White else NuxColors.GrayNeutral,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.5.sp
@@ -371,11 +384,100 @@ fun SettingsScreen(
                 }
             }
 
-            // Hardware Specs Badges
+            // Top Right: Language Dropdown Capsule & Hardware Specs Badges
             Row(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Interactive Language Selector Capsule
+                Box {
+                    Box(
+                        modifier = Modifier
+                            .height(26.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(NuxColors.SurfaceElevated, RoundedCornerShape(6.dp))
+                            .border(1.dp, NuxColors.MintGreen.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                            .clickable { isTopLangMenuExpanded = true }
+                            .padding(horizontal = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(text = activeLanguage.flag, fontSize = 12.sp)
+                            Text(
+                                text = activeLanguage.name,
+                                color = NuxColors.MintGreen,
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Select Language",
+                                tint = Color(0xFFA1A1AA),
+                                modifier = Modifier.size(13.dp)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = isTopLangMenuExpanded,
+                        onDismissRequest = { isTopLangMenuExpanded = false },
+                        shape = RoundedCornerShape(12.dp),
+                        containerColor = Color(0xF212141C),
+                        shadowElevation = 16.dp,
+                        border = BorderStroke(1.dp, Color(0x33FFFFFF))
+                    ) {
+                        availableLanguages.forEach { lang ->
+                            val isSelected = lang.code.equals(activeLanguage.code, ignoreCase = true)
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text(text = lang.flag, fontSize = 15.sp)
+                                            Column {
+                                                Text(
+                                                    text = lang.name,
+                                                    color = if (isSelected) NuxColors.MintGreen else Color.White,
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                    fontSize = 11.sp
+                                                )
+                                                if (lang.author.isNotBlank()) {
+                                                    Text(
+                                                        text = "By ${lang.author}",
+                                                        color = Color(0xFFA1A1AA),
+                                                        fontSize = 8.5.sp
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        if (isSelected) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Selected",
+                                                tint = NuxColors.ForestGreen,
+                                                modifier = Modifier.size(15.dp)
+                                            )
+                                        }
+                                    }
+                                },
+                                onClick = {
+                                    NuxLanguageManager.setLanguage(context, lang.code)
+                                    isTopLangMenuExpanded = false
+                                    Toast.makeText(context, "${lang.flag} ${lang.name}", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    }
+                }
                 Box(
                     modifier = Modifier
                         .height(26.dp)
@@ -448,7 +550,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "FOTO PROFIL & IDENTITAS",
+                                text = "PROFILE PICTURE & IDENTITY",
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White
@@ -473,7 +575,7 @@ fun SettingsScreen(
                             ) {
                                 NuxNetworkImage(
                                     model = selectedPreviewUri ?: launcherUser?.photoURL?.takeIf { it.isNotBlank() },
-                                    contentDescription = "Avatar Profil",
+                                    contentDescription = "Profile Avatar",
                                     modifier = Modifier.fillMaxSize(),
                                     fallbackInitials = launcherUser?.username ?: "NUX",
                                     shape = RoundedCornerShape(8.dp)
@@ -515,7 +617,7 @@ fun SettingsScreen(
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
-                                        text = if (isUploadingAvatar) "MENGUNGGAH..." else "GANTI FOTO PROFIL",
+                                        text = if (isUploadingAvatar) tr("common.loading") else tr("settings.btn_change_avatar"),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 10.sp,
                                         color = Color.White
@@ -523,7 +625,7 @@ fun SettingsScreen(
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Pilih gambar dari galeri HP. Otomatis disinkronkan ke cloud & voice room.",
+                                    text = "Choose image from device gallery. Automatically synced to cloud & voice rooms.",
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral,
                                     lineHeight = 12.sp
@@ -545,7 +647,7 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Email Terdaftar", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                                Text("Registered Email", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
                                 Text(
                                     text = com.israadev.nuxlauncher.core.utils.PrivacyMasker.maskEmail(launcherUser?.email),
                                     fontSize = 10.5.sp,
@@ -561,13 +663,13 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Status Lisensi", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                                Text("License Status", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
                                 val isVip = launcherUser?.isActivated == true
                                 val tierText = if (isVip) {
                                     when (launcherUser?.tier?.lowercase()) {
-                                        "monthly" -> "VIP BULANAN"
-                                        "yearly" -> "VIP TAHUNAN"
-                                        else -> "VIP LIFETIME"
+                                        "monthly" -> "MONTHLY PREMIUM"
+                                        "yearly" -> "YEARLY PREMIUM"
+                                        else -> "LIFETIME PREMIUM"
                                     }
                                 } else {
                                     "FREE MEMBER"
@@ -583,7 +685,7 @@ fun SettingsScreen(
                             val isUserVip = launcherUser?.isActivated == true
                             NuxButton(
                                 onClick = {
-                                    premiumInitialPrompt = if (isUserVip) "Status NUX VIP Anda saat ini aktif!" else null
+                                    premiumInitialPrompt = if (isUserVip) "Your NUX Premium status is currently active!" else null
                                     showPremiumDialog = true
                                 },
                                 backgroundColor = if (isUserVip) Color(0xFF1E1710) else Color(0xFFF59E0B),
@@ -596,9 +698,23 @@ fun SettingsScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                                 ) {
-                                    Text(if (isUserVip) "👑" else "★", fontSize = 11.sp)
+                                    if (isUserVip) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_vip_crown),
+                                            contentDescription = null,
+                                            tint = Color(0xFFFBBF24),
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                    } else {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_vip_crown),
+                                            contentDescription = null,
+                                            tint = Color.Black,
+                                            modifier = Modifier.size(13.dp)
+                                        )
+                                    }
                                     Text(
-                                        text = if (isUserVip) "STATUS VIP & KELOLA KEY" else "UPGRADE KE NUX PREMIUM",
+                                        text = if (isUserVip) "PREMIUM STATUS & MANAGE KEY" else "UPGRADE TO NUX PREMIUM",
                                         fontWeight = FontWeight.Black,
                                         fontSize = 9.sp
                                     )
@@ -612,7 +728,7 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Platform Akun", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                                Text("Account Platform", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
                                 NuxBadge(
                                     text = "ANDROID MOBILE",
                                     backgroundColor = NuxColors.SurfaceElevated,
@@ -627,12 +743,145 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Akun UID", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                                Text("Account UID", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
                                 Text(
                                     text = launcherUser?.uid?.take(16) ?: "-",
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral
                                 )
+                            }
+
+                            HorizontalDivider(color = NuxColors.CardBorder, thickness = 0.5.dp)
+
+                            // Language Settings Card
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(NuxColors.SurfaceElevated, RoundedCornerShape(6.dp))
+                                    .border(1.dp, NuxColors.CardBorder, RoundedCornerShape(6.dp))
+                                    .padding(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Language,
+                                                contentDescription = null,
+                                                tint = NuxColors.ForestGreen,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                            Text(
+                                                text = tr("settings.language_label"),
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = tr("settings.language_desc"),
+                                            fontSize = 8.5.sp,
+                                            color = NuxColors.GrayNeutral
+                                        )
+                                    }
+
+                                    Spacer(modifier = Modifier.width(6.dp))
+
+                                    Box {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(NuxColors.SurfaceInput, RoundedCornerShape(6.dp))
+                                                .border(1.dp, NuxColors.MintGreen.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                                .clickable { isCardLangMenuExpanded = true }
+                                                .padding(horizontal = 8.dp, vertical = 5.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(5.dp)
+                                            ) {
+                                                Text(text = activeLanguage.flag, fontSize = 12.sp)
+                                                Text(
+                                                    text = activeLanguage.name,
+                                                    color = NuxColors.MintGreen,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 9.5.sp
+                                                )
+                                                Icon(
+                                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                                    contentDescription = "Dropdown",
+                                                    tint = Color(0xFFA1A1AA),
+                                                    modifier = Modifier.size(12.dp)
+                                                )
+                                            }
+                                        }
+
+                                        DropdownMenu(
+                                            expanded = isCardLangMenuExpanded,
+                                            onDismissRequest = { isCardLangMenuExpanded = false },
+                                            shape = RoundedCornerShape(12.dp),
+                                            containerColor = Color(0xF212141C),
+                                            shadowElevation = 16.dp,
+                                            border = BorderStroke(1.dp, Color(0x33FFFFFF))
+                                        ) {
+                                            availableLanguages.forEach { lang ->
+                                                val isSelected = lang.code.equals(activeLanguage.code, ignoreCase = true)
+                                                DropdownMenuItem(
+                                                    text = {
+                                                        Row(
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                                            verticalAlignment = Alignment.CenterVertically
+                                                        ) {
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                            ) {
+                                                                Text(text = lang.flag, fontSize = 15.sp)
+                                                                Column {
+                                                                    Text(
+                                                                        text = lang.name,
+                                                                        color = if (isSelected) NuxColors.MintGreen else Color.White,
+                                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                                        fontSize = 11.sp
+                                                                    )
+                                                                    if (lang.author.isNotBlank()) {
+                                                                        Text(
+                                                                            text = "By ${lang.author}",
+                                                                            color = Color(0xFFA1A1AA),
+                                                                            fontSize = 8.5.sp
+                                                                        )
+                                                                    }
+                                                                }
+                                                            }
+                                                            if (isSelected) {
+                                                                Icon(
+                                                                    imageVector = Icons.Default.Check,
+                                                                    contentDescription = "Selected",
+                                                                    tint = NuxColors.ForestGreen,
+                                                                    modifier = Modifier.size(15.dp)
+                                                                )
+                                                            }
+                                                        }
+                                                    },
+                                                    onClick = {
+                                                        NuxLanguageManager.setLanguage(context, lang.code)
+                                                        isCardLangMenuExpanded = false
+                                                        Toast.makeText(context, "${lang.flag} ${lang.name}", Toast.LENGTH_SHORT).show()
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
                             }
 
                             HorizontalDivider(color = NuxColors.CardBorder, thickness = 0.5.dp)
@@ -657,7 +906,7 @@ fun SettingsScreen(
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Text(
-                                        text = "TENTANG & LISENSI OPEN SOURCE",
+                                        text = "ABOUT & OPEN SOURCE LICENSES",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 9.sp,
                                         color = Color.White
@@ -695,7 +944,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "GANTI USERNAME NUX",
+                                text = tr("settings.card_change_username"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White
@@ -703,7 +952,7 @@ fun SettingsScreen(
                         }
 
                         Text(
-                            text = "Ubah Display Name Anda. Username berlaku unik global dan digunakan untuk nama in-game Minecraft serta obrolan voice room.",
+                            text = "Update your display name. Username is globally unique and used in Minecraft and voice rooms.",
                             fontSize = 9.5.sp,
                             color = NuxColors.GrayNeutral,
                             lineHeight = 13.sp
@@ -718,7 +967,7 @@ fun SettingsScreen(
                                 .padding(10.dp)
                         ) {
                             Text(
-                                text = "Username Baru",
+                                text = "New Username",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.GrayNeutral
@@ -731,7 +980,7 @@ fun SettingsScreen(
                                     editUsername = it
                                     usernameError = null
                                 },
-                                placeholder = "Contoh: AlexGamer99"
+                                placeholder = "e.g. AlexGamer99"
                             )
 
                             if (usernameError != null) {
@@ -746,7 +995,7 @@ fun SettingsScreen(
 
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "3 - 20 karakter alfanumerik & garis bawah (_).",
+                                text = "3 - 20 alphanumeric characters & underscores (_).",
                                 fontSize = 9.sp,
                                 color = NuxColors.GrayNeutral
                             )
@@ -770,7 +1019,7 @@ fun SettingsScreen(
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("MENYIMPAN...", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                                    Text("SAVING...", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                                 } else {
                                     Icon(
                                         imageVector = Icons.Outlined.Check,
@@ -779,7 +1028,7 @@ fun SettingsScreen(
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("SIMPAN USERNAME", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                                    Text(tr("settings.btn_save_username"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                                 }
                             }
                         }
@@ -795,14 +1044,14 @@ fun SettingsScreen(
                                 .padding(10.dp)
                         ) {
                             Text(
-                                text = "MANAJEMEN SESI AKUN",
+                                text = "ACCOUNT SESSION MANAGEMENT",
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Black,
                                 color = Color.White
                             )
                             Spacer(modifier = Modifier.height(3.dp))
                             Text(
-                                text = "Keluar dari sesi akun saat ini di HP ini.",
+                                text = "Sign out of your active account session on this device.",
                                 fontSize = 9.5.sp,
                                 color = NuxColors.GrayNeutral
                             )
@@ -825,7 +1074,7 @@ fun SettingsScreen(
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("KELUAR DARI AKUN (LOGOUT)", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = NuxColors.Coral)
+                                Text(tr("sidebar.logout"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = NuxColors.Coral)
                             }
                         }
                     }
@@ -869,7 +1118,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "ALOKASI RAM & JVM MEMORY",
+                                text = tr("settings.section_ram"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White
@@ -890,7 +1139,7 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Maksimum RAM (-Xmx)",
+                                    text = tr("settings.ram_max_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -938,7 +1187,7 @@ fun SettingsScreen(
 
                             // Quick RAM Presets
                             Text(
-                                text = "Preset Cepat:",
+                                text = tr("settings.ram_quick_presets"),
                                 fontSize = 9.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.GrayNeutral
@@ -986,7 +1235,7 @@ fun SettingsScreen(
                         // Custom JVM Arguments
                         Column {
                             Text(
-                                text = "Custom JVM Arguments (Opsional)",
+                                text = tr("settings.jvm_args_label"),
                                 fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.GrayNeutral
@@ -998,7 +1247,7 @@ fun SettingsScreen(
                                     customJvmArgs = it
                                     commitSettings()
                                 },
-                                placeholder = "Contoh: -XX:+UseG1GC -Dminecraft.applet.TargetDirectory=..."
+                                placeholder = tr("settings.jvm_args_placeholder")
                             )
                         }
 
@@ -1014,7 +1263,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "GRAFIK & OPTIMASI MINECRAFT",
+                                text = tr("settings.section_graphics"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White
@@ -1041,7 +1290,7 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Renderer Grafik (Backend)",
+                                    text = tr("settings.renderer_card_title"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -1062,7 +1311,7 @@ fun SettingsScreen(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Settings,
-                                                contentDescription = "Konfigurasi Renderer",
+                                                contentDescription = "Configure Renderer",
                                                 tint = NuxColors.MintGreen,
                                                 modifier = Modifier.size(14.dp)
                                             )
@@ -1083,7 +1332,7 @@ fun SettingsScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = "GANTI",
+                                            text = "CHANGE",
                                             fontSize = 9.5.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = NuxColors.MintGreen
@@ -1150,7 +1399,7 @@ fun SettingsScreen(
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Otomatis optimasi setting visual (Clouds, Shadows) untuk FPS maksimal",
+                                    text = "Automatically optimize visual settings (Clouds, Shadows) for peak FPS",
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral
                                 )
@@ -1182,7 +1431,7 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Skala Resolusi Layar",
+                                    text = tr("settings.resolution_ratio_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -1238,13 +1487,13 @@ fun SettingsScreen(
                                 .padding(10.dp)
                         ) {
                             Text(
-                                text = "Driver Vulkan",
+                                text = "Vulkan Driver",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
-                                text = "Pilih implementasi driver Vulkan yang digunakan sistem/game",
+                                text = "Select Vulkan driver implementation for system/game",
                                 fontSize = 9.5.sp,
                                 color = NuxColors.GrayNeutral
                             )
@@ -1292,13 +1541,13 @@ fun SettingsScreen(
                                 .padding(10.dp)
                         ) {
                             Text(
-                                text = "API Grafis",
+                                text = "Graphics API",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
                             Text(
-                                text = "Atur API grafis yang digunakan oleh Minecraft modern 26.2+",
+                                text = "Configure graphics API used by modern Minecraft 26.2+",
                                 fontSize = 9.5.sp,
                                 color = NuxColors.GrayNeutral
                             )
@@ -1349,13 +1598,13 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Gunakan Driver Vulkan Sistem",
+                                    text = tr("settings.vulkan_system_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Paksa menggunakan driver Vulkan bawaan sistem HP (bukan Turnip). Mempengaruhi perender Zink.",
+                                    text = "Force device system Vulkan driver instead of Turnip. Affects Zink renderer.",
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral
                                 )
@@ -1390,13 +1639,13 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Sinkronisasi Vertikal Zink",
+                                    text = tr("settings.vsync_zink_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Aktifkan sinkronisasi vertikal (V-Sync) untuk perender Kopper Zink via antarmuka sistem.",
+                                    text = "Enable vertical synchronization (V-Sync) for Kopper Zink renderer.",
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral
                                 )
@@ -1445,7 +1694,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "KONTROL MOUSE & SENTUHAN IN-GAME",
+                                text = tr("settings.section_mouse"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White
@@ -1453,7 +1702,7 @@ fun SettingsScreen(
                         }
 
                         Text(
-                            text = "Pengaturan mode mouse untuk menu Minecraft (Inventory, Pause Menu, Chat, Crafting).",
+                            text = tr("settings.mouse_desc"),
                             fontSize = 9.5.sp,
                             color = NuxColors.GrayNeutral
                         )
@@ -1478,7 +1727,7 @@ fun SettingsScreen(
                                         modifier = Modifier.size(14.dp)
                                     )
                                     Text(
-                                        text = "KUSTOMISASI KONTROL VIRTUAL",
+                                        text = tr("settings.virtual_controls_title"),
                                         fontWeight = FontWeight.Black,
                                         fontSize = 11.sp,
                                         color = Color.White
@@ -1486,7 +1735,7 @@ fun SettingsScreen(
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "Ubah tata letak tombol, ukuran, transparansi, scroll hotbar, dan mapping input key Minecraft.",
+                                    text = tr("settings.virtual_controls_desc"),
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral,
                                     lineHeight = 12.sp
@@ -1503,7 +1752,7 @@ fun SettingsScreen(
                                 ) {
                                     Icon(Icons.Outlined.Edit, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("BUKA GUI EDITOR", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                                    Text(tr("settings.btn_open_gui_editor"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                                 }
                             }
                         }
@@ -1543,7 +1792,7 @@ fun SettingsScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = "SLIDE (Trackpad)",
+                                            text = tr("settings.mouse_mode_slide_title"),
                                             fontSize = 10.5.sp,
                                             fontWeight = FontWeight.Black,
                                             color = if (isSlide) NuxColors.MintGreen else Color.White
@@ -1551,7 +1800,7 @@ fun SettingsScreen(
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
-                                        text = "Geser jari untuk kursor virtual, ketuk layar untuk klik item.",
+                                        text = tr("settings.mouse_mode_slide_desc"),
                                         fontSize = 9.sp,
                                         color = NuxColors.GrayNeutral,
                                         lineHeight = 11.sp
@@ -1589,7 +1838,7 @@ fun SettingsScreen(
                                         )
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Text(
-                                            text = "CLICK (Direct)",
+                                            text = tr("settings.mouse_mode_click_title"),
                                             fontSize = 10.5.sp,
                                             fontWeight = FontWeight.Black,
                                             color = if (isClick) NuxColors.MintGreen else Color.White
@@ -1597,7 +1846,7 @@ fun SettingsScreen(
                                     }
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
-                                        text = "Sentuh tombol atau slot menu langsung di mana jari menekan.",
+                                        text = tr("settings.mouse_mode_click_desc"),
                                         fontSize = 9.sp,
                                         color = NuxColors.GrayNeutral,
                                         lineHeight = 11.sp
@@ -1620,7 +1869,7 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Sensitivitas Kamera Game (Rotasi)",
+                                    text = tr("settings.camera_sensitivity_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -1669,7 +1918,7 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Sensitivitas Kursor Virtual (Menu)",
+                                    text = tr("settings.mouse_sensitivity_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -1718,7 +1967,7 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Ukuran Kursor Virtual",
+                                    text = tr("settings.mouse_size_label"),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -1758,13 +2007,13 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Mode Mouse Fisik (Auto-Hide)",
+                                    text = "Physical Mouse Mode (Auto-Hide)",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Sembunyikan kursor virtual otomatis jika mouse eksternal tersambung",
+                                    text = "Automatically hide virtual controls when external mouse is connected",
                                     fontSize = 9.sp,
                                     color = NuxColors.GrayNeutral
                                 )
@@ -1808,7 +2057,7 @@ fun SettingsScreen(
                                     aiAutoAnalyze = reset.aiAutoAnalyze
                                     aiApiKey = reset.aiApiKey
                                     aiModel = reset.aiModel
-                                    Toast.makeText(context, "Pengaturan di-reset ke default!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Settings reset to defaults!", Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier
                                     .weight(1f)
@@ -1819,7 +2068,7 @@ fun SettingsScreen(
                                 cornerRadius = 6.dp
                             ) {
                                 Text(
-                                    text = "RESET DEFAULT",
+                                    text = "RESET DEFAULTS",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.5.sp,
                                     color = NuxColors.Coral
@@ -1829,7 +2078,7 @@ fun SettingsScreen(
                             NuxButton(
                                 onClick = {
                                     commitSettings()
-                                    Toast.makeText(context, "Semua pengaturan tersimpan!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "All settings saved!", Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier
                                     .weight(1f)
@@ -1839,7 +2088,7 @@ fun SettingsScreen(
                                 cornerRadius = 6.dp
                             ) {
                                 Text(
-                                    text = "SIMPAN",
+                                    text = "SAVE",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.5.sp,
                                     color = Color.White
@@ -1887,7 +2136,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "AI CRASH ANALYZER & DIAGNOSIS",
+                                text = tr("settings.section_ai_crash"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
                                 color = Color.White
@@ -1906,15 +2155,15 @@ fun SettingsScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = "Analisis Otomatis Saat Game Crash",
+                                    text = tr("settings.ai_auto_analyze_label"),
                                     fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = if (aiAutoAnalyze) "Aktif: AI langsung menganalisis otomatis saat Minecraft berhenti tak terduga."
-                                           else "Nonaktif (Default): Analisis AI dijalankan secara manual di dialog crash untuk menghemat kuota & token.",
+                                    text = if (aiAutoAnalyze) "Active: AI analyzes crash logs automatically when game terminates unexpectedly."
+                                           else "Disabled (Default): AI analysis is triggered manually in crash dialogs to conserve quota.",
                                     fontSize = 9.sp,
                                     color = if (aiAutoAnalyze) NuxColors.MintGreen else NuxColors.GrayNeutral,
                                     lineHeight = 12.sp
@@ -1945,7 +2194,7 @@ fun SettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "API KEY (OPSIONAL)",
+                                text = tr("settings.ai_api_key_label"),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 11.sp,
                                 color = Color.White
@@ -1960,7 +2209,7 @@ fun SettingsScreen(
                                 .padding(10.dp)
                         ) {
                             Text(
-                                text = "Kunci Akses API (OpenRouter API Key):",
+                                text = "API Access Key (OpenRouter API Key):",
                                 fontSize = 9.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.GrayNeutral
@@ -1973,7 +2222,7 @@ fun SettingsScreen(
                                     aiApiKey = it
                                     commitSettings()
                                 },
-                                placeholder = "Dikosongkan = Kuota gratis bawaan launcher",
+                                placeholder = "Leave blank = Default launcher free quota",
                                 visualTransformation = if (showApiKeyPlaintext) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
                                 trailingContent = {
                                     Icon(
@@ -1989,7 +2238,7 @@ fun SettingsScreen(
 
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "Mendukung format 'sk-or-v1-...' dari OpenRouter. Jika dikosongkan, launcher otomatis menggunakan kuota gratis bawaan.",
+                                text = "Supports OpenRouter 'sk-or-v1-...' format. If empty, launcher uses built-in free quota.",
                                 fontSize = 8.5.sp,
                                 color = NuxColors.GrayNeutral
                             )
@@ -2012,7 +2261,7 @@ fun SettingsScreen(
                                             aiConnectionTestResult = msg
                                         }.onFailure { err ->
                                             isAiConnectionSuccess = false
-                                            aiConnectionTestResult = err.message ?: "Koneksi gagal"
+                                            aiConnectionTestResult = err.message ?: "Connection failed"
                                         }
                                     }
                                 },
@@ -2032,7 +2281,7 @@ fun SettingsScreen(
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("MENGUJI...", fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
+                                    Text(tr("settings.btn_testing_ai"), fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
                                 } else {
                                     Icon(
                                         imageVector = Icons.Outlined.NetworkCheck,
@@ -2041,14 +2290,14 @@ fun SettingsScreen(
                                         modifier = Modifier.size(13.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("TES KONEKSI AI", fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
+                                    Text(tr("settings.btn_test_ai"), fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
                                 }
                             }
 
                             NuxButton(
                                 onClick = {
                                     commitSettings()
-                                    Toast.makeText(context, "Pengaturan AI Analitik tersimpan!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "AI Analytics settings saved!", Toast.LENGTH_SHORT).show()
                                 },
                                 modifier = Modifier
                                     .weight(1f)
@@ -2064,7 +2313,7 @@ fun SettingsScreen(
                                     modifier = Modifier.size(13.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("SIMPAN PENGATURAN", fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
+                                Text(tr("settings.btn_save_settings"), fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = Color.White)
                             }
                         }
 
@@ -2138,7 +2387,7 @@ fun SettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "STATUS SISTEM & KAPABILITAS",
+                                    text = "SYSTEM STATUS & CAPABILITIES",
                                     fontWeight = FontWeight.Black,
                                     fontSize = 12.sp,
                                     color = Color.White
@@ -2151,7 +2400,7 @@ fun SettingsScreen(
                                     .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Text(
-                                    text = "ONLINE & SIAP",
+                                    text = "ONLINE & READY",
                                     color = NuxColors.MintGreen,
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.Bold
@@ -2169,18 +2418,18 @@ fun SettingsScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "Apa Saja yang Dapat Didiagnosis AI?",
+                                text = tr("settings.ai_capabilities_title"),
                                 fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
                             )
 
                             val features = listOf(
-                                "📦 Mod Inkompatibel & Konflik Versi" to "Mendeteksi secara akurat mod mana yang menyebabkan game crash serta dependensi yang hilang.",
-                                "🧠 Alokasi RAM & OutOfMemoryError" to "Menganalisis apakah RAM sistem kurang atau heap size Java tidak mencukupi untuk modpack.",
-                                "🎮 GPU Driver, Vulkan & Zink Shader" to "Mendiagnosis crash GL/GLES, masalah Turnip driver, atau kesalahan kompilasi shader Minecraft.",
-                                "☕ Java Runtime & ClassNotFound" to "Memverifikasi kecocokan versi Java (Java 8, 17, 21) dengan versi Fabric/Forge yang dimainkan.",
-                                "⚡ Solusi Perbaikan Instan" to "Memberikan langkah praktis 1-2-3 yang langsung dapat diterapkan pemain tanpa perlu membaca ribuan baris log mentah."
+                                "📦 Incompatible Mods & Conflicts" to "Accurately detects which mod caused the game to crash and identifies missing dependencies.",
+                                "🧠 RAM Allocation & OutOfMemoryError" to "Analyzes whether system RAM is insufficient or Java heap size is too small for the modpack.",
+                                "🎮 GPU Driver, Vulkan & Zink Shader" to "Diagnoses GL/GLES crashes, Turnip driver issues, or Minecraft shader compilation errors.",
+                                "☕ Java Runtime & ClassNotFound" to "Verifies compatibility between Java version (Java 8, 17, 21) and the installed Fabric/Forge version.",
+                                "⚡ Instant Fix Recommendations" to "Provides actionable 1-2-3 resolution steps that players can apply immediately without reading raw logs."
                             )
 
                             features.forEach { (title, desc) ->
@@ -2230,7 +2479,7 @@ fun SettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Ingin Menggunakan API Key Pribadi?",
+                                    text = "Want to Use a Personal API Key?",
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = NuxColors.MintGreen
@@ -2238,10 +2487,10 @@ fun SettingsScreen(
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = "1. Buka openrouter.ai di browser Anda dan daftar/login\n" +
-                                       "2. Buat API Key di menu 'Keys' (awalan 'sk-or-v1-...')\n" +
-                                       "3. Salin kunci lalu tempel di kolom API Key di sebelah kiri\n" +
-                                       "4. Dapatkan kuota pribadi super cepat dengan model AI terbaik!",
+                                text = "1. Open openrouter.ai in your browser and sign up / log in\n" +
+                                       "2. Create an API Key in the 'Keys' menu (starts with 'sk-or-v1-...')\n" +
+                                       "3. Copy the key and paste it into the API Key field on the left\n" +
+                                       "4. Enjoy ultra-fast dedicated quota with the best AI models!",
                                 fontSize = 8.5.sp,
                                 color = Color.White.copy(alpha = 0.85f),
                                 lineHeight = 12.sp
@@ -2258,7 +2507,7 @@ fun SettingsScreen(
                 onDismissRequest = { showLogoutDialog = false },
                 title = {
                     Text(
-                        text = "Keluar dari Akun?",
+                        text = "Sign Out of Account?",
                         fontWeight = FontWeight.Black,
                         fontSize = 14.sp,
                         color = Color.White
@@ -2266,7 +2515,7 @@ fun SettingsScreen(
                 },
                 text = {
                     Text(
-                        text = "Anda akan keluar dari sesi akun ${launcherUser?.username ?: ""}. Anda dapat login kembali kapan saja.",
+                        text = "You will be signed out of ${launcherUser?.username ?: ""}. You can log back in at any time.",
                         color = NuxColors.GrayNeutral,
                         fontSize = 11.sp
                     )
@@ -2277,14 +2526,14 @@ fun SettingsScreen(
                             showLogoutDialog = false
                             AccountManager.logout(context)
                             onNavigateBack()
-                            Toast.makeText(context, "Berhasil logout", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Signed out successfully", Toast.LENGTH_SHORT).show()
                         },
                         modifier = Modifier.height(32.dp),
                         backgroundColor = NuxColors.Coral,
                         contentColor = Color.White,
                         cornerRadius = 6.dp
                     ) {
-                        Text("YA, KELUAR", fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                        Text("YES, SIGN OUT", fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
                     }
                 },
                 dismissButton = {
@@ -2295,7 +2544,7 @@ fun SettingsScreen(
                         contentColor = NuxColors.GrayNeutral,
                         cornerRadius = 6.dp
                     ) {
-                        Text("BATAL", fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
+                        Text("CANCEL", fontWeight = FontWeight.Bold, fontSize = 10.5.sp)
                     }
                 },
                 containerColor = NuxColors.SurfaceElevated,
@@ -2334,13 +2583,13 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = "PILIH RENDERER GRAFIK",
+                                    text = "SELECT GRAPHICS RENDERER",
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
                                     color = Color.White
                                 )
                                 Text(
-                                    text = "Sesuaikan backend grafis dengan Minecraft & GPU perangkat",
+                                    text = "Match graphics backend with Minecraft version & device GPU",
                                     fontSize = 9.5.sp,
                                     color = NuxColors.GrayNeutral
                                 )
@@ -2352,7 +2601,7 @@ fun SettingsScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Tutup",
+                                contentDescription = "Close",
                                 tint = Color.White,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -2386,7 +2635,7 @@ fun SettingsScreen(
                                         selectedRenderer = rendererItem.id
                                         commitSettings()
                                         showRendererDialog = false
-                                        Toast.makeText(context, "Renderer diubah ke: ${rendererItem.displayName}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Renderer changed to: ${rendererItem.displayName}", Toast.LENGTH_SHORT).show()
                                     }
                                     .padding(8.dp)
                             ) {
@@ -2406,7 +2655,7 @@ fun SettingsScreen(
                                                     selectedRenderer = rendererItem.id
                                                     commitSettings()
                                                     showRendererDialog = false
-                                                    Toast.makeText(context, "Renderer diubah ke: ${rendererItem.displayName}", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, "Renderer changed to: ${rendererItem.displayName}", Toast.LENGTH_SHORT).show()
                                                 },
                                                 colors = RadioButtonDefaults.colors(
                                                     selectedColor = NuxColors.ForestGreen,
@@ -2439,7 +2688,7 @@ fun SettingsScreen(
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.Settings,
-                                                        contentDescription = "Konfigurasi ${rendererItem.displayName}",
+                                                        contentDescription = "Configure ${rendererItem.displayName}",
                                                         tint = NuxColors.MintGreen,
                                                         modifier = Modifier.size(13.dp)
                                                     )
@@ -2474,7 +2723,7 @@ fun SettingsScreen(
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "Kesesuaian: ${rendererItem.compatibility}",
+                                        text = "Compatibility: ${rendererItem.compatibility}",
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.SemiBold,
                                         color = NuxColors.MintGreen,
@@ -2498,7 +2747,7 @@ fun SettingsScreen(
                             contentColor = Color.White,
                             cornerRadius = 6.dp
                         ) {
-                            Text("TUTUP", fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                            Text("CLOSE", fontWeight = FontWeight.Bold, fontSize = 10.sp)
                         }
                     }
                 }
@@ -2532,17 +2781,22 @@ fun SettingsScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("⚠️", fontSize = 16.sp)
+                            Icon(
+                                painter = painterResource(R.drawable.ic_warning_triangle),
+                                contentDescription = null,
+                                tint = Color(0xFFFBBF24),
+                                modifier = Modifier.size(18.dp)
+                            )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "PERINGATAN DRIVER ADRENO",
+                                text = "ADRENO DRIVER WARNING",
                                 color = Color(0xFFFBBF24),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 13.sp
                             )
                         }
                         Text(
-                            text = "Launcher mendeteksi perangkatmu menggunakan GPU Adreno. Mengaktifkan opsi ini dapat menyebabkan perender Zink tidak berfungsi atau crash. Apakah Anda yakin ingin mengaktifkannya?",
+                            text = "Launcher detected an Adreno GPU. Enabling this option may cause Zink renderer to malfunction or crash. Are you sure you want to proceed?",
                             color = Color(0xFFD4D4D8),
                             fontSize = 11.sp,
                             lineHeight = 16.sp
@@ -2563,7 +2817,7 @@ fun SettingsScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
-                                        "BATAL",
+                                        "CANCEL",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.sp
                                     )

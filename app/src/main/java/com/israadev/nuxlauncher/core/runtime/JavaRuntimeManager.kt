@@ -181,7 +181,7 @@ object JavaRuntimeManager {
                     )
                 }
             } catch (e: Exception) {
-                android.util.Log.e("JavaRuntimeManager", "Gagal unpack universal.tar.xz: ${e.message}", e)
+                android.util.Log.e("JavaRuntimeManager", "Failed to unpack universal.tar.xz: ${e.message}", e)
                 throw e
             }
 
@@ -201,7 +201,7 @@ object JavaRuntimeManager {
                     )
                 }
             } catch (e: Exception) {
-                android.util.Log.e("JavaRuntimeManager", "Gagal unpack bin-$arch.tar.xz: ${e.message}", e)
+                android.util.Log.e("JavaRuntimeManager", "Failed to unpack bin-$arch.tar.xz: ${e.message}", e)
                 throw e
             }
 
@@ -225,10 +225,10 @@ object JavaRuntimeManager {
             }
 
             if (!isRuntimeInstalled(context, runtimeName)) {
-                return@withContext Result.failure(Exception("Verifikasi OpenJDK $runtimeName tidak lengkap setelah ekstraksi."))
+                return@withContext Result.failure(Exception("Verification of OpenJDK $runtimeName incomplete after extraction."))
             }
 
-            onProgress(1.0f, "Ekstraksi OpenJDK $runtimeName selesai!")
+            onProgress(1.0f, "Extraction of OpenJDK $runtimeName complete!")
             Result.success(destDir)
         } catch (e: Exception) {
             Result.failure(e)
@@ -281,7 +281,7 @@ object JavaRuntimeManager {
                     android.util.Log.w("JavaRuntimeManager", "unpack200 exit code $exitCode for ${packFile.name}")
                 }
             } catch (e: Exception) {
-                android.util.Log.e("JavaRuntimeManager", "Gagal unpack200 ${packFile.name}: ${e.message}", e)
+                android.util.Log.e("JavaRuntimeManager", "Failed to unpack200 ${packFile.name}: ${e.message}", e)
             }
         }
     }

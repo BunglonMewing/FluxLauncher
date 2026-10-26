@@ -32,6 +32,11 @@ import com.israadev.nuxlauncher.FpsMode
 import com.israadev.nuxlauncher.ui.control.MouseControlMode
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.movtery.inputmap.keycodes.LwjglGlfwKeycode
+import com.israadev.nuxlauncher.core.recorder.ScreenRecordConfig
+import com.israadev.nuxlauncher.core.recorder.ScreenResolution
+import com.israadev.nuxlauncher.core.recorder.ScreenRecordManager
+import com.israadev.nuxlauncher.core.account.AccountManager
+import com.israadev.nuxlauncher.core.lang.tr
 import kotlin.math.roundToInt
 
 @Composable
@@ -57,11 +62,17 @@ fun InGameSettingsDialog(
     onRequestKeyboard: () -> Unit,
     onSendKeycode: (Int) -> Unit,
     onForceExitRequest: () -> Unit,
-    onOpenCustomGui: () -> Unit = {}
+    onOpenCustomGui: () -> Unit = {},
+    isRecording: Boolean = false,
+    recordingDurationSeconds: Long = 0,
+    onRequestStartRecord: ((ScreenRecordConfig) -> Unit)? = null,
+    onStopRecord: (() -> Unit)? = null,
+    onOpenPremium: (() -> Unit)? = null,
+    initialTab: Int = 0
 ) {
     if (!visible) return
 
-    var selectedTab by remember { mutableIntStateOf(0) }
+    var selectedTab by remember(visible) { mutableIntStateOf(initialTab) }
     var tempResolution by remember(currentResolutionRatio) { mutableFloatStateOf(currentResolutionRatio.toFloat()) }
     var tempCursorSens by remember(cursorSensitivity) { mutableFloatStateOf(cursorSensitivity.toFloat()) }
     var tempCaptureSens by remember(captureSensitivity) { mutableFloatStateOf(captureSensitivity.toFloat()) }
@@ -142,7 +153,7 @@ fun InGameSettingsDialog(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
-                                    text = "PENGATURAN DALAM GAME",
+                                    text = tr("ingame.settings_title"),
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
@@ -203,7 +214,7 @@ fun InGameSettingsDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Tutup Menu",
+                                    contentDescription = tr("common.close"),
                                     tint = Color.White,
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -214,7 +225,12 @@ fun InGameSettingsDialog(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     // 2. Tab Navigation
-                    val tabs = listOf("Grafis & Layar", "Kontrol & Mouse", "Pintas & Sistem")
+                    val tabs = listOf(
+                        tr("settings.tab_game"),
+                        tr("controls.title"),
+                        tr("ingame.tab_shortcuts"),
+                        tr("recorder.title")
+                    )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -257,7 +273,7 @@ fun InGameSettingsDialog(
                             0 -> {
                                 // === TAB 0: GRAFIS & LAYAR ===
                                 // A. Slider Skala Resolusi
-                                InGameSectionCard(title = "Skala Resolusi Layar (Resolution Scale)") {
+                                InGameSectionCard(title = tr("ingame.resolution_scale")) {
                                     Column {
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -265,7 +281,7 @@ fun InGameSettingsDialog(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = "Resolusi Render:",
+                                                text = "${tr("ingame.resolution_scale")}:",
                                                 color = Color(0xFF94A3B8),
                                                 fontSize = 11.sp
                                             )
@@ -296,128 +312,117 @@ fun InGameSettingsDialog(
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            listOf(50, 75, 100).forEach { preset ->
-                                                val isCur = tempResolution.roundToInt() == preset
-                                                Box(
-                                                    modifier = Modifier
-                                                        .weight(1f)
-                                                        .clip(RoundedCornerShape(6.dp))
-                                                        .background(if (isCur) NuxColors.ForestGreen.copy(alpha = 0.5f) else Color(0x22FFFFFF))
-                                                        .border(1.dp, if (isCur) NuxColors.MintGreen else Color.Transparent, RoundedCornerShape(6.dp))
-                                                        .clickable {
-                                                            tempResolution = preset.toFloat()
-                                                            onResolutionChange(preset)
-                                                        }
-                                                        .padding(vertical = 5.dp),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        text = "$preset% ${if (preset == 50) "Performa" else if (preset == 75) "Seimbang" else "Penuh"}",
-                                                        color = Color.White,
-                                                        fontSize = 10.sp,
-                                                        fontWeight = FontWeight.SemiBold
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            text = "💡 Resolusi langsung berubah secara dinamis di engine tanpa perlu restart.",
-                                            color = Color(0xFF64748B),
-                                            fontSize = 9.5.sp
-                                        )
-                                    }
-                                }
+                                         ) {
+                                             listOf(50, 75, 100).forEach { preset ->
+                                                 val isCur = tempResolution.roundToInt() == preset
+                                                 Box(
+                                                     modifier = Modifier
+                                                         .weight(1f)
+                                                         .clip(RoundedCornerShape(6.dp))
+                                                         .background(if (isCur) NuxColors.ForestGreen.copy(alpha = 0.5f) else Color(0x22FFFFFF))
+                                                         .border(1.dp, if (isCur) NuxColors.MintGreen else Color.Transparent, RoundedCornerShape(6.dp))
+                                                         .clickable {
+                                                             tempResolution = preset.toFloat()
+                                                             onResolutionChange(preset)
+                                                         }
+                                                         .padding(vertical = 5.dp),
+                                                     contentAlignment = Alignment.Center
+                                                 ) {
+                                                     Text(
+                                                         text = "$preset%",
+                                                         color = Color.White,
+                                                         fontSize = 10.sp,
+                                                         fontWeight = FontWeight.SemiBold
+                                                     )
+                                                 }
+                                             }
+                                         }
+                                     }
+                                 }
 
-                                Spacer(modifier = Modifier.height(10.dp))
+                                 Spacer(modifier = Modifier.height(10.dp))
 
-                                // B. Pin FPS Toggle
-                                InGameSectionCard(title = "Indikator FPS") {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(
-                                                text = "Pin FPS di Layar",
-                                                color = Color.White,
-                                                fontSize = 12.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                            Text(
-                                                text = "Tetap tampil meski kontrol tombol layar disembunyikan (Hide GUI)",
-                                                color = Color(0xFF94A3B8),
-                                                fontSize = 10.sp
-                                            )
-                                        }
-                                        Switch(
-                                            checked = fpsMode == FpsMode.PINNED,
-                                            onCheckedChange = { checked ->
-                                                onFpsModeChange(if (checked) FpsMode.PINNED else FpsMode.NORMAL)
-                                            },
-                                            colors = SwitchDefaults.colors(
-                                                checkedThumbColor = Color.White,
-                                                checkedTrackColor = NuxColors.ForestGreen
-                                            )
-                                        )
-                                    }
-                                }
+                                 // B. Pin FPS Toggle
+                                 InGameSectionCard(title = "FPS") {
+                                     Row(
+                                         modifier = Modifier.fillMaxWidth(),
+                                         verticalAlignment = Alignment.CenterVertically,
+                                         horizontalArrangement = Arrangement.SpaceBetween
+                                     ) {
+                                         Column(modifier = Modifier.weight(1f)) {
+                                             Text(
+                                                 text = tr("ingame.fps_pinned"),
+                                                 color = Color.White,
+                                                 fontSize = 12.sp,
+                                                 fontWeight = FontWeight.Bold
+                                             )
+                                         }
+                                         Switch(
+                                             checked = fpsMode == FpsMode.PINNED,
+                                             onCheckedChange = { checked ->
+                                                 onFpsModeChange(if (checked) FpsMode.PINNED else FpsMode.NORMAL)
+                                             },
+                                             colors = SwitchDefaults.colors(
+                                                 checkedThumbColor = Color.White,
+                                                 checkedTrackColor = NuxColors.ForestGreen
+                                             )
+                                         )
+                                     }
+                                 }
 
-                                Spacer(modifier = Modifier.height(10.dp))
+                                 Spacer(modifier = Modifier.height(10.dp))
 
-                                // C. Live Console Log Button
-                                InGameSectionCard(title = "Diagnostik Engine") {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(Color(0x3310B981))
-                                            .border(1.dp, Color(0x4D10B981), RoundedCornerShape(8.dp))
-                                            .clickable {
-                                                onDismissRequest()
-                                                onOpenConsoleLog()
-                                            }
-                                            .padding(horizontal = 12.dp, vertical = 9.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Terminal,
-                                                contentDescription = null,
-                                                tint = NuxColors.MintGreen,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = "Buka Live Console Log",
-                                                color = Color.White,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                        Icon(
-                                            imageVector = Icons.Outlined.ChevronRight,
-                                            contentDescription = null,
-                                            tint = NuxColors.MintGreen,
-                                            modifier = Modifier.size(16.dp)
-                                        )
-                                    }
-                                }
+                                 // C. Live Console Log Button
+                                 InGameSectionCard(title = tr("common.diagnostics", "Diagnostics")) {
+                                     Row(
+                                         modifier = Modifier
+                                             .fillMaxWidth()
+                                             .clip(RoundedCornerShape(8.dp))
+                                             .background(Color(0x3310B981))
+                                             .border(1.dp, Color(0x4D10B981), RoundedCornerShape(8.dp))
+                                             .clickable {
+                                                 onDismissRequest()
+                                                 onOpenConsoleLog()
+                                             }
+                                             .padding(horizontal = 12.dp, vertical = 9.dp),
+                                         verticalAlignment = Alignment.CenterVertically,
+                                         horizontalArrangement = Arrangement.SpaceBetween
+                                     ) {
+                                         Row(verticalAlignment = Alignment.CenterVertically) {
+                                             Icon(
+                                                 imageVector = Icons.Outlined.Terminal,
+                                                 contentDescription = null,
+                                                 tint = NuxColors.MintGreen,
+                                                 modifier = Modifier.size(16.dp)
+                                             )
+                                             Spacer(modifier = Modifier.width(8.dp))
+                                             Text(
+                                                 text = tr("ingame.open_console"),
+                                                 color = Color.White,
+                                                 fontSize = 11.sp,
+                                                 fontWeight = FontWeight.Bold
+                                             )
+                                         }
+                                         Icon(
+                                             imageVector = Icons.Outlined.ChevronRight,
+                                             contentDescription = null,
+                                             tint = NuxColors.MintGreen,
+                                             modifier = Modifier.size(16.dp)
+                                         )
+                                     }
+                                 }
                             }
 
                             1 -> {
                                 // === TAB 1: KONTROL & MOUSE ===
                                 // A. Sensitivitas Kursor
-                                InGameSectionCard(title = "Sensitivitas Kursor Virtual") {
+                                InGameSectionCard(title = tr("ingame.cursor_sens")) {
                                     Column {
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
-                                            Text("Kecepatan Pointer:", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                            Text(tr("ingame.cursor_sens") + ":", color = Color(0xFF94A3B8), fontSize = 11.sp)
                                             Text("${tempCursorSens.roundToInt()}%", color = NuxColors.MintGreen, fontWeight = FontWeight.Black, fontSize = 12.sp)
                                         }
                                         Slider(
@@ -439,13 +444,13 @@ fun InGameSettingsDialog(
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 // B. Sensitivitas Kamera (Capture)
-                                InGameSectionCard(title = "Sensitivitas Kamera / Aim 360") {
+                                InGameSectionCard(title = tr("ingame.camera_sens")) {
                                     Column {
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
-                                            Text("Kecepatan Putar Pandangan:", color = Color(0xFF94A3B8), fontSize = 11.sp)
+                                            Text(tr("ingame.camera_sens") + ":", color = Color(0xFF94A3B8), fontSize = 11.sp)
                                             Text("${tempCaptureSens.roundToInt()}%", color = NuxColors.MintGreen, fontWeight = FontWeight.Black, fontSize = 12.sp)
                                         }
                                         Slider(
@@ -467,7 +472,7 @@ fun InGameSettingsDialog(
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 // C. Mode Navigasi Mouse & Visibilitas GUI
-                                InGameSectionCard(title = "Metode Kontrol Sentuh") {
+                                InGameSectionCard(title = "Touch Control Method") {
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -475,7 +480,7 @@ fun InGameSettingsDialog(
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Text(
-                                                text = "Mode Mouse:",
+                                                text = "Mouse Mode:",
                                                 color = Color.White,
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.SemiBold
@@ -513,13 +518,13 @@ fun InGameSettingsDialog(
                                         ) {
                                             Column(modifier = Modifier.weight(1f)) {
                                                 Text(
-                                                    text = "Tampilkan Tombol Layar (GUI)",
+                                                    text = tr("ingame.show_gui"),
                                                     color = Color.White,
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.SemiBold
                                                 )
                                                 Text(
-                                                    text = "Tombol virtual di layar on-screen",
+                                                    text = "Virtual buttons overlay",
                                                     color = Color(0xFF94A3B8),
                                                     fontSize = 9.5.sp
                                                 )
@@ -540,7 +545,7 @@ fun InGameSettingsDialog(
                             2 -> {
                                 // === TAB 2: PINTAS & SISTEM ===
                                 // A. Edit/Custom GUI Button
-                                InGameSectionCard(title = "Kustomisasi Tombol Layar") {
+                                InGameSectionCard(title = tr("ingame.custom_gui")) {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -564,7 +569,7 @@ fun InGameSettingsDialog(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Text(
-                                                text = "Edit/Custom GUI",
+                                                text = tr("ingame.custom_gui"),
                                                 color = Color.White,
                                                 fontSize = 12.sp,
                                                 fontWeight = FontWeight.Bold
@@ -581,10 +586,10 @@ fun InGameSettingsDialog(
 
                                 Spacer(modifier = Modifier.height(10.dp))
 
-                                InGameSectionCard(title = "Tombol Pintas Cepat (Quick Keycodes)") {
+                                InGameSectionCard(title = "Quick Keycodes") {
                                     Column {
                                         Text(
-                                            text = "Kirim input tombol keyboard langsung ke Minecraft:",
+                                            text = "Send direct keyboard input to Minecraft:",
                                             color = Color(0xFF94A3B8),
                                             fontSize = 10.sp
                                         )
@@ -654,7 +659,7 @@ fun InGameSettingsDialog(
                                             )
                                             Spacer(modifier = Modifier.width(6.dp))
                                             Text(
-                                                text = "Buka Keyboard Virtual (IME)",
+                                                text = tr("ingame.virtual_keyboard"),
                                                 color = Color(0xFFBAE6FD),
                                                 fontSize = 11.sp,
                                                 fontWeight = FontWeight.Bold
@@ -666,7 +671,7 @@ fun InGameSettingsDialog(
                                 Spacer(modifier = Modifier.height(10.dp))
 
                                 // B. Force Exit Section
-                                InGameSectionCard(title = "Manajemen Proses") {
+                                InGameSectionCard(title = tr("ingame.force_exit")) {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -691,13 +696,13 @@ fun InGameSettingsDialog(
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Column {
                                                 Text(
-                                                    text = "Paksa Berhenti (Kill Game)",
+                                                    text = tr("ingame.force_exit"),
                                                     color = Color(0xFFFCA5A5),
                                                     fontSize = 11.5.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                                 Text(
-                                                    text = "Hentikan JVM seketika jika Minecraft macet",
+                                                    text = tr("ingame.force_exit_desc"),
                                                     color = Color(0xFF94A3B8),
                                                     fontSize = 9.sp
                                                 )
@@ -711,6 +716,24 @@ fun InGameSettingsDialog(
                                         )
                                     }
                                 }
+                            }
+                            3 -> {
+                                // === TAB 3: SCREEN RECORDER [PREMIUM] ===
+                                InGameRecorderSection(
+                                    isRecording = isRecording,
+                                    recordingDurationSeconds = recordingDurationSeconds,
+                                    onRequestStartRecord = { cfg ->
+                                        onDismissRequest()
+                                        onRequestStartRecord?.invoke(cfg)
+                                    },
+                                    onStopRecord = {
+                                        onStopRecord?.invoke()
+                                    },
+                                    onOpenPremium = {
+                                        onDismissRequest()
+                                        onOpenPremium?.invoke()
+                                    }
+                                )
                             }
                         }
                     }
@@ -780,5 +803,236 @@ private fun QuickKeyButton(
                 fontSize = 8.5.sp
             )
         }
+    }
+}
+
+
+@Composable
+private fun InGameRecorderSection(
+    isRecording: Boolean,
+    recordingDurationSeconds: Long,
+    onRequestStartRecord: (ScreenRecordConfig) -> Unit,
+    onStopRecord: () -> Unit,
+    onOpenPremium: () -> Unit
+) {
+    val isUserPremium = ScreenRecordManager.isUserPremium()
+    var selectedRes by remember { mutableStateOf(ScreenResolution.RES_720P) }
+    var selectedFps by remember { mutableIntStateOf(60) }
+    var recordAudio by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        if (isUserPremium) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(10.dp),
+                color = Color(0x33F59E0B),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF59E0B).copy(alpha = 0.5f))
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Icon(
+                        painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_vip_crown),
+                        contentDescription = null,
+                        tint = Color(0xFFFBBF24),
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = "NUX VIP SCREEN RECORDER ACTIVE",
+                        color = Color(0xFFFBBF24),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 10.sp,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+            }
+        }
+
+        // Active Screen Recorder Controls
+        InGameSectionCard(title = "Recorder Status & Actions") {
+                if (isRecording) {
+                    val m = recordingDurationSeconds / 60
+                    val s = recordingDurationSeconds % 60
+                    val timeStr = "%02d:%02d".format(m, s)
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0x33EF4444), RoundedCornerShape(10.dp))
+                            .border(1.dp, Color(0xFFEF4444), RoundedCornerShape(10.dp))
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(10.dp)
+                                    .background(Color(0xFFEF4444), CircleShape)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "RECORDING IN PROGRESS",
+                                color = Color(0xFFFCA5A5),
+                                fontWeight = FontWeight.Black,
+                                fontSize = 11.sp
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = timeStr,
+                            color = Color.White,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 24.sp,
+                            fontFamily = FontFamily.Monospace
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Button(
+                            onClick = onStopRecord,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFFEF4444)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_stop_square),
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(11.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = tr("recorder.stop"),
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 11.sp
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            val config = ScreenRecordConfig(
+                                resolution = selectedRes,
+                                frameRate = selectedFps,
+                                bitRate = selectedRes.defaultBitrate,
+                                recordAudio = recordAudio
+                            )
+                            onRequestStartRecord(config)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = NuxColors.ForestGreen
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(vertical = 10.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_record_dot),
+                                contentDescription = null,
+                                tint = Color(0xFFEF4444),
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("recorder.start"),
+                                color = Color.White,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                }
+            }
+
+            if (!isRecording) {
+                InGameSectionCard(title = tr("recorder.quality_title")) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        // Resolution selector
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(tr("recorder.resolution") + ":", color = Color(0xFF94A3B8), fontSize = 10.5.sp)
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                listOf(ScreenResolution.RES_720P, ScreenResolution.RES_1080P, ScreenResolution.RES_NATIVE).forEach { res ->
+                                    val isSel = selectedRes == res
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (isSel) NuxColors.ForestGreen else Color(0x33FFFFFF),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, if (isSel) NuxColors.MintGreen else Color.Transparent),
+                                        modifier = Modifier.clickable { selectedRes = res }
+                                    ) {
+                                        Text(
+                                            text = res.label,
+                                            color = if (isSel) Color.White else Color(0xFF94A3B8),
+                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 9.5.sp,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // FPS selector
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(tr("recorder.framerate") + ":", color = Color(0xFF94A3B8), fontSize = 10.5.sp)
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                listOf(30, 60).forEach { fpsVal ->
+                                    val isSel = selectedFps == fpsVal
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = if (isSel) NuxColors.ForestGreen else Color(0x33FFFFFF),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, if (isSel) NuxColors.MintGreen else Color.Transparent),
+                                        modifier = Modifier.clickable { selectedFps = fpsVal }
+                                    ) {
+                                        Text(
+                                            text = "$fpsVal FPS",
+                                            color = if (isSel) Color.White else Color(0xFF94A3B8),
+                                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Medium,
+                                            fontSize = 9.5.sp,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Audio Toggle
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column {
+                                Text(tr("recorder.mic_audio"), color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                                Text(tr("recorder.mic_audio_desc"), color = Color(0xFF94A3B8), fontSize = 9.sp)
+                            }
+                            Switch(
+                                checked = recordAudio,
+                                onCheckedChange = { recordAudio = it },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = Color.White,
+                                    checkedTrackColor = NuxColors.ForestGreen
+                                )
+                            )
+                        }
+                    }
+                }
+            }
     }
 }

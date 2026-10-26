@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +35,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.trStr
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
 import com.israadev.nuxlauncher.core.instance.InstanceManager
 import com.israadev.nuxlauncher.core.models.*
 import com.israadev.nuxlauncher.core.mods.NuxModManager
@@ -84,7 +88,7 @@ private fun getAllowedExtensionLabel(itemType: String): String {
         "shaderpacks" -> ".zip (Shaderpack)"
         "resourcepacks" -> ".zip (Resource Pack)"
         "datapacks" -> ".zip (Datapack)"
-        else -> "format yang didukung"
+        else -> "supported formats"
     }
 }
 
@@ -135,7 +139,7 @@ data class ModCategoryItem(val id: String, val label: String)
 
 private val CATEGORIES_MAP = mapOf(
     "mods" to listOf(
-        ModCategoryItem("Semua", "Semua"),
+        ModCategoryItem("All", "All"),
         ModCategoryItem("optimization", "⚡ Optimization"),
         ModCategoryItem("technology", "⚙️ Technology"),
         ModCategoryItem("magic", "🪄 Magic"),
@@ -144,7 +148,7 @@ private val CATEGORIES_MAP = mapOf(
         ModCategoryItem("decoration", "🎨 Decoration")
     ),
     "modpacks" to listOf(
-        ModCategoryItem("Semua", "Semua"),
+        ModCategoryItem("All", "All"),
         ModCategoryItem("adventure", "🗺️ Adventure"),
         ModCategoryItem("optimization", "⚡ Optimization"),
         ModCategoryItem("technology", "⚙️ Technology"),
@@ -152,7 +156,7 @@ private val CATEGORIES_MAP = mapOf(
         ModCategoryItem("quests", "📜 Quests")
     ),
     "resourcepacks" to listOf(
-        ModCategoryItem("Semua", "Semua"),
+        ModCategoryItem("All", "All"),
         ModCategoryItem("16x", "16x"),
         ModCategoryItem("32x", "32x"),
         ModCategoryItem("simplistic", "✨ Simplistic"),
@@ -160,13 +164,13 @@ private val CATEGORIES_MAP = mapOf(
         ModCategoryItem("medieval", "🏰 Medieval")
     ),
     "shaderpacks" to listOf(
-        ModCategoryItem("Semua", "Semua"),
+        ModCategoryItem("All", "All"),
         ModCategoryItem("realistic", "🌅 Realistic"),
         ModCategoryItem("stylized", "🎨 Stylized"),
         ModCategoryItem("fantasy", "🔮 Fantasy")
     ),
     "datapacks" to listOf(
-        ModCategoryItem("Semua", "Semua"),
+        ModCategoryItem("All", "All"),
         ModCategoryItem("adventure", "🗺️ Adventure"),
         ModCategoryItem("utility", "🛠️ Utility"),
         ModCategoryItem("magic", "🪄 Magic"),
@@ -181,6 +185,7 @@ fun ModsScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
 
     val instances by InstanceManager.instances.collectAsState()
     val selectedInstance by InstanceManager.selectedInstance.collectAsState()
@@ -204,7 +209,7 @@ fun ModsScreen(
 
     // Browse Modrinth state
     var browseQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("Semua") }
+    var selectedCategory by remember { mutableStateOf("All") }
     var searchHits by remember { mutableStateOf<List<ModrinthSearchHit>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
     var searchErrorMessage by remember { mutableStateOf<String?>(null) }
@@ -258,7 +263,7 @@ fun ModsScreen(
         isSearching = true
         searchErrorMessage = null
         scope.launch {
-            val cat = if (selectedCategory == "Semua") null else selectedCategory
+            val cat = if (selectedCategory == "All") null else selectedCategory
             val res = NuxModManager.searchProjects(
                 query = browseQuery,
                 itemType = activeType,
@@ -269,14 +274,15 @@ fun ModsScreen(
             )
             if (res.isSuccess) {
                 val data = res.getOrNull()
-                searchHits = data?.hits ?: emptyList()
+                val rawHits = data?.hits ?: emptyList()
+                searchHits = rawHits.distinctBy { it.projectId }
                 totalHits = data?.totalHits ?: 0
                 currentPage = page
                 searchErrorMessage = null
             } else {
                 searchHits = emptyList()
                 totalHits = 0
-                searchErrorMessage = res.exceptionOrNull()?.message ?: "Gagal terhubung ke Modrinth"
+                searchErrorMessage = res.exceptionOrNull()?.message ?: "Failed to connect to Modrinth"
             }
             isSearching = false
         }
@@ -336,9 +342,9 @@ fun ModsScreen(
                 if (rejectedNames.isNotEmpty()) {
                     val hint = getAllowedExtensionLabel(activeType)
                     val msg = if (rejectedNames.size == 1) {
-                        "File \"${rejectedNames.first()}\" diabaikan! Format yang didukung untuk $activeType hanya $hint"
+                        "File \"${rejectedNames.first()}\" ignored! Supported formats for $activeType are only $hint"
                     } else {
-                        "${rejectedNames.size} file diabaikan karena format tidak didukung ($hint)!"
+                        "${rejectedNames.size} file(s) ignored due to unsupported format ($hint)!"
                     }
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                 }
@@ -353,7 +359,7 @@ fun ModsScreen(
 
                     for ((uri, fileName) in validUris) {
                         modpackImportName = fileName
-                        modpackImportStatus = "Membaca arsip modpack..."
+                        modpackImportStatus = "Reading modpack archive..."
                         modpackImportCurrent = 0
                         modpackImportTotal = 0
 
@@ -383,13 +389,13 @@ fun ModsScreen(
                     if (successCount > 0) {
                         Toast.makeText(
                             context,
-                            "Berhasil mengimpor dan memasang $successCount modpack!",
+                            "Successfully imported and installed $successCount modpack(s)!",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else if (lastError != null) {
                         Toast.makeText(
                             context,
-                            "Gagal mengimpor modpack: $lastError",
+                            "Failed to import modpack: $lastError",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -417,13 +423,13 @@ fun ModsScreen(
                     if (successCount > 0) {
                         Toast.makeText(
                             context,
-                            "Berhasil mengimpor $successCount file $activeType!",
+                            "Successfully imported $successCount $activeType file(s)!",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else if (lastError != null) {
                         Toast.makeText(
                             context,
-                            "Gagal mengimpor file: $lastError",
+                            "Failed to import file(s): $lastError",
                             Toast.LENGTH_LONG
                         ).show()
                     }
@@ -461,14 +467,14 @@ fun ModsScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Belum Ada Instance",
+                            text = "No Instances Found",
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = Color.White
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Pilih atau buat instance di Dashboard untuk mulai memasang mod.",
+                            text = "Select or create an instance on Dashboard to start installing mods.",
                             color = NuxColors.GrayNeutral,
                             fontSize = 11.sp,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -479,7 +485,7 @@ fun ModsScreen(
                             backgroundColor = NuxColors.ForestGreen,
                             cornerRadius = 6.dp
                         ) {
-                            Text("KEMBALI KE DASHBOARD", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                            Text(tr("mods.btn_back_dashboard"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                         }
                     }
                 }
@@ -518,7 +524,7 @@ fun ModsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = tr("common.back"),
                             tint = NuxColors.ForestGreen,
                             modifier = Modifier.size(12.dp)
                         )
@@ -560,7 +566,7 @@ fun ModsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "TERPASANG (${installedItems.size})",
+                            text = tr("mods.installed_count", installedItems.size),
                             color = if (isInstalled) NuxColors.MintGreen else NuxColors.GrayNeutral,
                             fontWeight = if (isInstalled) FontWeight.Black else FontWeight.SemiBold,
                             fontSize = 9.5.sp
@@ -583,7 +589,7 @@ fun ModsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "JELAJAH MODRINTH",
+                            text = tr("mods.browse_modrinth"),
                             color = if (isBrowse) NuxColors.MintGreen else NuxColors.GrayNeutral,
                             fontWeight = if (isBrowse) FontWeight.Black else FontWeight.SemiBold,
                             fontSize = 9.5.sp
@@ -694,7 +700,7 @@ fun ModsScreen(
                             )
                             .clickable {
                                 activeType = typeId
-                                selectedCategory = "Semua"
+                                selectedCategory = "All"
                             }
                             .padding(horizontal = 8.dp),
                         contentAlignment = Alignment.Center
@@ -721,7 +727,7 @@ fun ModsScreen(
                     CompactSearchBar(
                         value = browseQuery,
                         onValueChange = { onQueryChanged(it) },
-                        placeholder = "Cari di Modrinth...",
+                        placeholder = tr("mods.search_placeholder"),
                         modifier = Modifier.width(160.dp)
                     )
 
@@ -746,7 +752,7 @@ fun ModsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    text = if (worlds.isNotEmpty()) "World: $selectedWorld" else "Tidak Ada World",
+                                    text = if (worlds.isNotEmpty()) "World: $selectedWorld" else "No Worlds",
                                     color = Color.White,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 9.sp,
@@ -819,7 +825,7 @@ fun ModsScreen(
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = if (filterByGameVersion) currentInst.mcVersion else "Semua Versi",
+                                text = if (filterByGameVersion) currentInst.mcVersion else tr("mods.all_versions"),
                                 color = if (filterByGameVersion) NuxColors.MintGreen else NuxColors.GrayNeutral,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.sp
@@ -831,7 +837,7 @@ fun ModsScreen(
                     CompactSearchBar(
                         value = installedSearch,
                         onValueChange = { installedSearch = it },
-                        placeholder = "Cari di ${installedItems.size} item...",
+                        placeholder = tr("mods.search_installed_placeholder", installedItems.size),
                         modifier = Modifier.width(160.dp)
                     )
 
@@ -855,7 +861,7 @@ fun ModsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(3.dp))
                                 Text(
-                                    text = if (worlds.isNotEmpty()) "World: $selectedWorld" else "Tidak Ada World",
+                                    text = if (worlds.isNotEmpty()) "World: $selectedWorld" else "No Worlds",
                                     color = Color.White,
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 9.sp,
@@ -906,7 +912,7 @@ fun ModsScreen(
                             .border(1.dp, NuxColors.ForestGreen.copy(alpha = 0.35f), RoundedCornerShape(5.dp))
                             .clickable {
                                 if (selectedInstance == null) {
-                                    Toast.makeText(context, "Pilih instance terlebih dahulu!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, trStr("dashboard.select_instance"), Toast.LENGTH_SHORT).show()
                                     return@clickable
                                 }
                                 val mimeTypes = getMimeTypesForType(activeType)
@@ -918,13 +924,13 @@ fun ModsScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Outlined.FileUpload,
-                                contentDescription = "Impor",
+                                contentDescription = "Import",
                                 tint = NuxColors.ForestGreen,
                                 modifier = Modifier.size(12.dp)
                             )
                             Spacer(modifier = Modifier.width(3.dp))
                             Text(
-                                text = "+ IMPOR",
+                                text = tr("mods.import_btn"),
                                 color = NuxColors.ForestGreen,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 9.sp
@@ -939,7 +945,7 @@ fun ModsScreen(
         // ROW 3: CATEGORY SUB-FILTERS (BROWSE MODE ONLY, COMPACT 22DP)
         // =========================================================================
         if (mainMode == "browse") {
-            val categories = CATEGORIES_MAP[activeType] ?: listOf(ModCategoryItem("Semua", "Semua"))
+            val categories = CATEGORIES_MAP[activeType] ?: listOf(ModCategoryItem("All", "All"))
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1012,10 +1018,10 @@ fun ModsScreen(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = if (activeType == "datapacks" && worlds.isEmpty())
-                                "Belum ada world di instance ini. Buka game untuk membuat world terlebih dahulu."
+                                "No worlds found in this instance. Launch the game to create a world first."
                             else if (installedSearch.isBlank())
-                                "Belum ada ${activeType} terpasang di instance ini"
-                            else "Tidak ada item yang cocok",
+                                "No ${activeType} installed in this instance"
+                            else "No matching items found",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.sp,
@@ -1027,7 +1033,7 @@ fun ModsScreen(
                             backgroundColor = NuxColors.ForestGreen,
                             cornerRadius = 6.dp
                         ) {
-                            Text("JELAJAHI MODRINTH", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                            Text(tr("mods.browse_modrinth"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                         }
                     }
                 }
@@ -1037,7 +1043,7 @@ fun ModsScreen(
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    items(filteredInstalled, key = { it.id }) { item ->
+                    itemsIndexed(filteredInstalled, key = { index, item -> "${item.id}_${item.filename}_$index" }) { _, item ->
                         NuxCard(
                             modifier = Modifier.fillMaxWidth(),
                             backgroundColor = if (item.isEnabled) NuxColors.SurfaceElevated else NuxColors.SurfaceElevated.copy(alpha = 0.6f),
@@ -1096,7 +1102,7 @@ fun ModsScreen(
                                                         .padding(horizontal = 4.dp, vertical = 1.dp)
                                                 ) {
                                                     Text(
-                                                        text = "NONAKTIF",
+                                                        text = tr("common.disabled"),
                                                         fontSize = 8.sp,
                                                         fontWeight = FontWeight.Bold,
                                                         color = NuxColors.GrayNeutral
@@ -1146,7 +1152,7 @@ fun ModsScreen(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Outlined.Delete,
-                                            contentDescription = "Hapus",
+                                            contentDescription = tr("common.delete"),
                                             tint = NuxColors.ErrorRed,
                                             modifier = Modifier.size(13.dp)
                                         )
@@ -1166,7 +1172,7 @@ fun ModsScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(color = NuxColors.ForestGreen, modifier = Modifier.size(24.dp))
                         Spacer(modifier = Modifier.height(6.dp))
-                        Text("Memuat data dari Modrinth...", color = NuxColors.GrayNeutral, fontSize = 11.sp)
+                        Text(tr("common.loading"), color = NuxColors.GrayNeutral, fontSize = 11.sp)
                     }
                 }
             } else if (searchErrorMessage != null) {
@@ -1183,14 +1189,14 @@ fun ModsScreen(
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Gagal Memuat dari Modrinth",
+                            text = "Failed to Load from Modrinth",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 12.5.sp
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = searchErrorMessage ?: "Terjadi kesalahan jaringan",
+                            text = searchErrorMessage ?: "Network error occurred",
                             color = NuxColors.GrayNeutral,
                             fontSize = 10.sp,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -1201,7 +1207,7 @@ fun ModsScreen(
                             backgroundColor = NuxColors.ForestGreen,
                             cornerRadius = 6.dp
                         ) {
-                            Text("COBA LAGI", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                            Text(tr("common.retry"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                         }
                     }
                 }
@@ -1217,9 +1223,9 @@ fun ModsScreen(
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
                             text = if (filterByGameVersion) {
-                                "Tidak ada hasil cocok untuk Minecraft ${currentInst.mcVersion} (${currentInst.loader.uppercase()})"
+                                "No results found for Minecraft ${currentInst.mcVersion} (${currentInst.loader.uppercase()})"
                             } else {
-                                "Tidak ada hasil ditemukan untuk kata kunci ini"
+                                "No results found for this search"
                             },
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
@@ -1227,7 +1233,7 @@ fun ModsScreen(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Coba ubah kata kunci atau nonaktifkan filter versi",
+                            text = "Try modifying keywords or disable version filter",
                             color = NuxColors.GrayNeutral,
                             fontSize = 10.sp
                         )
@@ -1242,7 +1248,7 @@ fun ModsScreen(
                                 backgroundColor = NuxColors.ForestGreen,
                                 cornerRadius = 6.dp
                             ) {
-                                Text("CARI DI SEMUA VERSI MINECRAFT", fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
+                                Text(tr("mods.btn_search_all_versions"), fontWeight = FontWeight.Bold, fontSize = 10.sp, color = Color.White)
                             }
                         }
                     }
@@ -1253,7 +1259,7 @@ fun ModsScreen(
                     verticalArrangement = Arrangement.spacedBy(5.dp),
                     contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
-                    items(searchHits, key = { it.projectId }) { hit ->
+                    itemsIndexed(searchHits, key = { index, hit -> "${hit.projectId}_$index" }) { _, hit ->
                         val isInstalled = installedItems.any { isModInstalled(it, hit) }
 
                         val isDownloading = downloadingProjectIds.containsKey(hit.projectId)
@@ -1333,7 +1339,7 @@ fun ModsScreen(
                                                     .border(1.dp, NuxColors.ForestGreen.copy(alpha = 0.35f), RoundedCornerShape(3.dp))
                                                     .padding(horizontal = 4.dp, vertical = 1.dp)
                                             ) {
-                                                Text("PACK", fontSize = 8.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
+                                                Text(tr("mods.pack_badge"), fontSize = 8.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
                                             }
                                         }
                                     }
@@ -1341,7 +1347,7 @@ fun ModsScreen(
                                     Spacer(modifier = Modifier.height(1.dp))
 
                                     Text(
-                                        text = hit.description ?: "Tidak ada deskripsi",
+                                        text = hit.description ?: "No description available",
                                         fontSize = 10.sp,
                                         color = NuxColors.GrayNeutral.copy(alpha = 0.85f),
                                         maxLines = 1,
@@ -1398,7 +1404,7 @@ fun ModsScreen(
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            text = downloadStatus.ifBlank { "Unduh..." },
+                                            text = downloadStatus.ifBlank { "Download..." },
                                             fontSize = 8.5.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = NuxColors.ForestGreen
@@ -1423,7 +1429,7 @@ fun ModsScreen(
                                             )
                                             Spacer(modifier = Modifier.width(3.dp))
                                             Text(
-                                                text = "TERPASANG",
+                                                text = tr("mods.installed_badge"),
                                                 color = NuxColors.ForestGreen,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 9.sp
@@ -1431,7 +1437,7 @@ fun ModsScreen(
                                         }
                                     }
                                 } else {
-                                    val buttonLabel = if (hit.projectType == "modpack") "+ PASANG PACK" else "+ PASANG"
+                                    val buttonLabel = if (hit.projectType == "modpack") "+ INSTALL PACK" else "+ INSTALL"
                                     Box(
                                         modifier = Modifier
                                             .height(26.dp)
@@ -1440,17 +1446,17 @@ fun ModsScreen(
                                             .border(1.dp, NuxColors.MintGreen.copy(alpha = 0.4f), RoundedCornerShape(5.dp))
                                             .clickable {
                                                 scope.launch {
-                                                    downloadingProjectIds = downloadingProjectIds + (hit.projectId to "Mencari versi...")
+                                                    downloadingProjectIds = downloadingProjectIds + (hit.projectId to "Finding version...")
                                                     val vRes = NuxModManager.getCompatibleVersions(hit.projectId, currentInst, activeType)
                                                     val compList = vRes.getOrNull()
                                                     if (compList.isNullOrEmpty()) {
-                                                        Toast.makeText(context, "Tidak ada versi cocok untuk ${currentInst.mcVersion}!", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, "No compatible version for ${currentInst.mcVersion}!", Toast.LENGTH_SHORT).show()
                                                         downloadingProjectIds = downloadingProjectIds - hit.projectId
                                                         return@launch
                                                     }
 
                                                     val targetVer = compList.first()
-                                                    downloadingProjectIds = downloadingProjectIds + (hit.projectId to "Mengunduh...")
+                                                    downloadingProjectIds = downloadingProjectIds + (hit.projectId to "Downloading...")
 
                                                     val targetWorld = if (activeType == "datapacks") selectedWorld else null
                                                     val downRes = NuxModManager.downloadVersionAndDependencies(
@@ -1470,16 +1476,16 @@ fun ModsScreen(
                                                         val downloaded = downRes.getOrNull() ?: emptyList()
                                                         val depCount = (downloaded.size - 1).coerceAtLeast(0)
                                                         val msg = if (activeType == "modpacks") {
-                                                            "Modpack ${hit.title} berhasil dipasang!"
+                                                            "Modpack ${hit.title} installed successfully!"
                                                         } else if (depCount > 0) {
-                                                            "Berhasil memasang ${hit.title} beserta $depCount dependensi!"
+                                                            "Installed ${hit.title} and $depCount dependencies!"
                                                         } else {
-                                                            "Berhasil memasang ${hit.title}!"
+                                                            "Successfully installed ${hit.title}!"
                                                         }
                                                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                                         reloadInstalled()
                                                     } else {
-                                                        Toast.makeText(context, "Gagal mengunduh: ${downRes.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context, "Download failed: ${downRes.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
                                                     }
                                                 }
                                             }
@@ -1516,7 +1522,7 @@ fun ModsScreen(
                                     .clickable(enabled = currentPage > 1) { performSearch(currentPage - 1) }
                                     .padding(horizontal = 9.dp, vertical = 4.dp)
                             ) {
-                                Text("« SEBELUMNYA", fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = if (currentPage > 1) Color.White else NuxColors.GrayNeutral.copy(alpha = 0.35f))
+                                Text(tr("common.previous"), fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = if (currentPage > 1) Color.White else NuxColors.GrayNeutral.copy(alpha = 0.35f))
                             }
 
                             Spacer(modifier = Modifier.width(10.dp))
@@ -1538,7 +1544,7 @@ fun ModsScreen(
                                     .clickable(enabled = currentPage < totalPages) { performSearch(currentPage + 1) }
                                     .padding(horizontal = 9.dp, vertical = 4.dp)
                             ) {
-                                Text("SELANJUTNYA »", fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = if (currentPage < totalPages) Color.White else NuxColors.GrayNeutral.copy(alpha = 0.35f))
+                                Text(tr("common.next"), fontWeight = FontWeight.Bold, fontSize = 9.5.sp, color = if (currentPage < totalPages) Color.White else NuxColors.GrayNeutral.copy(alpha = 0.35f))
                             }
                         }
                     }
@@ -1564,7 +1570,7 @@ fun ModsScreen(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (activeType == "modpacks") "Hapus Modpack?" else "Hapus ${item.category}?",
+                    text = if (activeType == "modpacks") "Delete Modpack?" else "Delete ${item.category}?",
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = Color.White
@@ -1572,9 +1578,9 @@ fun ModsScreen(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (activeType == "modpacks") {
-                        "Yakin ingin menghapus modpack \"${item.name}\"? Semua mod yang terpasang dari modpack ini juga akan dihapus dari instance."
+                        "Are you sure you want to delete modpack \"${item.name}\"? All mods installed by this pack will also be removed."
                     } else {
-                        "Yakin ingin menghapus \"${item.name}\" dari instance ini?"
+                        "Are you sure you want to delete \"${item.name}\" from this instance?"
                     },
                     fontSize = 11.sp,
                     color = NuxColors.GrayNeutral,
@@ -1592,7 +1598,7 @@ fun ModsScreen(
                         cornerRadius = 6.dp,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("BATAL", fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color.White)
+                        Text(tr("common.cancel"), fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color.White)
                     }
                     NuxButton(
                         onClick = {
@@ -1603,9 +1609,9 @@ fun ModsScreen(
                                     itemToDelete = null
                                     reloadInstalled()
                                     val toastMsg = if (activeType == "modpacks") {
-                                        "Modpack dan semua mod berhasil dihapus!"
+                                        "Modpack and installed mods deleted!"
                                     } else {
-                                        "${item.name} berhasil dihapus!"
+                                        "${item.name} deleted successfully!"
                                     }
                                     Toast.makeText(context, toastMsg, Toast.LENGTH_SHORT).show()
                                 }
@@ -1617,7 +1623,7 @@ fun ModsScreen(
                         cornerRadius = 6.dp,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("HAPUS", fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color.White)
+                        Text(tr("common.delete"), fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color.White)
                     }
                 }
             }
@@ -1651,7 +1657,7 @@ fun ModsScreen(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Mengimpor & Memasang Modpack",
+                    text = "Importing & Installing Modpack",
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     color = Color.White
@@ -1672,7 +1678,7 @@ fun ModsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = if (modpackImportStatus.isNotBlank()) modpackImportStatus else "Membaca daftar mod dan mengunduh file...",
+                    text = if (modpackImportStatus.isNotBlank()) modpackImportStatus else "Parsing mod list and downloading files...",
                     fontSize = 11.sp,
                     color = NuxColors.GrayNeutral,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
@@ -1696,7 +1702,7 @@ fun ModsScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "$modpackImportCurrent / $modpackImportTotal file mod",
+                        text = "$modpackImportCurrent / $modpackImportTotal mod files",
                         fontSize = 10.sp,
                         color = NuxColors.GrayNeutral
                     )
@@ -1714,7 +1720,7 @@ fun ModsScreen(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "Launcher sedang membaca daftar mod dan mengunduh modpack seperti di versi Windows. Mohon tunggu.",
+                    text = "Launcher is reading mod list and downloading modpack files. Please wait.",
                     fontSize = 9.5.sp,
                     color = NuxColors.GrayNeutral.copy(alpha = 0.6f),
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
@@ -1828,7 +1834,7 @@ fun ModsScreen(
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "oleh ${hit.author ?: "Komunitas"}",
+                                        text = "by ${hit.author ?: "Community"}",
                                         fontSize = 10.sp,
                                         color = Color(0xFFA1A1AA),
                                         fontWeight = FontWeight.Medium
@@ -1862,7 +1868,7 @@ fun ModsScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
-                                contentDescription = "Tutup",
+                                contentDescription = "Close",
                                 tint = Color(0xFFA1A1AA),
                                 modifier = Modifier.size(14.dp)
                             )
@@ -1982,7 +1988,7 @@ fun ModsScreen(
                                 val galleryList = detailProject?.gallery ?: emptyList()
                                 if (galleryList.isNotEmpty()) {
                                     Text(
-                                        text = "TANGKAPAN LAYAR",
+                                        text = "SCREENSHOTS",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 9.sp,
                                         color = Color(0xFF71717A),
@@ -2024,7 +2030,7 @@ fun ModsScreen(
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = detailProject?.description ?: hit.description ?: "Tidak ada ringkasan deskripsi.",
+                                    text = detailProject?.description ?: hit.description ?: "No description summary available.",
                                     fontSize = 11.5.sp,
                                     color = Color(0xFFE2E8F0),
                                     lineHeight = 17.sp
@@ -2068,14 +2074,14 @@ fun ModsScreen(
                                     ) {
                                         Column {
                                             Text(
-                                                text = "⚠️ Tidak Ada Versi yang Didukung",
+                                                text = "⚠️ No Supported Version",
                                                 color = Color(0xFFFDA4AF),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 11.sp
                                             )
                                             Spacer(modifier = Modifier.height(3.dp))
                                             Text(
-                                                text = "Mod ini tidak memiliki rilis yang cocok dengan Minecraft ${selectedInstance?.mcVersion ?: ""} (${(selectedInstance?.loader ?: "Vanilla").uppercase()}).",
+                                                text = "This mod has no release matching Minecraft ${selectedInstance?.mcVersion ?: ""} (${(selectedInstance?.loader ?: "Vanilla").uppercase()}).",
                                                 color = Color(0xFFE2E8F0),
                                                 fontSize = 10.sp,
                                                 lineHeight = 14.sp
@@ -2184,9 +2190,9 @@ fun ModsScreen(
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = if (hit.projectType == "modpack")
-                                            "Modpack akan diekstrak langsung ke instance (overrides, konfigurasi, dan modpack manifest)."
+                                            "Modpack will be extracted directly into the instance (overrides, configuration, and modpack manifest)."
                                         else
-                                            "Auto-Download Dependensi aktif: dependensi wajib akan otomatis ikut terpasang.",
+                                            "Auto-Download Dependencies active: required dependencies will be installed automatically.",
                                         fontSize = 9.sp,
                                         color = Color(0xFFA1A1AA)
                                     )
@@ -2206,7 +2212,7 @@ fun ModsScreen(
                             CircularProgressIndicator(color = NuxColors.ForestGreen, modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                text = detailProgressText.ifBlank { "Sedang mengunduh dan memasang..." },
+                                text = detailProgressText.ifBlank { "Downloading and installing..." },
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.5.sp,
                                 color = NuxColors.MintGreen
@@ -2224,7 +2230,7 @@ fun ModsScreen(
                                 cornerRadius = 10.dp,
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text("TUTUP", fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color(0xFFA1A1AA))
+                                Text(tr("common.close"), fontWeight = FontWeight.Bold, fontSize = 10.5.sp, color = Color(0xFFA1A1AA))
                             }
 
                             if (isHitInstalled) {
@@ -2246,7 +2252,7 @@ fun ModsScreen(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "SUDAH TERPASANG",
+                                            text = tr("mods.already_installed"),
                                             color = NuxColors.MintGreen,
                                             fontWeight = FontWeight.Black,
                                             fontSize = 11.sp
@@ -2278,7 +2284,7 @@ fun ModsScreen(
                                             if (ver != null && inst != null) {
                                                 scope.launch {
                                                     isDetailInstalling = true
-                                                    detailProgressText = "Memulai pengunduhan..."
+                                                    detailProgressText = "Starting download..."
 
                                                     val targetWorld = if (activeType == "datapacks") selectedWorld else null
                                                     val res = NuxModManager.downloadVersionAndDependencies(
@@ -2298,16 +2304,16 @@ fun ModsScreen(
                                                         val files = res.getOrNull() ?: emptyList()
                                                         val depCount = (files.size - 1).coerceAtLeast(0)
                                                         val msg = if (activeType == "modpacks") {
-                                                            "Modpack ${hit.title} berhasil dipasang!"
+                                                            "Modpack ${hit.title} installed successfully!"
                                                         } else if (depCount > 0) {
-                                                            "Berhasil memasang ${hit.title} beserta $depCount dependensi!"
+                                                            "Installed ${hit.title} and $depCount dependencies!"
                                                         } else {
-                                                            "Berhasil memasang ${hit.title}!"
+                                                            "Successfully installed ${hit.title}!"
                                                         }
                                                         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                                         reloadInstalled()
                                                     } else {
-                                                        Toast.makeText(context, "Gagal mengunduh: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                                        Toast.makeText(context, "Failed to download: ${res.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
                                                     }
                                                 }
                                             }
@@ -2323,7 +2329,7 @@ fun ModsScreen(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = if (hit.projectType == "modpack") "PASANG MODPACK" else "PASANG KE INSTANCE",
+                                            text = if (hit.projectType == "modpack") tr("mods.install_modpack") else tr("mods.install_to_instance"),
                                             color = if (canInstall) Color.White else Color(0xFF71717A),
                                             fontWeight = FontWeight.Black,
                                             fontSize = 11.sp
@@ -2353,7 +2359,7 @@ fun ModsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Tangkapan Layar",
+                        text = "Screenshots",
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
                         color = Color.White
@@ -2367,13 +2373,13 @@ fun ModsScreen(
                             .clickable { previewGalleryUrl = null },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Outlined.Close, contentDescription = "Tutup", tint = Color.White, modifier = Modifier.size(13.dp))
+                        Icon(Icons.Outlined.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(13.dp))
                     }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 NuxNetworkImage(
                     model = url,
-                    contentDescription = "Preview Gambar",
+                    contentDescription = "Image Preview",
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(240.dp)
@@ -2439,7 +2445,7 @@ private fun CompactSearchBar(
         if (value.isNotEmpty()) {
             Icon(
                 imageVector = Icons.Outlined.Close,
-                contentDescription = "Hapus",
+                contentDescription = tr("common.delete"),
                 tint = NuxColors.GrayNeutral,
                 modifier = Modifier
                     .size(12.dp)

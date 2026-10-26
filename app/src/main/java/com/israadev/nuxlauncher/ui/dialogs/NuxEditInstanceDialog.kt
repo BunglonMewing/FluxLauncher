@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
 import com.israadev.nuxlauncher.core.instance.InstanceManager
 import com.israadev.nuxlauncher.core.models.Instance
 import com.israadev.nuxlauncher.core.runtime.JavaRuntimeManager
@@ -58,6 +60,7 @@ fun NuxEditInstanceDialog(
     var editName by remember { mutableStateOf(instance.name) }
     var selectedJavaRuntime by remember { mutableStateOf(instance.javaRuntime) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
 
     val autoRecommendedRuntime = remember(instance.mcVersion) {
         JavaRuntimeManager.getRecommendedRuntime(instance.mcVersion)
@@ -135,14 +138,14 @@ fun NuxEditInstanceDialog(
 
                             Column {
                                 Text(
-                                    text = "INSTANCE CONFIGURATION",
+                                    text = tr("dialogs.edit_instance_title"),
                                     color = Color(0xFFA1A1AA),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 7.5.sp,
                                     letterSpacing = 1.sp
                                 )
                                 Text(
-                                    text = "Edit Instance: ${instance.name}",
+                                    text = tr("dialogs.edit_instance_subtitle", instance.name),
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
@@ -164,7 +167,7 @@ fun NuxEditInstanceDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
-                                contentDescription = "Tutup",
+                                contentDescription = tr("common.close"),
                                 tint = Color(0xFFA1A1AA),
                                 modifier = Modifier.size(13.dp)
                             )
@@ -193,7 +196,7 @@ fun NuxEditInstanceDialog(
                                 .padding(horizontal = 10.dp, vertical = 7.dp)
                         ) {
                             Text(
-                                text = "NAMA INSTANCE",
+                                text = "INSTANCE NAME",
                                 color = Color(0xFFA1A1AA),
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 8.sp,
@@ -247,7 +250,7 @@ fun NuxEditInstanceDialog(
                                     letterSpacing = 0.8.sp
                                 )
                                 NuxBadge(
-                                    text = "Rekomendasi: ${JavaRuntimeManager.getRuntimeDisplayName(autoRecommendedRuntime)}",
+                                    text = "Recommended: ${JavaRuntimeManager.getRuntimeDisplayName(autoRecommendedRuntime)}",
                                     backgroundColor = NuxColors.ForestGreen.copy(alpha = 0.16f),
                                     textColor = NuxColors.MintGreen,
                                     borderColor = NuxColors.MintGreen.copy(alpha = 0.35f)
@@ -349,7 +352,7 @@ fun NuxEditInstanceDialog(
                                     .background(Color(0xFF1A1F2B))
                                     .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(6.dp))
                                     .clickable {
-                                        Toast.makeText(context, "Membuka folder game...", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Opening game folder...", Toast.LENGTH_SHORT).show()
                                         InstanceManager.openInstanceFolder(context, instance)
                                     }
                                     .padding(horizontal = 8.dp, vertical = 4.5.dp),
@@ -364,7 +367,7 @@ fun NuxEditInstanceDialog(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "Buka Folder",
+                                        text = "Open Folder",
                                         color = Color.White,
                                         fontSize = 9.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -398,14 +401,14 @@ fun NuxEditInstanceDialog(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "Hapus Instance Ini",
+                                            text = tr("dialogs.btn_delete_instance"),
                                             color = Color(0xFFF87171),
                                             fontSize = 9.5.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
                                     Text(
-                                        text = "Hapus game & data permanen",
+                                        text = "Delete game & all data permanently",
                                         color = Color(0xFF71717A),
                                         fontSize = 8.sp
                                     )
@@ -422,14 +425,14 @@ fun NuxEditInstanceDialog(
                                     .padding(9.dp)
                             ) {
                                 Text(
-                                    text = "Yakin ingin menghapus '${instance.name}'?",
+                                    text = "Are you sure you want to delete '${instance.name}'?",
                                     color = Color.White,
                                     fontSize = 10.5.sp,
                                     fontWeight = FontWeight.Black
                                 )
                                 Spacer(modifier = Modifier.height(2.dp))
                                 Text(
-                                    text = "Semua world, mod, config, dan file instance akan dihapus permanen.",
+                                    text = "All worlds, mods, configs, and instance files will be deleted permanently.",
                                     color = Color(0xFFFCA5A5),
                                     fontSize = 8.5.sp
                                 )
@@ -447,7 +450,7 @@ fun NuxEditInstanceDialog(
                                             .weight(1f)
                                             .height(28.dp)
                                     ) {
-                                        Text("BATAL", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                        Text(tr("common.cancel"), color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                     }
 
                                     NuxButton(
@@ -462,7 +465,7 @@ fun NuxEditInstanceDialog(
                                             .weight(1.3f)
                                             .height(28.dp)
                                     ) {
-                                        Text("YA, HAPUS SEKARANG", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Black)
+                                        Text(tr("dialogs.btn_confirm_delete"), color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Black)
                                     }
                                 }
                             }
@@ -489,7 +492,7 @@ fun NuxEditInstanceDialog(
                                 .height(34.dp)
                         ) {
                             Text(
-                                text = "BATAL",
+                                text = tr("common.cancel"),
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
@@ -502,7 +505,7 @@ fun NuxEditInstanceDialog(
                             onClick = {
                                 val trimmed = editName.trim()
                                 if (trimmed.isBlank()) {
-                                    Toast.makeText(context, "Nama instance tidak boleh kosong", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Instance name cannot be empty", Toast.LENGTH_SHORT).show()
                                     return@NuxButton
                                 }
                                 val updated = instance.copy(
@@ -510,7 +513,7 @@ fun NuxEditInstanceDialog(
                                     javaRuntime = selectedJavaRuntime
                                 )
                                 onInstanceUpdated(updated)
-                                Toast.makeText(context, "Instance berhasil diperbarui!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Instance updated successfully!", Toast.LENGTH_SHORT).show()
                                 onDismiss()
                             },
                             backgroundColor = NuxColors.ForestGreen,
@@ -528,7 +531,7 @@ fun NuxEditInstanceDialog(
                             )
                             Spacer(modifier = Modifier.width(5.dp))
                             Text(
-                                text = "SIMPAN PERUBAHAN",
+                                text = tr("dialogs.btn_save_changes"),
                                 color = Color.White,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 10.sp,

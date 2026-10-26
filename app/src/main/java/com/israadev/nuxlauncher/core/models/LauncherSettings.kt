@@ -36,5 +36,14 @@ data class LauncherSettings(
     // AI Crash Analytics (OpenRouter AI)
     val aiAutoAnalyze: Boolean = false,
     val aiApiKey: String = "",
-    val aiModel: String = ""
+    val aiModel: String = "",
+
+    // VIP Screen Recorder
+    val recorderResolution: String = "720p", // "720p", "1080p", "native"
+    val recorderFps: Int = 60, // 30, 60
+    val recorderBitrateMbps: Int = 8, // 6, 8, 12, 16
+    val recorderAudioEnabled: Boolean = true,
+
+    // Language / Localization
+    val language: String = "id-ID"
 )

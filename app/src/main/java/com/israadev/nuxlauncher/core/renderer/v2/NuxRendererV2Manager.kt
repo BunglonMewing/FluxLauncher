@@ -55,7 +55,7 @@ object NuxRendererV2Manager {
         val installedApps = try {
             pm.getInstalledApplications(PackageManager.GET_META_DATA)
         } catch (e: Exception) {
-            Log.e(TAG, "Gagal mengambil daftar aplikasi terpasang", e)
+            Log.e(TAG, "Failed to retrieve installed packages list", e)
             emptyList()
         }
 
@@ -83,11 +83,11 @@ object NuxRendererV2Manager {
                             context = context
                         )
                         result.add(data)
-                        Log.i(TAG, "Berhasil memuat Renderer Plugin V2 dari $pkg ($appLabel)")
+                        Log.i(TAG, "Successfully loaded Renderer Plugin V2 from $pkg ($appLabel)")
                         continue
                     }
                 } catch (e: Exception) {
-                    Log.w(TAG, "Gagal mengurai fclPlugin_V2 dari $pkg", e)
+                    Log.w(TAG, "Failed to parse fclPlugin_V2 from $pkg", e)
                 }
             }
 
@@ -105,7 +105,7 @@ object NuxRendererV2Manager {
                     context = context
                 )
                 result.add(data)
-                Log.i(TAG, "Menerapkan profil konfigurasi V2 bawaan untuk MobileGL ($pkg)")
+                Log.i(TAG, "Applying default V2 configuration profile for MobileGL ($pkg)")
             }
         }
 

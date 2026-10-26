@@ -194,7 +194,7 @@ object InstanceManager {
             clipboard.setPrimaryClip(clip)
             android.widget.Toast.makeText(
                 context,
-                "Lokasi folder disalin ke clipboard:\n${folder.absolutePath}",
+                "Folder location copied to clipboard:\n${folder.absolutePath}",
                 android.widget.Toast.LENGTH_LONG
             ).show()
         } catch (_: Exception) {

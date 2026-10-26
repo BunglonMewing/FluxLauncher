@@ -57,7 +57,7 @@ object GameLauncher {
             if (fabricProfile == null) {
                 android.widget.Toast.makeText(
                     context,
-                    "Profil Fabric (${instance.loaderVersion}) belum terpasang. Silakan tekan tombol UNDUH pada instance!",
+                    "Fabric profile (${instance.loaderVersion}) is not installed yet. Please press DOWNLOAD on the instance!",
                     android.widget.Toast.LENGTH_LONG
                 ).show()
                 return
@@ -178,27 +178,15 @@ object GameLauncher {
             val hasCustomSkinOrCape = (skinFile != null && skinFile.exists()) || (capeFile != null && capeFile.exists())
 
             if (hasCustomSkinOrCape) {
-                // Hentikan server sebelumnya jika masih aktif
-                com.israadev.nuxlauncher.core.account.offline.OfflineYggdrasilServer.activeInstance?.stop()
-
-                val offlineServer = com.israadev.nuxlauncher.core.account.offline.OfflineYggdrasilServer(0)
-                offlineServer.addCharacter(
-                    username = account.username,
-                    uuid = playerUuid,
-                    skinFile = skinFile,
-                    capeFile = capeFile,
-                    isSlim = account.safeSkinModel == "slim"
-                )
-                val port = offlineServer.start()
-                if (port > 0) {
-                    authlibJar = LwjglManager.prepareAuthLibInjector(context)
-                    authlibUrl = "http://127.0.0.1:$port"
-                    android.util.Log.i("GameLauncher", "Mengaktifkan Offline Yggdrasil server pada port $port untuk ${account.username}")
-                }
+                authlibJar = LwjglManager.prepareAuthLibInjector(context)
+                // Catatan: Server Yggdrasil lokal untuk skin & cape akan dijalankan langsung di GameActivity
+                // (:game process) agar tidak dibekukan (frozen) oleh Android runtime saat main process ke background.
             }
         }
 
         val installedMods = com.israadev.nuxlauncher.core.crash.CrashManager.getInstalledMods(gameDir.absolutePath)
+        val skinFile = if (isOffline) account.getSkinFile() else null
+        val capeFile = if (isOffline) account.getCapeFile() else null
 
         val intent = Intent(context, GameActivity::class.java).apply {
             putExtra(GameActivity.EXTRA_INSTANCE_NAME, instance.name)
@@ -210,10 +198,19 @@ object GameLauncher {
             putExtra(GameActivity.EXTRA_UUID, playerUuid)
             putExtra(GameActivity.EXTRA_ACCESS_TOKEN, accessToken)
             putExtra(GameActivity.EXTRA_USER_TYPE, userType)
-            if (authlibJar != null && authlibUrl != null) {
+            if (authlibJar != null) {
                 putExtra(GameActivity.EXTRA_AUTHLIB_INJECTOR_PATH, authlibJar.absolutePath)
-                putExtra(GameActivity.EXTRA_AUTHLIB_URL, authlibUrl)
+                if (authlibUrl != null) {
+                    putExtra(GameActivity.EXTRA_AUTHLIB_URL, authlibUrl)
+                }
             }
+            if (skinFile != null && skinFile.exists()) {
+                putExtra(GameActivity.EXTRA_SKIN_PATH, skinFile.absolutePath)
+            }
+            if (capeFile != null && capeFile.exists()) {
+                putExtra(GameActivity.EXTRA_CAPE_PATH, capeFile.absolutePath)
+            }
+            putExtra(GameActivity.EXTRA_SKIN_MODEL, account.safeSkinModel)
             putExtra(GameActivity.EXTRA_GAME_DIR, gameDir.absolutePath)
             putExtra(GameActivity.EXTRA_ASSETS_DIR, assetsDir.absolutePath)
             putExtra(GameActivity.EXTRA_ASSET_INDEX, assetIndexId)
@@ -223,6 +220,7 @@ object GameLauncher {
             putExtra(GameActivity.EXTRA_RUNTIME_HOME, runtimeHome.absolutePath)
             putExtra(GameActivity.EXTRA_LWJGL_NATIVES_DIR, lwjglNativesDir.absolutePath)
             putExtra(GameActivity.EXTRA_USE_WRAPPER, useWrapper)
+            putExtra(GameActivity.EXTRA_LAUNCHER_UID, com.israadev.nuxlauncher.core.account.AccountManager.launcherUser.value?.uid ?: "")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
 

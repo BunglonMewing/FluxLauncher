@@ -32,18 +32,20 @@ import com.israadev.nuxlauncher.core.social.NuxSocialManager
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.israadev.nuxlauncher.ui.theme.resp
 
+import com.israadev.nuxlauncher.core.lang.tr
+
 data class NuxNavItem(
     val id: String,
     val icon: ImageVector,
-    val label: String
+    val labelKey: String
 )
 
 val NUX_NAV_ITEMS = listOf(
-    NuxNavItem("home", Icons.Outlined.Home, "Home"),
-    NuxNavItem("accounts", Icons.Outlined.Person, "Akun"),
-    NuxNavItem("mods", Icons.Outlined.Extension, "Mod"),
-    NuxNavItem("ai", Icons.Outlined.Psychology, "AI"),
-    NuxNavItem("settings", Icons.Outlined.Settings, "Pengaturan")
+    NuxNavItem("home", Icons.Outlined.Home, "sidebar.home"),
+    NuxNavItem("accounts", Icons.Outlined.Person, "sidebar.accounts"),
+    NuxNavItem("mods", Icons.Outlined.Extension, "sidebar.mods"),
+    NuxNavItem("ai", Icons.Outlined.Psychology, "sidebar.ai"),
+    NuxNavItem("settings", Icons.Outlined.Settings, "sidebar.settings")
 )
 
 /**
@@ -126,7 +128,7 @@ fun NuxSidebar(
                     ) {
                         Icon(
                             imageVector = item.icon,
-                            contentDescription = item.label,
+                            contentDescription = tr(item.labelKey),
                             tint = if (isSelected) Color(0xFF09090B) else Color(0xFFA1A1AA),
                             modifier = Modifier.size((17.dp).resp())
                         )
@@ -135,7 +137,7 @@ fun NuxSidebar(
                     Spacer(modifier = Modifier.height((3.dp).resp()))
 
                     Text(
-                        text = item.label,
+                        text = tr(item.labelKey),
                         color = if (isSelected) NuxColors.ForestGreen else Color(0xFFA1A1AA),
                         fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
                         fontSize = (8.5.sp).resp(),
@@ -159,7 +161,7 @@ fun NuxSidebar(
         ) {
             Icon(
                 imageVector = Icons.Outlined.Info,
-                contentDescription = "Tentang & Lisensi",
+                contentDescription = "About & License",
                 tint = Color(0xFFA1A1AA),
                 modifier = Modifier.size((15.dp).resp())
             )

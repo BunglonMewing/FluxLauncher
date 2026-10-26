@@ -404,17 +404,17 @@ object NuxModManager {
             when (itemType) {
                 "mods" -> {
                     if (!lowerName.endsWith(".jar")) {
-                        return@withContext Result.failure(IllegalArgumentException("File mod harus berformat .jar"))
+                        return@withContext Result.failure(IllegalArgumentException("Mod file must be in .jar format"))
                     }
                 }
                 "modpacks" -> {
                     if (!lowerName.endsWith(".mrpack") && !lowerName.endsWith(".zip")) {
-                        return@withContext Result.failure(IllegalArgumentException("File modpack harus berformat .mrpack atau .zip"))
+                        return@withContext Result.failure(IllegalArgumentException("Modpack file must be in .mrpack or .zip format"))
                     }
                 }
                 "shaderpacks", "resourcepacks", "datapacks" -> {
                     if (!lowerName.endsWith(".zip")) {
-                        return@withContext Result.failure(IllegalArgumentException("File $itemType harus berformat .zip"))
+                        return@withContext Result.failure(IllegalArgumentException("$itemType file must be in .zip format"))
                     }
                 }
             }
@@ -427,11 +427,11 @@ object NuxModManager {
                 FileOutputStream(destFile).use { output ->
                     input.copyTo(output)
                 }
-            } ?: return@withContext Result.failure(Exception("Gagal membaca file sumber"))
+            } ?: return@withContext Result.failure(Exception("Failed to read source file"))
 
             // Jika modpack (.mrpack atau .zip), baca daftar mod dan unduh semua file seperti versi Windows!
             if (itemType == "modpacks" && (lowerName.endsWith(".mrpack") || lowerName.endsWith(".zip"))) {
-                onProgress?.invoke("Membaca daftar modpack...", 0, 0)
+                onProgress?.invoke("Reading modpack manifest...", 0, 0)
                 processMrpackFile(instance, destFile, context) { statusText, cur, tot ->
                     onProgress?.invoke(statusText, cur, tot)
                 }
@@ -527,7 +527,7 @@ object NuxModManager {
 
             val response = httpClient.newCall(request).execute()
             if (!response.isSuccessful) {
-                return@withContext Result.failure(Exception("Gagal mengambil detail project: ${response.code}"))
+                return@withContext Result.failure(Exception("Failed to fetch project details: ${response.code}"))
             }
 
             val body = response.body?.string() ?: return@withContext Result.failure(Exception("Empty response"))
@@ -551,7 +551,7 @@ object NuxModManager {
 
             val response = httpClient.newCall(request).execute()
             if (!response.isSuccessful) {
-                return@withContext Result.failure(Exception("Gagal mengambil versi project: ${response.code}"))
+                return@withContext Result.failure(Exception("Failed to fetch project version: ${response.code}"))
             }
 
             val body = response.body?.string() ?: return@withContext Result.failure(Exception("Empty response"))
@@ -655,7 +655,7 @@ object NuxModManager {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("NuxModManager", "Gagal inspect ZIP: ${e.message}", e)
+            android.util.Log.e("NuxModManager", "Failed to inspect ZIP: ${e.message}", e)
             return "unknown"
         }
     }
@@ -697,7 +697,7 @@ object NuxModManager {
 
                 // Download file jika belum ada
                 if (!installedFilenames.contains(filename.lowercase())) {
-                    onProgress("Mengunduh $filename...")
+                    onProgress("Downloading $filename...")
                     val targetDir = getTargetDir(context, instance, itemType, worldName)
                     val destFile = File(targetDir, filename)
 
@@ -713,7 +713,7 @@ object NuxModManager {
                     } catch (_: Exception) {}
 
                     if (itemType == "modpacks" && (filename.endsWith(".mrpack", ignoreCase = true) || filename.endsWith(".zip", ignoreCase = true))) {
-                        onProgress("Mengekstrak dan menyiapkan modpack...")
+                        onProgress("Extracting and preparing modpack...")
                         processMrpackFile(instance, destFile, context) { status, _, _ ->
                             onProgress(status)
                         }
@@ -826,7 +826,7 @@ object NuxModManager {
                     }
 
                     val totalFiles = filesToDownload.size
-                    onProgress("Membaca daftar modpack ($totalFiles mod ditemukan)...", 0, totalFiles)
+                    onProgress("Reading modpack list ($totalFiles mods found)...", 0, totalFiles)
                     var currentIdx = 0
                     for ((dlUrl, relPath) in filesToDownload) {
                         currentIdx++
@@ -834,14 +834,14 @@ object NuxModManager {
                         installedRelativeFiles.add(relPath)
                         if (!targetFile.exists()) {
                             targetFile.parentFile?.mkdirs()
-                            onProgress("Mengunduh mod ($currentIdx/$totalFiles): ${targetFile.name}...", currentIdx, totalFiles)
+                            onProgress("Downloading mod ($currentIdx/$totalFiles): ${targetFile.name}...", currentIdx, totalFiles)
                             try {
                                 downloadFile(dlUrl, targetFile)
                             } catch (e: Exception) {
-                                android.util.Log.e("NuxModManager", "Gagal unduh file modpack: $dlUrl", e)
+                                android.util.Log.e("NuxModManager", "Failed to download modpack file: $dlUrl", e)
                             }
                         } else {
-                            onProgress("Mod sudah ada ($currentIdx/$totalFiles): ${targetFile.name}", currentIdx, totalFiles)
+                            onProgress("Mod already exists ($currentIdx/$totalFiles): ${targetFile.name}", currentIdx, totalFiles)
                         }
                     }
 
@@ -918,7 +918,7 @@ object NuxModManager {
             saveModpackManifest(gameDir, manifest)
 
             val installedModCount = installedRelativeFiles.count { it.startsWith("mods/") || it.endsWith(".jar", ignoreCase = true) }
-            onProgress("Selesai! $installedModCount mod berhasil dipasang.", installedRelativeFiles.size, installedRelativeFiles.size)
+            onProgress("Done! $installedModCount mods installed successfully.", installedRelativeFiles.size, installedRelativeFiles.size)
         } catch (e: Exception) {
             android.util.Log.e("NuxModManager", "Error processing mrpack: ${e.message}", e)
             throw e
@@ -933,7 +933,7 @@ object NuxModManager {
 
         val response = httpClient.newCall(request).execute()
         if (!response.isSuccessful) {
-            throw Exception("Gagal mengunduh file: HTTP ${response.code}")
+            throw Exception("Failed to download file: HTTP ${response.code}")
         }
 
         response.body?.byteStream()?.use { input ->
@@ -955,7 +955,7 @@ object NuxModManager {
             val metaFile = getModpackMetadataFile(gameDir, manifest.archiveFilename)
             metaFile.writeText(gson.toJson(manifest))
         } catch (e: Exception) {
-            android.util.Log.e("NuxModManager", "Gagal menyimpan metadata modpack: ${e.message}", e)
+            android.util.Log.e("NuxModManager", "Failed to save modpack metadata: ${e.message}", e)
         }
     }
 
@@ -967,7 +967,7 @@ object NuxModManager {
                 return gson.fromJson(json, ModpackManifest::class.java)
             }
         } catch (e: Exception) {
-            android.util.Log.e("NuxModManager", "Gagal membaca metadata modpack: ${e.message}", e)
+            android.util.Log.e("NuxModManager", "Failed to read modpack metadata: ${e.message}", e)
         }
         return null
     }

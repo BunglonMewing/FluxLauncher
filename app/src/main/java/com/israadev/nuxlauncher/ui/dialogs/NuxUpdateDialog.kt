@@ -105,14 +105,14 @@ fun NuxUpdateDialog(
 
                             Column {
                                 Text(
-                                    text = if (updateInfo.isUpdateAvailable) "PEMBARUAN TERSEDIA" else "LAUNCHER TERBARU",
+                                    text = if (updateInfo.isUpdateAvailable) "UPDATE AVAILABLE" else "LAUNCHER UP TO DATE",
                                     color = if (updateInfo.isUpdateAvailable) NuxColors.ForestGreen else Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
                                     letterSpacing = 0.5.sp
                                 )
                                 Text(
-                                    text = if (updateInfo.isUpdateAvailable) "Versi baru siap diunduh" else "Aplikasi sudah menggunakan versi terkini",
+                                    text = if (updateInfo.isUpdateAvailable) "A new version is ready to download" else "Application is running the latest version",
                                     color = NuxColors.GrayNeutral,
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Normal
@@ -157,7 +157,7 @@ fun NuxUpdateDialog(
                         ) {
                             Column {
                                 Text(
-                                    text = "VERSI SERVER",
+                                    text = "SERVER VERSION",
                                     color = NuxColors.GrayNeutral,
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -193,7 +193,7 @@ fun NuxUpdateDialog(
 
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = "VERSI TERPASANG",
+                                    text = "INSTALLED VERSION",
                                     color = NuxColors.GrayNeutral,
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -210,7 +210,7 @@ fun NuxUpdateDialog(
 
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(
-                                    text = "UKURAN APK",
+                                    text = "APK SIZE",
                                     color = NuxColors.GrayNeutral,
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -231,7 +231,7 @@ fun NuxUpdateDialog(
 
                     // Changelog Section
                     Text(
-                        text = "CATATAN PEMBARUAN",
+                        text = "RELEASE NOTES",
                         color = NuxColors.GrayNeutral,
                         fontSize = 8.5.sp,
                         fontWeight = FontWeight.Bold,
@@ -277,7 +277,7 @@ fun NuxUpdateDialog(
                                 modifier = Modifier.height(32.dp)
                             ) {
                                 Text(
-                                    text = "NANTI",
+                                    text = "LATER",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.sp,
                                     color = Color.White
@@ -305,7 +305,7 @@ fun NuxUpdateDialog(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = if (updateInfo.isUpdateAvailable) "UNDUH PEMBARUAN" else "UNDUH ULANG APK",
+                                text = if (updateInfo.isUpdateAvailable) "DOWNLOAD UPDATE" else "RE-DOWNLOAD APK",
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
                                 color = Color.White

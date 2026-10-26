@@ -58,7 +58,7 @@ object MicrosoftAuthService {
             httpClient.newCall(request).execute().use { response ->
                 val bodyStr = response.body?.string() ?: ""
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(Exception("Gagal memulai login Microsoft (HTTP ${response.code}): $bodyStr"))
+                    return@withContext Result.failure(Exception("Failed to initiate Microsoft login (HTTP ${response.code}): $bodyStr"))
                 }
 
                 val json = JsonParser.parseString(bodyStr).asJsonObject
@@ -98,13 +98,13 @@ object MicrosoftAuthService {
 
         while (System.currentTimeMillis() - startTime < timeoutMs) {
             if (isCancelled()) {
-                return@withContext Result.failure(Exception("Login dibatalkan oleh pengguna."))
+                return@withContext Result.failure(Exception("Login was cancelled by user."))
             }
 
             delay(pollIntervalMs)
 
             if (isCancelled()) {
-                return@withContext Result.failure(Exception("Login dibatalkan oleh pengguna."))
+                return@withContext Result.failure(Exception("Login was cancelled by user."))
             }
 
             try {
@@ -130,7 +130,7 @@ object MicrosoftAuthService {
                         val accessToken = json.get("access_token")?.asString
                         val refreshToken = json.get("refresh_token")?.asString ?: ""
                         if (!accessToken.isNullOrBlank()) {
-                            onStatusUpdate("Token berhasil diterima! Menghubungkan ke Xbox Live...")
+                            onStatusUpdate("Token received! Connecting to Xbox Live...")
                             return@withContext Result.success(Pair(accessToken, refreshToken))
                         }
                     }
@@ -149,12 +149,12 @@ object MicrosoftAuthService {
                                 onStatusUpdate("Memperlambat frekuensi polling...")
                             }
                             "code_expired" -> {
-                                return@withContext Result.failure(Exception("Kode login kedaluwarsa. Silakan mulai ulang."))
+                                return@withContext Result.failure(Exception("Login code expired. Please restart."))
                             }
                             "invalid_grant" -> {
                                 if (desc.contains("AADSTS70000") || desc.contains("already been used")) {
                                     return@withContext Result.failure(
-                                        Exception("Kode otorisasi telah digunakan atau kedaluwarsa. Silakan klik Login untuk mendapatkan kode baru.")
+                                        Exception("Authorization code has already been used or expired. Please click Login for a new code.")
                                     )
                                 } else {
                                     return@withContext Result.failure(Exception("Otorisasi ditolak ($err): $desc"))
@@ -170,12 +170,12 @@ object MicrosoftAuthService {
                 // Jangan batalkan polling hanya karena fluktuasi jaringan sementara
                 consecutiveNetworkFailures++
                 if (consecutiveNetworkFailures >= 6) {
-                    return@withContext Result.failure(Exception("Koneksi jaringan terputus berulang kali saat polling. Silakan periksa koneksi internet."))
+                    return@withContext Result.failure(Exception("Network connection interrupted during polling. Please check your internet connection."))
                 }
             }
         }
 
-        Result.failure(Exception("Waktu otorisasi habis (timeout). Silakan coba lagi."))
+        Result.failure(Exception("Authorization timed out. Please try again."))
     }
 
     /**
@@ -191,7 +191,7 @@ object MicrosoftAuthService {
             // =========================================================
             // 1. Authenticate with Xbox Live (XBL) dengan Fallback RpsTicket
             // =========================================================
-            onStatusUpdate("Autentikasi dengan Xbox Live...")
+            onStatusUpdate("Authenticating with Xbox Live...")
 
             fun doXblRequest(rpsTicket: String): Pair<Int, String> {
                 val xblPayload = JsonObject().apply {
@@ -229,7 +229,7 @@ object MicrosoftAuthService {
             }
 
             if (xblCode !in 200..299) {
-                return@withContext Result.failure(Exception("Gagal autentikasi Xbox Live (HTTP $xblCode): $xblBody"))
+                return@withContext Result.failure(Exception("Xbox Live authentication failed (HTTP $xblCode): $xblBody"))
             }
 
             val xblJson = JsonParser.parseString(xblBody).asJsonObject
@@ -239,7 +239,7 @@ object MicrosoftAuthService {
             val userHash = xui?.get(0)?.asJsonObject?.get("uhs")?.asString ?: ""
 
             if (xblToken.isBlank() || userHash.isBlank()) {
-                return@withContext Result.failure(Exception("Gagal memperoleh token Xbox Live atau UserHash."))
+                return@withContext Result.failure(Exception("Failed to obtain Xbox Live token or UserHash."))
             }
 
             // =========================================================
@@ -274,17 +274,17 @@ object MicrosoftAuthService {
                     val xErr = xErrJson?.get("XErr")?.asString ?: ""
 
                     when (xErr) {
-                        "2148916227" -> return@withContext Result.failure(Exception("Akun ini telah dilarang/diblokir dari Xbox Live."))
-                        "2148916229" -> return@withContext Result.failure(Exception("Akun dibatasi oleh kontrol orang tua (Restricted)."))
-                        "2148916233" -> return@withContext Result.failure(Exception("Akun Microsoft ini belum memiliki profil Xbox. Silakan buat gamertag di xbox.com terlebih dahulu."))
-                        "2148916234" -> return@withContext Result.failure(Exception("Akun belum menyetujui Ketentuan Layanan Xbox Live."))
-                        "2148916235" -> return@withContext Result.failure(Exception("Layanan Xbox Live tidak tersedia di negara/wilayah akun Anda."))
+                        "2148916227" -> return@withContext Result.failure(Exception("This account has been banned/suspended from Xbox Live."))
+                        "2148916229" -> return@withContext Result.failure(Exception("Account restricted by parental controls."))
+                        "2148916233" -> return@withContext Result.failure(Exception("This Microsoft account does not have an Xbox profile. Please create a gamertag on xbox.com first."))
+                        "2148916234" -> return@withContext Result.failure(Exception("Account has not accepted Xbox Live Terms of Service."))
+                        "2148916235" -> return@withContext Result.failure(Exception("Xbox Live service is not available in your account country/region."))
                         "2148916236" -> return@withContext Result.failure(Exception("Akun memerlukan verifikasi bukti usia dewasa (Proof of Age)."))
                         "2148916237" -> return@withContext Result.failure(Exception("Batas waktu bermain harian Xbox Live telah tercapai."))
-                        "2148916238" -> return@withContext Result.failure(Exception("Akun di bawah umur (Child Account). Harus ditautkan ke akun keluarga (Family Safety) oleh orang tua."))
+                        "2148916238" -> return@withContext Result.failure(Exception("Child Account. Must be linked to a family safety account by a parent/guardian."))
                         else -> {
                             val msg = xErrJson?.get("Message")?.asString ?: bodyStr
-                            return@withContext Result.failure(Exception("Otorisasi XSTS gagal (HTTP ${response.code}): $msg"))
+                            return@withContext Result.failure(Exception("XSTS authorization failed (HTTP ${response.code}): $msg"))
                         }
                     }
                 }
@@ -294,7 +294,7 @@ object MicrosoftAuthService {
             }
 
             if (xstsToken.isBlank()) {
-                return@withContext Result.failure(Exception("Gagal memperoleh token XSTS."))
+                return@withContext Result.failure(Exception("Failed to obtain XSTS token."))
             }
 
             // =========================================================
@@ -317,14 +317,14 @@ object MicrosoftAuthService {
             httpClient.newCall(mojangReq).execute().use { response ->
                 val bodyStr = response.body?.string() ?: ""
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(Exception("Gagal login ke layanan Minecraft (${response.code}): $bodyStr"))
+                    return@withContext Result.failure(Exception("Failed to log in to Minecraft services (${response.code}): $bodyStr"))
                 }
                 val json = JsonParser.parseString(bodyStr).asJsonObject
                 mcAccessToken = json.get("access_token")?.asString ?: ""
             }
 
             if (mcAccessToken.isBlank()) {
-                return@withContext Result.failure(Exception("Layanan Minecraft tidak mengembalikan token akses."))
+                return@withContext Result.failure(Exception("Minecraft services did not return an access token."))
             }
 
             // =========================================================
@@ -343,7 +343,7 @@ object MicrosoftAuthService {
                     return@withContext Result.failure(Exception("Akun Microsoft ini belum memiliki lisensi game Minecraft: Java Edition."))
                 }
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(Exception("Gagal mengambil profil Minecraft (${response.code}): $bodyStr"))
+                    return@withContext Result.failure(Exception("Failed to retrieve Minecraft profile (${response.code}): $bodyStr"))
                 }
 
                 val json = JsonParser.parseString(bodyStr).asJsonObject
@@ -383,7 +383,7 @@ object MicrosoftAuthService {
      */
     suspend fun refreshMicrosoftAccount(account: UserAccount): Result<UserAccount> = withContext(Dispatchers.IO) {
         if (account.safeRefreshToken.isBlank() || account.safeRefreshToken == "0") {
-            return@withContext Result.failure(Exception("Tidak ada refresh token tersimpan."))
+            return@withContext Result.failure(Exception("No refresh token stored."))
         }
 
         try {
@@ -406,7 +406,7 @@ object MicrosoftAuthService {
             httpClient.newCall(request).execute().use { response ->
                 val bodyStr = response.body?.string() ?: ""
                 if (!response.isSuccessful) {
-                    return@withContext Result.failure(Exception("Gagal memperbarui token Microsoft (${response.code}): $bodyStr"))
+                    return@withContext Result.failure(Exception("Failed to refresh Microsoft token (${response.code}): $bodyStr"))
                 }
                 val json = JsonParser.parseString(bodyStr).asJsonObject
                 newAccessToken = json.get("access_token")?.asString ?: ""

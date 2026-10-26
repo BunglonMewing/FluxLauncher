@@ -31,6 +31,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
 import com.israadev.nuxlauncher.core.fabric.FabricService
 import com.israadev.nuxlauncher.core.manifest.MojangManifestService
 import com.israadev.nuxlauncher.core.models.Instance
@@ -52,7 +54,7 @@ enum class VersionCategory(
     SNAPSHOT("Snapshot / Beta", Color(0xFF8B5CF6).copy(alpha = 0.15f), Color(0xFFA78BFA)),
     OLD_BETA("Old Beta", Color(0xFFF59E0B).copy(alpha = 0.15f), Color(0xFFFBBF24)),
     OLD_ALPHA("Old Alpha", Color(0xFFEC4899).copy(alpha = 0.15f), Color(0xFFF472B6)),
-    ALL("Semua", Color(0xFF3B82F6).copy(alpha = 0.15f), Color(0xFF60A5FA))
+    ALL("All", Color(0xFF3B82F6).copy(alpha = 0.15f), Color(0xFF60A5FA))
 }
 
 @Composable
@@ -77,6 +79,7 @@ fun NuxAddInstanceDialog(
     var premiumInitialPrompt by remember { mutableStateOf<String?>(null) }
 
     val launcherUser by com.israadev.nuxlauncher.core.account.AccountManager.launcherUser.collectAsState()
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
 
     LaunchedEffect(Unit) {
         val result = MojangManifestService.getVersionManifest()
@@ -152,14 +155,14 @@ fun NuxAddInstanceDialog(
                 ) {
                     Column {
                         Text(
-                            text = "INSTANCE ARCHITECT",
+                            text = tr("dialogs.add_instance_tag"),
                             color = Color(0xFF71717A),
                             fontWeight = FontWeight.Bold,
                             fontSize = 8.sp,
                             letterSpacing = 1.sp
                         )
                         Text(
-                            text = "Buat Instance Baru",
+                            text = tr("dialogs.add_instance_title"),
                             color = Color.White,
                             fontWeight = FontWeight.Black,
                             fontSize = 14.sp,
@@ -179,7 +182,7 @@ fun NuxAddInstanceDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = tr("common.close"),
                             tint = Color(0xFFA1A1AA),
                             modifier = Modifier.size(13.dp)
                         )
@@ -229,7 +232,7 @@ fun NuxAddInstanceDialog(
                                         .padding(horizontal = 8.dp, vertical = 6.dp)
                                 ) {
                                     Text(
-                                        text = "NAMA INSTANCE",
+                                        text = tr("dialogs.instance_name_label"),
                                         color = Color(0xFFA1A1AA),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 8.5.sp,
@@ -279,7 +282,7 @@ fun NuxAddInstanceDialog(
                                         .padding(horizontal = 8.dp, vertical = 6.dp)
                                 ) {
                                     Text(
-                                        text = "MOD LOADER ENGINE",
+                                        text = tr("dialogs.mod_loader_label"),
                                         color = Color(0xFFA1A1AA),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 8.5.sp,
@@ -362,14 +365,14 @@ fun NuxAddInstanceDialog(
                                                         )
                                                         Spacer(modifier = Modifier.width(5.dp))
                                                         Text(
-                                                            text = "Memuat loader Fabric...",
+                                                            text = tr("dialogs.loading_fabric"),
                                                             color = Color(0xFFA1A1AA),
                                                             fontSize = 10.sp
                                                         )
                                                     }
                                                 } else if (fabricVersionsList.isEmpty()) {
                                                     Text(
-                                                        text = "⚠️ Fabric belum tersedia untuk $selectedVersion",
+                                                        text = "⚠️ Fabric is not yet available for $selectedVersion",
                                                         color = Color(0xFFFB7185),
                                                         fontSize = 9.5.sp,
                                                         fontWeight = FontWeight.Medium
@@ -448,7 +451,7 @@ fun NuxAddInstanceDialog(
                                 ) {
                                     Column {
                                         Text(
-                                            text = "SPESIFIKASI TARGET",
+                                            text = tr("dialogs.target_spec"),
                                             color = NuxColors.MintGreen,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 7.5.sp,
@@ -531,9 +534,9 @@ fun NuxAddInstanceDialog(
                                 ) {
                                     Text(
                                         text = when {
-                                            isLoadingFabric && selectedLoader == "fabric" -> "Memuat Fabric..."
-                                            selectedLoader == "fabric" && selectedFabricVersion.isBlank() -> "Fabric Tidak Tersedia"
-                                            else -> "Buat Instance Sekarang"
+                                            isLoadingFabric && selectedLoader == "fabric" -> tr("dialogs.btn_loading_fabric")
+                                            selectedLoader == "fabric" && selectedFabricVersion.isBlank() -> tr("dialogs.fabric_unavailable")
+                                            else -> tr("dialogs.btn_create_instance")
                                         },
                                         color = if (canCreate) Color.White else Color(0xFF71717A),
                                         fontWeight = FontWeight.Black,
@@ -600,7 +603,7 @@ fun NuxAddInstanceDialog(
                                             .border(1.dp, pillBorder, RoundedCornerShape(6.dp))
                                             .clickable {
                                                 if (category != VersionCategory.RELEASE && launcherUser?.isActivated != true) {
-                                                    premiumInitialPrompt = "Akses versi Snapshot dan build Eksperimental (Beta & Alpha) hanya tersedia untuk member NUX Premium. Pengguna Free dapat memainkan seluruh versi Release stabil."
+                                                    premiumInitialPrompt = "Access to Snapshot and Experimental builds (Beta & Alpha) is exclusively available for NUX Premium members. Free users can play all stable Release versions."
                                                     showPremiumDialog = true
                                                 } else {
                                                     selectedCategory = category
@@ -637,7 +640,7 @@ fun NuxAddInstanceDialog(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Search,
-                                        contentDescription = "Search",
+                                        contentDescription = tr("common.search"),
                                         tint = Color(0xFF71717A),
                                         modifier = Modifier.size(12.dp)
                                     )
@@ -656,7 +659,7 @@ fun NuxAddInstanceDialog(
                                         decorationBox = { innerTextField ->
                                             if (searchQuery.isEmpty()) {
                                                 Text(
-                                                    text = "Cari versi (${selectedCategory.label})...",
+                                                    text = "Search version (${selectedCategory.label})...",
                                                     color = Color(0xFF52525B),
                                                     fontSize = 10.sp
                                                 )
@@ -688,14 +691,14 @@ fun NuxAddInstanceDialog(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "DAFTAR VERSI",
+                                    text = "VERSION LIST",
                                     color = Color(0xFF71717A),
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 0.8.sp
                                 )
                                 Text(
-                                    text = "${filteredVersions.size} versi ditemukan",
+                                    text = "${filteredVersions.size} versions found",
                                     color = Color(0xFF52525B),
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Medium
@@ -722,7 +725,7 @@ fun NuxAddInstanceDialog(
                                             )
                                             Spacer(modifier = Modifier.height(6.dp))
                                             Text(
-                                                text = "Memuat manifest Mojang...",
+                                                text = "Loading Mojang manifest...",
                                                 color = Color(0xFF71717A),
                                                 fontSize = 10.sp
                                             )
@@ -731,7 +734,7 @@ fun NuxAddInstanceDialog(
                                 } else if (filteredVersions.isEmpty()) {
                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                         Text(
-                                            text = "Tidak ada versi yang cocok",
+                                            text = "No matching versions found",
                                             color = Color(0xFF71717A),
                                             fontSize = 10.5.sp,
                                             fontWeight = FontWeight.Medium

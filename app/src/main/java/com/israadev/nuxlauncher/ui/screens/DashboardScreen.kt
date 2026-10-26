@@ -70,9 +70,14 @@ import com.israadev.nuxlauncher.core.mods.NuxAddonImportManager
 import com.israadev.nuxlauncher.ui.dialogs.NuxAddonImportDialog
 import com.israadev.nuxlauncher.ui.dialogs.NuxAboutDialog
 import com.israadev.nuxlauncher.ui.dialogs.NuxPremiumDialog
+import com.israadev.nuxlauncher.core.announcement.AnnouncementManager
+import com.israadev.nuxlauncher.core.announcement.NuxAnnouncement
+import com.israadev.nuxlauncher.ui.dialogs.NuxAnnouncementDialog
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.israadev.nuxlauncher.ui.theme.resp
 import com.israadev.nuxlauncher.ui.theme.LocalNuxScale
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.trStr
 import kotlinx.coroutines.launch
 
 @Composable
@@ -96,6 +101,9 @@ fun DashboardScreen() {
     var instanceToDelete by remember { mutableStateOf<com.israadev.nuxlauncher.core.models.Instance?>(null) }
     var isCheckingUpdate by remember { mutableStateOf(false) }
     var updateDialogInfo by remember { mutableStateOf<AndroidUpdateInfo?>(null) }
+    var announcementDialogInfo by remember { mutableStateOf<NuxAnnouncement?>(null) }
+    var pendingAnnouncement by remember { mutableStateOf<NuxAnnouncement?>(null) }
+    var isUpdateCheckDone by remember { mutableStateOf(false) }
     var pendingLaunchInstance by remember { mutableStateOf<com.israadev.nuxlauncher.core.models.Instance?>(null) }
     var unsupportedRendererInfo by remember { mutableStateOf<NuxRendererInfo?>(null) }
     var showAboutDialog by remember { mutableStateOf(false) }
@@ -105,20 +113,47 @@ fun DashboardScreen() {
 
     val handleRequestCreateInstance = {
         if (instances.size >= 3 && launcherUser?.isActivated != true) {
-            premiumInitialPrompt = "Batas akun Free adalah maksimal 3 instance. Upgrade ke NUX Premium untuk membuat instance tanpa batas!"
+            premiumInitialPrompt = "Free accounts are limited to a maximum of 3 instances. Upgrade to NUX Premium to create unlimited instances!"
             showPremiumDialog = true
         } else {
             showAddDialog = true
         }
     }
 
-    // Auto check update every time launcher is opened
+    // Auto check update and announcement on launch
     LaunchedEffect(Unit) {
-        val result = UpdateManager.checkForUpdate(context)
-        result.onSuccess { info ->
-            if (info.isUpdateAvailable) {
-                updateDialogInfo = info
+        // 1. Ambil announcement secara asynchronous di background
+        launch {
+            try {
+                val ann = AnnouncementManager.fetchAnnouncement()
+                if (ann != null && !AnnouncementManager.isDismissed(context, ann.id)) {
+                    pendingAnnouncement = ann
+                }
+            } catch (e: Exception) {
+                // Ignore announcement fetch failures
             }
+        }
+
+        // 2. Periksa ketersediaan update launcher
+        try {
+            val result = UpdateManager.checkForUpdate(context)
+            result.onSuccess { info ->
+                if (info.isUpdateAvailable) {
+                    updateDialogInfo = info
+                }
+            }
+        } catch (e: Exception) {
+            // Ignore update check failures
+        } finally {
+            isUpdateCheckDone = true
+        }
+    }
+
+    // Sequential Modal Coordinator: bila update check selesai dan TIDAK ADA update, segera tampilkan announcement
+    LaunchedEffect(isUpdateCheckDone, updateDialogInfo, pendingAnnouncement) {
+        if (isUpdateCheckDone && updateDialogInfo == null && pendingAnnouncement != null) {
+            announcementDialogInfo = pendingAnnouncement
+            pendingAnnouncement = null
         }
     }
 
@@ -149,7 +184,7 @@ fun DashboardScreen() {
                     if (durationMs > 20_500L) {
                         val seconds = (durationMs / 1000f).roundToInt()
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(context, "Durasi video terlalu panjang ($seconds dtk)! Maksimum 20 detik.", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "Video duration is too long (${seconds}s)! Maximum is 20 seconds.", Toast.LENGTH_LONG).show()
                         }
                         return@launch
                     }
@@ -161,7 +196,7 @@ fun DashboardScreen() {
                         }
                     }
 
-                    // Hapus file hero_banner lama agar hemat memori dan penyimpanan
+                    // Delete old hero_banner files to save storage
                     context.filesDir.listFiles()?.forEach { file ->
                         if (file.name.startsWith("hero_banner") && file.absolutePath != destFile.absolutePath) {
                             file.delete()
@@ -174,12 +209,12 @@ fun DashboardScreen() {
                     )
                     SettingsManager.updateSettings(context, updated)
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Animasi background berhasil diganti!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Background animation updated successfully!", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(context, "Gagal memproses video: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Failed to process video: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -209,7 +244,7 @@ fun DashboardScreen() {
                         if (tabId == "home" || tabId == "accounts" || tabId == "settings" || tabId == "mods" || tabId == "ai" || tabId == "friends") {
                             currentTab = tabId
                         } else {
-                            Toast.makeText(context, "Fitur ${tabId.replaceFirstChar { it.uppercase() }} segera hadir di mobile!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "${tabId.replaceFirstChar { it.uppercase() }} feature coming soon to mobile!", Toast.LENGTH_SHORT).show()
                         }
                     },
                     onOpenAbout = { showAboutDialog = true },
@@ -341,7 +376,7 @@ fun DashboardScreen() {
                             ) {
                                 // Top-Left: Account Switcher Pill [ (V) Username ˅ ]
                                 val accounts by AccountManager.accounts.collectAsState()
-                                val activeUsername = currentAccount?.username ?: launcherUser?.username ?: "Pilih Akun"
+                                val activeUsername = currentAccount?.username ?: launcherUser?.username ?: tr("dashboard.select_account")
                                 val initialLetter = activeUsername.firstOrNull()?.uppercase() ?: "U"
 
                                 Box {
@@ -402,7 +437,7 @@ fun DashboardScreen() {
 
                                         Icon(
                                             imageVector = Icons.Default.KeyboardArrowDown,
-                                            contentDescription = "Ganti Akun",
+                                            contentDescription = tr("dashboard.switch_account"),
                                             tint = Color(0xFFA1A1AA),
                                             modifier = Modifier.size((16.dp).resp())
                                         )
@@ -420,7 +455,7 @@ fun DashboardScreen() {
                                     ) {
                                         if (accounts.isEmpty()) {
                                             DropdownMenuItem(
-                                                text = { Text("Belum ada akun", color = Color(0xFFA1A1AA), fontSize = (11.sp).resp()) },
+                                                text = { Text(tr("dashboard.no_accounts"), color = Color(0xFFA1A1AA), fontSize = (11.sp).resp()) },
                                                 onClick = { }
                                             )
                                         } else {
@@ -462,7 +497,7 @@ fun DashboardScreen() {
                                         DropdownMenuItem(
                                             text = {
                                                 Text(
-                                                    text = "+ Kelola Akun",
+                                                    text = tr("dashboard.manage_accounts"),
                                                     color = NuxColors.ForestGreen,
                                                     fontWeight = FontWeight.Bold,
                                                     fontSize = (12.sp).resp()
@@ -512,7 +547,7 @@ fun DashboardScreen() {
                                                     .background(NuxColors.Amber, CircleShape)
                                             )
                                             Text(
-                                                text = "UNOFFICIAL MODIFIED VERSION",
+                                                text = tr("dashboard.unofficial_notice"),
                                                 color = Color(0xFFD4D4D8),
                                                 fontSize = (8.5.sp).resp(),
                                                 fontWeight = FontWeight.Bold,
@@ -520,7 +555,7 @@ fun DashboardScreen() {
                                             )
                                             Icon(
                                                 imageVector = Icons.Outlined.Info,
-                                                contentDescription = "Tentang & Lisensi",
+                                                contentDescription = "About & License",
                                                 tint = Color(0xFFA1A1AA),
                                                 modifier = Modifier.size((11.5.dp).resp())
                                             )
@@ -557,7 +592,7 @@ fun DashboardScreen() {
                                     ) {
                                         Icon(
                                             imageVector = Icons.AutoMirrored.Outlined.RotateRight,
-                                            contentDescription = "Ubah Rotasi Video Animasi",
+                                            contentDescription = tr("dashboard.rotate_video"),
                                             tint = Color.White,
                                             modifier = Modifier.size((17.dp).resp())
                                         )
@@ -589,7 +624,7 @@ fun DashboardScreen() {
                                     ) {
                                         Icon(
                                             imageVector = Icons.Outlined.Image,
-                                            contentDescription = "Ganti Animasi Background",
+                                            contentDescription = tr("dashboard.change_video"),
                                             tint = Color.White,
                                             modifier = Modifier.size((17.dp).resp())
                                         )
@@ -663,7 +698,7 @@ fun DashboardScreen() {
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = selectedInstance?.name ?: "Pilih / Buat Instance",
+                                                    text = selectedInstance?.name ?: tr("dashboard.select_instance"),
                                                     color = Color.White,
                                                     fontWeight = FontWeight.Black,
                                                     fontSize = (15.5.sp).resp(),
@@ -679,7 +714,7 @@ fun DashboardScreen() {
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.KeyboardArrowDown,
-                                                        contentDescription = "Pilih Versi",
+                                                        contentDescription = tr("dashboard.select_version"),
                                                         tint = Color.White,
                                                         modifier = Modifier.size((14.dp).resp())
                                                     )
@@ -747,7 +782,7 @@ fun DashboardScreen() {
                                                             .padding(horizontal = (7.dp).resp(), vertical = (2.dp).resp())
                                                     ) {
                                                         Text(
-                                                            text = "Belum Ada Versi",
+                                                            text = tr("dashboard.no_version_selected"),
                                                             color = Color.White,
                                                             fontSize = (9.5.sp).resp()
                                                         )
@@ -770,7 +805,7 @@ fun DashboardScreen() {
                                                 DropdownMenuItem(
                                                     text = {
                                                         Text(
-                                                            text = "Tidak ada instance yang terinstall",
+                                                            text = tr("dashboard.no_instances"),
                                                             color = Color(0xFFA1A1AA),
                                                             fontSize = (11.sp).resp()
                                                         )
@@ -808,7 +843,7 @@ fun DashboardScreen() {
                                                                     if (isSelected) {
                                                                         Icon(
                                                                             imageVector = Icons.Default.Check,
-                                                                            contentDescription = "Selected",
+                                                                            contentDescription = tr("common.selected"),
                                                                             tint = NuxColors.ForestGreen,
                                                                             modifier = Modifier.size((16.dp).resp())
                                                                         )
@@ -826,7 +861,7 @@ fun DashboardScreen() {
                                                                     ) {
                                                                         Icon(
                                                                             imageVector = Icons.Outlined.Settings,
-                                                                            contentDescription = "Pengaturan Instance",
+                                                                            contentDescription = tr("dashboard.instance_settings"),
                                                                             tint = Color(0xFFD4D4D8),
                                                                             modifier = Modifier.size((15.dp).resp())
                                                                         )
@@ -852,12 +887,12 @@ fun DashboardScreen() {
                                                     ) {
                                                         Icon(
                                                             imageVector = Icons.Default.Add,
-                                                            contentDescription = "Add",
+                                                            contentDescription = tr("common.add"),
                                                             tint = NuxColors.ForestGreen,
                                                             modifier = Modifier.size((18.dp).resp())
                                                         )
                                                         Text(
-                                                            text = "Add new instance",
+                                                            text = tr("dashboard.add_new_instance"),
                                                             color = NuxColors.ForestGreen,
                                                             fontWeight = FontWeight.Bold,
                                                             fontSize = (12.5.sp).resp()
@@ -889,7 +924,7 @@ fun DashboardScreen() {
 
                                                 val account = currentAccount
                                                 if (account == null) {
-                                                    Toast.makeText(context, "Silakan buat atau pilih akun terlebih dahulu!", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, trStr("dashboard.toast_select_account"), Toast.LENGTH_SHORT).show()
                                                     currentTab = "accounts"
                                                     return@clickable
                                                 }
@@ -899,7 +934,7 @@ fun DashboardScreen() {
                                                     isDownloading = true
                                                     downloadTargetName = inst.name
                                                     downloadProgress = 0f
-                                                    downloadMessage = "Menyiapkan OpenJDK (${JavaRuntimeManager.getRuntimeDisplayName(targetRuntime)})..."
+                                                    downloadMessage = trStr("dashboard.download_preparing_openjdk", JavaRuntimeManager.getRuntimeDisplayName(targetRuntime))
 
                                                     scope.launch {
                                                         JavaRuntimeManager.extractRuntime(context, targetRuntime) { p, msg ->
@@ -913,9 +948,9 @@ fun DashboardScreen() {
                                                         }
                                                         isDownloading = false
                                                         if (res.isSuccess) {
-                                                            Toast.makeText(context, "Instalasi selesai! Tekan PLAY untuk bermain.", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context, trStr("dashboard.toast_install_complete"), Toast.LENGTH_SHORT).show()
                                                         } else {
-                                                            Toast.makeText(context, "Gagal mengunduh: ${res.exceptionOrNull()?.localizedMessage}", Toast.LENGTH_LONG).show()
+                                                            Toast.makeText(context, trStr("dashboard.toast_download_failed", res.exceptionOrNull()?.localizedMessage ?: ""), Toast.LENGTH_LONG).show()
                                                         }
                                                     }
                                                 } else {
@@ -924,7 +959,7 @@ fun DashboardScreen() {
                                                         isDownloading = true
                                                         downloadTargetName = inst.name
                                                         downloadProgress = 0f
-                                                        downloadMessage = "Menyiapkan OpenJDK (${JavaRuntimeManager.getRuntimeDisplayName(targetRuntime)})..."
+                                                        downloadMessage = trStr("dashboard.download_preparing_openjdk", JavaRuntimeManager.getRuntimeDisplayName(targetRuntime))
                                                         scope.launch {
                                                             val extRes = JavaRuntimeManager.extractRuntime(context, targetRuntime) { p, msg ->
                                                                 downloadProgress = p
@@ -932,10 +967,10 @@ fun DashboardScreen() {
                                                             }
                                                             isDownloading = false
                                                             if (extRes.isSuccess) {
-                                                                Toast.makeText(context, "Meluncurkan ${inst.name}...", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, trStr("dashboard.toast_launching", inst.name), Toast.LENGTH_SHORT).show()
                                                                 GameLauncher.launch(context, inst, account)
                                                             } else {
-                                                                Toast.makeText(context, "Gagal menyiapkan OpenJDK: ${extRes.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                                                                Toast.makeText(context, trStr("dashboard.toast_openjdk_failed", extRes.exceptionOrNull()?.message ?: ""), Toast.LENGTH_LONG).show()
                                                             }
                                                         }
                                                         return@clickable
@@ -947,7 +982,7 @@ fun DashboardScreen() {
                                                         unsupportedRendererInfo = currentRendererInfo
                                                         pendingLaunchInstance = inst
                                                     } else {
-                                                        Toast.makeText(context, "Meluncurkan ${inst.name}...", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, trStr("dashboard.toast_launching", inst.name), Toast.LENGTH_SHORT).show()
                                                         GameLauncher.launch(context, inst, account)
                                                     }
                                                 }
@@ -963,7 +998,7 @@ fun DashboardScreen() {
                                             modifier = Modifier.size((20.dp).resp())
                                         )
                                         Text(
-                                            text = if (inst == null) "NEW INSTANCE" else if (isFullyDownloaded) "PLAY" else "UNDUH",
+                                            text = if (inst == null) tr("dashboard.play_new_instance") else if (isFullyDownloaded) tr("dashboard.play_button") else tr("dashboard.play_download"),
                                             color = Color(0xFF09090B),
                                             fontWeight = FontWeight.Black,
                                             fontSize = (15.sp).resp(),
@@ -995,7 +1030,7 @@ fun DashboardScreen() {
                 onInstanceCreated = { newInst ->
                     showAddDialog = false
                     InstanceManager.createInstance(context, newInst)
-                    Toast.makeText(context, "Instance ${newInst.name} berhasil dibuat!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, trStr("dialogs.add_instance.toast_created", newInst.name), Toast.LENGTH_SHORT).show()
                 }
             )
         }
@@ -1018,7 +1053,7 @@ fun DashboardScreen() {
                     instanceToEdit = null
                     showEditInstanceDialog = false
                     InstanceManager.deleteInstance(context, toDelete.id)
-                    Toast.makeText(context, "Instance ${toDelete.name} berhasil dihapus!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, trStr("dialogs.delete_instance.toast_deleted", toDelete.name), Toast.LENGTH_SHORT).show()
                 }
             )
         }
@@ -1030,7 +1065,7 @@ fun DashboardScreen() {
                 onConfirm = {
                     instanceToDelete = null
                     InstanceManager.deleteInstance(context, inst.id)
-                    Toast.makeText(context, "Instance ${inst.name} berhasil dihapus!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, trStr("dialogs.delete_instance.toast_deleted", inst.name), Toast.LENGTH_SHORT).show()
                 },
                 onDismiss = { instanceToDelete = null }
             )
@@ -1049,8 +1084,27 @@ fun DashboardScreen() {
         updateDialogInfo?.let { info ->
             NuxUpdateDialog(
                 updateInfo = info,
-                onDismiss = { updateDialogInfo = null }
+                onDismiss = {
+                    updateDialogInfo = null
+                    // Sequential: setelah user menutup/menolak update, tampilkan announcement jika ada
+                    pendingAnnouncement?.let { ann ->
+                        announcementDialogInfo = ann
+                        pendingAnnouncement = null
+                    }
+                }
             )
+        }
+
+        // Launcher Announcement Dialog (Anti-Bentrok: hanya tampil jika tidak ada update dialog yang aktif)
+        if (updateDialogInfo == null) {
+            announcementDialogInfo?.let { ann ->
+                NuxAnnouncementDialog(
+                    announcement = ann,
+                    onDismiss = {
+                        announcementDialogInfo = null
+                    }
+                )
+            }
         }
 
         // Unsupported Renderer Warning Dialog (Persis seperti Zalith)
@@ -1066,7 +1120,7 @@ fun DashboardScreen() {
                     unsupportedRendererInfo = null
                     pendingLaunchInstance = null
                     if (toLaunch != null && account != null) {
-                        Toast.makeText(context, "Meluncurkan ${toLaunch.name}...", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, trStr("dashboard.toast_launching", toLaunch.name), Toast.LENGTH_SHORT).show()
                         GameLauncher.launch(context, toLaunch, account)
                     }
                 },

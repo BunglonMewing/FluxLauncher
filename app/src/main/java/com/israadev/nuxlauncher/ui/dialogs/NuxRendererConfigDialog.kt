@@ -101,7 +101,7 @@ fun NuxRendererConfigDialog(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
-                                    text = "KONFIGURASI RENDERER",
+                                    text = "RENDERER CONFIGURATION",
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
@@ -148,7 +148,7 @@ fun NuxRendererConfigDialog(
                             .clickable {
                                 val opened = MobileGluesConfigManager.openMobileGluesApp(context)
                                 if (!opened) {
-                                    Toast.makeText(context, "Aplikasi MobileGlues tidak ditemukan", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "MobileGlues application not found", Toast.LENGTH_SHORT).show()
                                 }
                             }
                             .padding(horizontal = 12.dp, vertical = 8.dp),
@@ -157,20 +157,20 @@ fun NuxRendererConfigDialog(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Buka Panel Aplikasi MobileGlues",
+                                text = "Open MobileGlues App Panel",
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.MintGreen
                             )
                             Text(
-                                text = "Akses seluruh pengaturan grafis, GLSL cache, dan multi-draw",
+                                text = "Access all graphics settings, GLSL cache, and multi-draw",
                                 fontSize = 9.sp,
                                 color = NuxColors.GrayNeutral
                             )
                         }
                         Icon(
                             imageVector = Icons.Default.Launch,
-                            contentDescription = "Buka App",
+                            contentDescription = "Open App",
                             tint = NuxColors.MintGreen,
                             modifier = Modifier.size(16.dp)
                         )
@@ -188,32 +188,32 @@ fun NuxRendererConfigDialog(
                     ) {
                         // Option 1: ANGLE Driver
                         ConfigToggleItem(
-                            title = "Gunakan ANGLE (OpenGL ES over Vulkan)",
-                            description = "Menerjemahkan instruksi GL ke Vulkan untuk stabilitas & FPS lebih baik.",
+                            title = "Use ANGLE (OpenGL ES over Vulkan)",
+                            description = "Translates GL commands to Vulkan for improved stability and FPS.",
                             checked = enableAngle,
                             onCheckedChange = { enableAngle = it }
                         )
 
                         // Option 2: NoError Mode
                         ConfigToggleItem(
-                            title = "Mode Abaikan Error (OpenGL NoError)",
-                            description = "Mencegah crash permainan akibat error framebuffer atau program shader.",
+                            title = "Ignore Error Mode (OpenGL NoError)",
+                            description = "Prevents crashes from framebuffer or shader program validation errors.",
                             checked = enableNoError,
                             onCheckedChange = { enableNoError = it }
                         )
 
                         // Option 3: ANGLE Depth Clear Fix
                         ConfigToggleItem(
-                            title = "Workaround Depth Clear Fix ANGLE",
-                            description = "Memperbaiki glitch visual atau layar hitam pada perangkat / GPU tertentu.",
+                            title = "ANGLE Depth Clear Fix Workaround",
+                            description = "Resolves visual artifacts or black screens on certain devices / GPUs.",
                             checked = angleDepthFix,
                             onCheckedChange = { angleDepthFix = it }
                         )
 
                         // Option 4: Compute Shader & DSA
                         ConfigToggleItem(
-                            title = "Ekstensi Compute Shader & DSA",
-                            description = "Mengaktifkan ekstensi modern OpenGL ES untuk shader pack Minecraft.",
+                            title = "Compute Shader & DSA Extensions",
+                            description = "Enables modern OpenGL ES extensions for Minecraft shader packs.",
                             checked = enableComputeDsa,
                             onCheckedChange = { enableComputeDsa = it }
                         )
@@ -221,7 +221,7 @@ fun NuxRendererConfigDialog(
                         // Option 5: FSR 1.0 Upscaling
                         ConfigToggleItem(
                             title = "Built-in FSR 1.0 Upscaling",
-                            description = "Peningkatan resolusi spasial AMD FidelityFX bawaan MobileGlues untuk performa ekstra.",
+                            description = "Built-in AMD FidelityFX spatial upscaling for extra performance.",
                             checked = enableFsr,
                             onCheckedChange = { enableFsr = it }
                         )
@@ -236,7 +236,7 @@ fun NuxRendererConfigDialog(
                                 .padding(10.dp)
                         ) {
                             Text(
-                                text = "Lokasi file konfigurasi tersimpan di: /sdcard/MG/config.json. Pengaturan ini otomatis dibaca oleh modul renderer saat permainan diluncurkan.",
+                                text = "Configuration file stored at: /sdcard/MG/config.json. Read automatically when Minecraft launches.",
                                 fontSize = 8.5.sp,
                                 color = NuxColors.GrayNeutral,
                                 lineHeight = 12.sp
@@ -259,9 +259,9 @@ fun NuxRendererConfigDialog(
                             )
                             val success = MobileGluesConfigManager.saveConfig(updated)
                             if (success) {
-                                Toast.makeText(context, "Konfigurasi MobileGlues berhasil disimpan!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "MobileGlues configuration saved successfully!", Toast.LENGTH_SHORT).show()
                             } else {
-                                Toast.makeText(context, "Gagal menulis file /sdcard/MG/config.json", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Failed to write /sdcard/MG/config.json", Toast.LENGTH_LONG).show()
                             }
                             onDismiss()
                         },
@@ -272,7 +272,7 @@ fun NuxRendererConfigDialog(
                         contentColor = Color.White,
                         cornerRadius = 6.dp
                     ) {
-                        Text("SIMPAN KONFIGURASI", fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        Text("SAVE CONFIGURATION", fontWeight = FontWeight.Bold, fontSize = 11.sp)
                     }
                 }
             }

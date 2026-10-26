@@ -109,7 +109,7 @@ fun NuxWardrobeDialog(
                     }
                 }
                 profRes.onFailure { err ->
-                    statusMessage = "Gagal memuat jubah: ${err.message}"
+                    statusMessage = "Failed to load capes: ${err.message}"
                 }
                 isLoadingMicrosoftCapes = false
             }
@@ -147,11 +147,11 @@ fun NuxWardrobeDialog(
                         selectedModel = if (isSlim) "slim" else "classic"
                         playerSkin.loadAccount(account, customSkinFile = file, customCapeFile = currentCapeFile)
                         playerSkin.loadSkin(file, selectedModel)
-                        statusMessage = "Skin dimuat di preview (${if (isSlim) "Slim" else "Klasik"}) — Klik Simpan untuk menerapkan"
+                        statusMessage = "Skin dimuat di preview (${if (isSlim) "Slim" else "Klasik"} — Click Save to apply"
                     },
                     onFailure = { err ->
-                        statusMessage = "Gagal: ${err.message}"
-                        Toast.makeText(context, err.message ?: "File tidak valid", Toast.LENGTH_SHORT).show()
+                        statusMessage = "Failed: ${err.message}"
+                        Toast.makeText(context, err.message ?: "Invalid file format", Toast.LENGTH_SHORT).show()
                     }
                 )
                 isProcessing = false
@@ -170,11 +170,11 @@ fun NuxWardrobeDialog(
                         selectedPresetCapeId = null
                         playerSkin.loadAccount(account, customSkinFile = currentSkinFile, customCapeFile = file)
                         playerSkin.loadCape(file)
-                        statusMessage = "Cape kustom dimuat di preview — Klik Simpan untuk menerapkan"
+                        statusMessage = "Custom cape loaded in preview — Click Save to apply"
                     },
                     onFailure = { err ->
-                        statusMessage = "Gagal: ${err.message}"
-                        Toast.makeText(context, err.message ?: "File cape tidak valid", Toast.LENGTH_SHORT).show()
+                        statusMessage = "Failed: ${err.message}"
+                        Toast.makeText(context, err.message ?: "Invalid cape file", Toast.LENGTH_SHORT).show()
                     }
                 )
                 isProcessing = false
@@ -223,7 +223,7 @@ fun NuxWardrobeDialog(
                     }
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "Kustomisasi tampilan skin dan jubah pemain Minecraft",
+                        text = "Customize your Minecraft skin and cape appearance",
                         color = NuxColors.GrayNeutral,
                         fontSize = 9.sp
                     )
@@ -241,7 +241,7 @@ fun NuxWardrobeDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "Tutup",
+                        contentDescription = "Close",
                         tint = NuxColors.GrayNeutral,
                         modifier = Modifier.size(13.dp)
                     )
@@ -299,7 +299,7 @@ fun NuxWardrobeDialog(
                                 .padding(horizontal = 6.dp, vertical = 2.dp)
                         ) {
                             Text(
-                                text = "3D (DRAG / PUTAR)",
+                                text = "3D (DRAG / ROTATE)",
                                 color = NuxColors.ForestGreen,
                                 fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Bold
@@ -323,7 +323,7 @@ fun NuxWardrobeDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.RotateRight,
-                                    contentDescription = "Putar Otomatis",
+                                    contentDescription = "Auto Rotate",
                                     tint = Color.White,
                                     modifier = Modifier.size(14.dp)
                                 )
@@ -341,7 +341,7 @@ fun NuxWardrobeDialog(
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.CenterFocusStrong,
-                                    contentDescription = "Reset Kamera",
+                                    contentDescription = "Reset Camera",
                                     tint = Color.White,
                                     modifier = Modifier.size(13.dp)
                                 )
@@ -427,7 +427,7 @@ fun NuxWardrobeDialog(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "KUSTOM SKIN",
+                                        text = "CUSTOM SKIN",
                                         color = if (activeTab == "skin") Color.White else NuxColors.DarkGray,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 10.sp
@@ -456,7 +456,7 @@ fun NuxWardrobeDialog(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        text = "JUBAH / CAPE",
+                                        text = "CAPE",
                                         color = if (activeTab == "cape") Color.White else NuxColors.DarkGray,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 10.sp
@@ -482,13 +482,13 @@ fun NuxWardrobeDialog(
                                     ) {
                                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Text(
-                                                text = "Sistem Skin & Jubah Ely.by",
+                                                text = "Ely.by Skin & Cape System",
                                                 color = Color(0xFF8E24AA),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 10.sp
                                             )
                                             Text(
-                                                text = "Akun Ely.by menggunakan server skinsystem terpusat. Untuk mengganti skin atau tipe model lengan, silakan unggah langsung melalui website resmi ely.by agar tersinkronisasi in-game.",
+                                                text = "Ely.by accounts use a centralized skinsystem. To update skins or arm model types, please upload directly to ely.by to sync in-game.",
                                                 color = NuxColors.DarkGray,
                                                 fontSize = 8.5.sp,
                                                 lineHeight = 12.sp
@@ -507,7 +507,7 @@ fun NuxWardrobeDialog(
                                                     .fillMaxWidth()
                                                     .height(28.dp)
                                             ) {
-                                                Text("KUNJUNGI ACCOUNT.ELY.BY", fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                                Text("VISIT ACCOUNT.ELY.BY", fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                             }
                                         }
                                     }
@@ -529,7 +529,7 @@ fun NuxWardrobeDialog(
                                         )
                                         Spacer(modifier = Modifier.width(5.dp))
                                         Text(
-                                            text = "PILIH FILE SKIN (.PNG)",
+                                            text = "CHOOSE SKIN FILE (.PNG)",
                                             fontWeight = FontWeight.Black,
                                             fontSize = 10.sp
                                         )
@@ -537,7 +537,7 @@ fun NuxWardrobeDialog(
 
                                 // Arm Model Selection (Steve vs Alex)
                                 Text(
-                                    text = "TIPE MODEL LENGAN:",
+                                    text = "ARM MODEL TYPE:",
                                     color = NuxColors.GrayNeutral,
                                     fontSize = 9.sp,
                                     fontWeight = FontWeight.Bold
@@ -564,19 +564,19 @@ fun NuxWardrobeDialog(
                                             .clickable {
                                                 selectedModel = "classic"
                                                 playerSkin.loadSkin(currentSkinFile, "classic")
-                                                statusMessage = "Model Klasik dipilih (Preview) — Klik Simpan"
+                                                statusMessage = "Classic model selected (Preview) — Click Save"
                                             }
                                             .padding(vertical = 6.dp, horizontal = 8.dp)
                                     ) {
                                         Column {
                                             Text(
-                                                text = "Klasik",
+                                                text = "Classic",
                                                 color = if (isClassic) NuxColors.ForestGreen else NuxColors.DarkGray,
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
-                                                text = "Lengan tebal (4px)",
+                                                text = "Thick arms (4px)",
                                                 color = NuxColors.GrayNeutral,
                                                 fontSize = 8.sp
                                             )
@@ -600,7 +600,7 @@ fun NuxWardrobeDialog(
                                             .clickable {
                                                 selectedModel = "slim"
                                                 playerSkin.loadSkin(currentSkinFile, "slim")
-                                                statusMessage = "Model Slim dipilih (Preview) — Klik Simpan"
+                                                statusMessage = "Slim model selected (Preview) — Click Save"
                                             }
                                             .padding(vertical = 6.dp, horizontal = 8.dp)
                                     ) {
@@ -612,7 +612,7 @@ fun NuxWardrobeDialog(
                                                 fontWeight = FontWeight.Bold
                                             )
                                             Text(
-                                                text = "Lengan ramping (3px)",
+                                                text = "Slim arms (3px)",
                                                 color = NuxColors.GrayNeutral,
                                                 fontSize = 8.sp
                                             )
@@ -629,13 +629,13 @@ fun NuxWardrobeDialog(
                                                 selectedModel = "classic"
                                                 playerSkin.resetSkin()
                                                 playerSkin.loadCape(currentCapeFile)
-                                                statusMessage = "Skin direset ke default Steve (Preview) — Klik Simpan"
+                                                statusMessage = "Skin reset to default Steve (Preview) — Click Save"
                                             }
                                             .padding(vertical = 3.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = "↺ Reset ke Skin Default (Klasik)",
+                                            text = "↺ Reset to Default Skin (Classic)",
                                             color = NuxColors.GrayNeutral,
                                             fontSize = 9.5.sp,
                                             fontWeight = FontWeight.SemiBold
@@ -652,7 +652,7 @@ fun NuxWardrobeDialog(
                                 if (isMicrosoft) {
                                     // KHUSUS AKUN MICROSOFT: Hanya tampilkan jubah resmi milik pengguna di minecraft.net
                                     Text(
-                                        text = "JUBAH RESMI MINECRAFT.NET:",
+                                        text = "OFFICIAL MINECRAFT.NET CAPES:",
                                         color = NuxColors.GrayNeutral,
                                         fontSize = 8.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -673,7 +673,7 @@ fun NuxWardrobeDialog(
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
                                             Text(
-                                                text = "Memuat jubah dari Minecraft.net...",
+                                                text = "Loading capes from Minecraft.net...",
                                                 color = NuxColors.GrayNeutral,
                                                 fontSize = 9.5.sp
                                             )
@@ -687,7 +687,7 @@ fun NuxWardrobeDialog(
                                                 .padding(10.dp)
                                         ) {
                                             Text(
-                                                text = "Akun Microsoft Anda belum memiliki jubah resmi di Minecraft.net.",
+                                                text = "Your Microsoft account does not have official capes on Minecraft.net yet.",
                                                 color = NuxColors.GrayNeutral,
                                                 fontSize = 9.sp
                                             )
@@ -711,7 +711,7 @@ fun NuxWardrobeDialog(
                                                     selectedMicrosoftCapeId = null
                                                     isCapeChanged = true
                                                     playerSkin.loadCapeUrl(null)
-                                                    statusMessage = "Jubah dilepas (Preview) — Klik Simpan"
+                                                    statusMessage = "Cape removed (Preview) — Click Save"
                                                 }
                                                 .padding(horizontal = 9.dp, vertical = 6.dp)
                                         ) {
@@ -721,13 +721,13 @@ fun NuxWardrobeDialog(
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Text(
-                                                    text = "Tanpa Jubah (Lepas Cape)",
+                                                    text = "No Cape (Remove Cape)",
                                                     color = if (isNoCapeSelected) Color(0xFFA855F7) else NuxColors.DarkGray,
                                                     fontSize = 9.5.sp,
                                                     fontWeight = FontWeight.Bold
                                                 )
                                                 if (isNoCapeSelected) {
-                                                    Text("DIPILIH", color = Color(0xFFA855F7), fontSize = 8.sp, fontWeight = FontWeight.Black)
+                                                    Text("SELECTED", color = Color(0xFFA855F7), fontSize = 8.sp, fontWeight = FontWeight.Black)
                                                 }
                                             }
                                         }
@@ -753,7 +753,7 @@ fun NuxWardrobeDialog(
                                                         selectedMicrosoftCapeId = cape.id
                                                         isCapeChanged = true
                                                         playerSkin.loadCapeUrl(cape.url)
-                                                        statusMessage = "Jubah ${cape.alias ?: "Mojang"} dipilih (Preview) — Klik Simpan"
+                                                        statusMessage = "${cape.alias ?: "Mojang"} cape selected (Preview) — Click Save"
                                                     }
                                                     .padding(horizontal = 9.dp, vertical = 6.dp)
                                             ) {
@@ -786,7 +786,7 @@ fun NuxWardrobeDialog(
                                                                 .padding(horizontal = 5.dp, vertical = 2.dp)
                                                         ) {
                                                             Text(
-                                                                text = "AKTIF DI MOJANG",
+                                                                text = "ACTIVE ON MOJANG",
                                                                 color = NuxColors.ForestGreen,
                                                                 fontSize = 7.5.sp,
                                                                 fontWeight = FontWeight.Black
@@ -808,13 +808,13 @@ fun NuxWardrobeDialog(
                                     ) {
                                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                             Text(
-                                                text = "Sistem Skin & Cape Ely.by",
+                                                text = "Ely.by Skin & Cape System",
                                                 color = Color(0xFF8E24AA),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 10.sp
                                             )
                                             Text(
-                                                text = "Akun Ely.by menggunakan server skinsystem resmi. Seluruh skin dan jubah dikelola langsung melalui website ely.by dan akan otomatis tampil di dalam game.",
+                                                text = "Ely.by accounts use an official skinsystem server. All skins and capes are managed on ely.by and appear automatically in-game.",
                                                 color = NuxColors.DarkGray,
                                                 fontSize = 8.5.sp,
                                                 lineHeight = 12.sp
@@ -831,7 +831,7 @@ fun NuxWardrobeDialog(
                                                 contentColor = Color.White,
                                                 modifier = Modifier.fillMaxWidth().height(28.dp)
                                             ) {
-                                                Text("BUKA WEBSITE ELY.BY", fontWeight = FontWeight.Bold, fontSize = 9.sp)
+                                                Text("OPEN ELY.BY WEBSITE", fontWeight = FontWeight.Bold, fontSize = 9.sp)
                                             }
                                         }
                                     }
@@ -853,14 +853,14 @@ fun NuxWardrobeDialog(
                                         )
                                         Spacer(modifier = Modifier.width(5.dp))
                                         Text(
-                                            text = "PILIH FILE CAPE KUSTOM (.PNG)",
+                                            text = "CHOOSE CUSTOM CAPE FILE (.PNG)",
                                             fontWeight = FontWeight.Black,
                                             fontSize = 9.5.sp
                                         )
                                     }
 
                                     Text(
-                                        text = "ATAU PILIH PRESET JUBAH:",
+                                        text = "OR CHOOSE CAPE PRESET:",
                                         color = NuxColors.GrayNeutral,
                                         fontSize = 8.5.sp,
                                         fontWeight = FontWeight.Bold
@@ -896,7 +896,7 @@ fun NuxWardrobeDialog(
                                                                     val generatedCape = SkinUtils.applyPresetCape(context, account.id, preset.id)
                                                                     currentCapeFile = generatedCape
                                                                     playerSkin.loadCape(generatedCape)
-                                                                    statusMessage = if (preset.id == "none") "Cape dilepas (Preview) — Klik Simpan" else "Jubah ${preset.name} dipilih (Preview) — Klik Simpan"
+                                                                    statusMessage = if (preset.id == "none") "Cape unequipped (Preview) — Click Save" else "${preset.name} cape selected (Preview) — Click Save"
                                                                 }
                                                             }
                                                             .padding(horizontal = 7.dp, vertical = 5.dp)
@@ -958,7 +958,7 @@ fun NuxWardrobeDialog(
                                     .weight(1f)
                                     .height(32.dp)
                             ) {
-                                Text("BATAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
+                                Text("CANCEL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 10.sp)
                             }
 
                             if (isElyBy) {
@@ -970,7 +970,7 @@ fun NuxWardrobeDialog(
                                         .weight(1.5f)
                                         .height(32.dp)
                                 ) {
-                                    Text("MENGERTI", fontWeight = FontWeight.Black, fontSize = 10.sp)
+                                    Text("UNDERSTOOD", fontWeight = FontWeight.Black, fontSize = 10.sp)
                                 }
                             } else {
                                 NuxButton(
@@ -1002,17 +1002,17 @@ fun NuxWardrobeDialog(
 
                                                 isProcessing = false
                                                 if (errorMsg != null) {
-                                                    Toast.makeText(context, "Gagal memperbarui Minecraft.net: $errorMsg", Toast.LENGTH_LONG).show()
-                                                    statusMessage = "Gagal: $errorMsg"
+                                                    Toast.makeText(context, "Failed to update Minecraft.net: $errorMsg", Toast.LENGTH_LONG).show()
+                                                    statusMessage = "Failed: $errorMsg"
                                                 } else {
                                                     persistAccountChanges(currentSkinFile, currentCapeFile, selectedModel)
-                                                    Toast.makeText(context, "Perubahan berhasil diterapkan ke Minecraft.net!", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, "Changes applied successfully to Minecraft.net!", Toast.LENGTH_SHORT).show()
                                                     onDismissRequest()
                                                 }
                                             }
                                         } else {
                                             persistAccountChanges(currentSkinFile, currentCapeFile, selectedModel)
-                                            Toast.makeText(context, "Skin & Cape berhasil disimpan!", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, "Skin & Cape saved successfully!", Toast.LENGTH_SHORT).show()
                                             onDismissRequest()
                                         }
                                     },
@@ -1035,7 +1035,7 @@ fun NuxWardrobeDialog(
                                         Spacer(modifier = Modifier.width(5.dp))
                                     }
                                     Text(
-                                        text = if (isMicrosoft) "SIMPAN KE MOJANG" else "SIMPAN PERUBAHAN",
+                                        text = if (isMicrosoft) "SAVE TO MOJANG" else "SAVE CHANGES",
                                         fontWeight = FontWeight.Black,
                                         fontSize = 10.sp,
                                         letterSpacing = 0.4.sp

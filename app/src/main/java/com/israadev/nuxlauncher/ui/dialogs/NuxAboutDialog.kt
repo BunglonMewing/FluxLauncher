@@ -49,49 +49,49 @@ private val LIBRARIES = listOf(
         name = "Zalith Launcher 2",
         copyright = "Copyright © 2024-2026 MovTery & Contributors",
         license = "GPL-3.0 License",
-        role = "Arsitektur runtime JVM, ZLBridge JNI, integrasi SDL3, direct gamepad, dan optimasi Android",
+        role = "JVM runtime architecture, ZLBridge JNI, SDL3 integration, direct gamepad, and Android optimizations",
         url = "https://github.com/ZalithLauncher/ZalithLauncher2"
     ),
     OpenSourceLibrary(
         name = "PojavLauncher",
         copyright = "Copyright © 2020-present PojavLauncherTeam & Contributors",
         license = "GPL-3.0 License",
-        role = "Mesin peluncuran Java Minecraft Android, LWJGL 3 Android Natives, GLFW Stub",
+        role = "Android Java Minecraft launch engine, LWJGL 3 Android Natives, GLFW Stub",
         url = "https://github.com/PojavLauncherTeam/PojavLauncher"
     ),
     OpenSourceLibrary(
         name = "MobileGlues",
         copyright = "Copyright © 2023-2026 MobileGlues Team",
         license = "LGPL-2.1 License",
-        role = "Penerjemah modern OpenGL 4.0 ke OpenGL ES 3.2 untuk Minecraft 1.17+",
+        role = "Modern OpenGL 4.0 to OpenGL ES 3.2 translation layer for Minecraft 1.17+",
         url = "https://github.com/FCL-Team/MobileGlues"
     ),
     OpenSourceLibrary(
         name = "LWJGL - Lightweight Java Game Library",
         copyright = "Copyright © 2012-present LWJGL All rights reserved",
         license = "BSD 3-Clause License",
-        role = "Pustaka binding grafis, audio (OpenAL), dan jendela game Java",
+        role = "Java game graphics, audio (OpenAL), and windowing bindings library",
         url = "https://github.com/LWJGL/lwjgl3"
     ),
     OpenSourceLibrary(
         name = "SDL3 & sdl2-compat",
         copyright = "Copyright © 1997-2026 Sam Lantinga",
         license = "Zlib License",
-        role = "Manajemen surface rendering native, touch input, dan audio output",
+        role = "Native rendering surface management, touch input, and audio output",
         url = "https://github.com/libsdl-org/SDL"
     ),
     OpenSourceLibrary(
         name = "Mesa 3D (Zink / Turnip / VirGL)",
         copyright = "Copyright © The Mesa Authors",
         license = "MIT License",
-        role = "Vulkan-to-OpenGL translation & driver akselerasi GPU mobile",
+        role = "Vulkan-to-OpenGL translation & mobile GPU acceleration drivers",
         url = "https://mesa3d.org/"
     ),
     OpenSourceLibrary(
         name = "ANGLE",
         copyright = "Copyright © 2018 The ANGLE Project Authors",
         license = "BSD 3-Clause License",
-        role = "Mesin penerjemah OpenGL ES berbasis backend Vulkan",
+        role = "OpenGL ES translation engine powered by Vulkan backend",
         url = "http://angleproject.org/"
     ),
     OpenSourceLibrary(
@@ -133,7 +133,7 @@ private val LIBRARIES = listOf(
         name = "skinview3d",
         copyright = "Copyright © Kent Rasmussen & contributors",
         license = "MIT License",
-        role = "Viewer interaktif 3D skin & jubah Minecraft berbasis WebGL",
+        role = "Interactive 3D WebGL skin & cape viewer for Minecraft",
         url = "https://github.com/bs-community/skinview3d"
     ),
     OpenSourceLibrary(
@@ -211,7 +211,7 @@ fun NuxAboutDialog(
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = "TENTANG & LISENSI OPEN SOURCE",
+                                text = "ABOUT & OPEN SOURCE LICENSES",
                                 color = Color.White,
                                 fontWeight = FontWeight.Black,
                                 fontSize = 12.sp,
@@ -219,7 +219,7 @@ fun NuxAboutDialog(
                             )
                         }
                         Text(
-                            text = "Atribusi hak cipta, kepatuhan GNU GPL-3.0, dan proyek hulu",
+                            text = "Copyright attribution, GNU GPL-3.0 compliance, and upstream projects",
                             color = NuxColors.GrayNeutral,
                             fontSize = 8.5.sp
                         )
@@ -238,7 +238,7 @@ fun NuxAboutDialog(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Close,
-                        contentDescription = "Tutup",
+                        contentDescription = "Close",
                         tint = Color(0xFFA1A1AA),
                         modifier = Modifier.size(13.dp)
                     )
@@ -260,9 +260,9 @@ fun NuxAboutDialog(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 listOf(
-                    "overview" to "RINGKASAN & PROYEK HULU",
-                    "libraries" to "DAFTAR LISENSI LENGKAP (${LIBRARIES.size})",
-                    "gpl" to "KETENTUAN GNU GPL-3.0"
+                    "overview" to "OVERVIEW & UPSTREAM",
+                    "libraries" to "FULL LICENSES LIST (${LIBRARIES.size})",
+                    "gpl" to "GNU GPL-3.0 TERMS"
                 ).forEach { (tabKey, title) ->
                     val isSelected = activeTab == tabKey
                     val textColor by animateColorAsState(
@@ -326,10 +326,10 @@ fun NuxAboutDialog(
                             ) {
                                 Column {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("⚠️", fontSize = 11.sp)
+                                        Icon(painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_warning_triangle), contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(13.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "PEMBERITAHUAN VERSI MODIFIKASI TIDAK RESMI",
+                                            text = "UNOFFICIAL MODIFIED VERSION NOTICE",
                                             color = Color(0xFFFBBF24),
                                             fontWeight = FontWeight.Black,
                                             fontSize = 9.sp,
@@ -338,7 +338,7 @@ fun NuxAboutDialog(
                                     }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "NUX Launcher merupakan Versi Modifikasi Tidak Resmi (Unofficial Modified Version) yang dibangun dan diadaptasi berdasarkan proyek Zalith Launcher 2 dan PojavLauncher. Program ini BUKAN aplikasi resmi dari Zalith Launcher Team maupun Mojang Studios.",
+                                        text = "NUX Launcher is an Unofficial Modified Version built and adapted based on Zalith Launcher 2 and PojavLauncher. This program is NOT an official application from Zalith Launcher Team or Mojang Studios.",
                                         color = Color(0xFFE4E4E7),
                                         fontSize = 8.5.sp,
                                         lineHeight = 12.5.sp
@@ -358,7 +358,7 @@ fun NuxAboutDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "PROYEK HULU UTAMA (CORE UPSTREAM):",
+                                    text = "CORE UPSTREAM PROJECTS:",
                                     color = Color(0xFFA1A1AA),
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.Black,
@@ -371,7 +371,7 @@ fun NuxAboutDialog(
                                 title = "Zalith Launcher 2",
                                 copyright = "Copyright © 2024-2026 MovTery & Contributors",
                                 license = "GNU General Public License v3.0 (GPL-3.0)",
-                                description = "Komponen arsitektur bridge JNI native (ZLBridge), integrasi SDL3 surface, direct gamepad input, penanganan resolusi DNS, dan optimasi eksekusi OpenJDK mobile.",
+                                description = "Native JNI bridge architecture (ZLBridge), SDL3 surface integration, direct gamepad input, DNS resolution handling, and mobile OpenJDK optimization.",
                                 url = "https://github.com/ZalithLauncher/ZalithLauncher2",
                                 onOpenUrl = { url ->
                                     try {
@@ -385,7 +385,7 @@ fun NuxAboutDialog(
                                 title = "PojavLauncher",
                                 copyright = "Copyright © 2020-present PojavLauncherTeam & Contributors",
                                 license = "GNU General Public License v3.0 (GPL-3.0)",
-                                description = "Proyek pionir peluncuran Minecraft Java Edition di Android. Menyediakan porting LWJGL 3, GLFW Stubs, AWT stubs, dan integrasi grafis renderer mobile.",
+                                description = "Pioneering project for running Minecraft Java Edition on Android. Provides LWJGL 3 ports, GLFW stubs, AWT stubs, and mobile graphics renderer integration.",
                                 url = "https://github.com/PojavLauncherTeam/PojavLauncher",
                                 onOpenUrl = { url ->
                                     try {
@@ -399,7 +399,7 @@ fun NuxAboutDialog(
                                 title = "NUX Launcher (Source Code)",
                                 copyright = "Copyright © 2026 IsraaDeveloper & Contributors",
                                 license = "GNU General Public License v3.0 (GPL-3.0)",
-                                description = "Repositori kode sumber terbuka NUX Launcher. Dilisensikan bebas di bawah ketentuan GNU GPL-3.0.",
+                                description = "Open-source codebase repository of NUX Launcher. Freely licensed under GNU GPL-3.0 terms.",
                                 url = "https://github.com/IsraaDeveloper/nuxlabs",
                                 onOpenUrl = { url ->
                                     try {
@@ -419,7 +419,7 @@ fun NuxAboutDialog(
                             ) {
                                 Column {
                                     Text(
-                                        text = "PENAFIAN RESMI MINECRAFT & MOJANG (DISCLAIMER):",
+                                        text = "OFFICIAL MINECRAFT & MOJANG DISCLAIMER:",
                                         color = Color(0xFFA1A1AA),
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 8.sp,
@@ -427,7 +427,7 @@ fun NuxAboutDialog(
                                     )
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
-                                        text = "BUKAN PRODUK RESMI MINECRAFT. TIDAK DISETUJUI OLEH ATAU TERKAIT DENGAN MOJANG STUDIOS ATAU MICROSOFT. Minecraft adalah merek dagang terdaftar milik Mojang AB / Microsoft Corporation. Seluruh aset game diunduh langsung dari server resmi distribusi Mojang.",
+                                        text = "NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG STUDIOS OR MICROSOFT. Minecraft is a registered trademark of Mojang AB / Microsoft Corporation. All game assets are downloaded directly from official Mojang distribution servers.",
                                         color = Color(0xFF71717A),
                                         fontSize = 7.5.sp,
                                         lineHeight = 11.5.sp
@@ -517,7 +517,7 @@ fun NuxAboutDialog(
                                                 Spacer(modifier = Modifier.width(2.dp))
                                                 Icon(
                                                     imageVector = Icons.Outlined.OpenInNew,
-                                                    contentDescription = "Buka Link",
+                                                    contentDescription = "Open Link",
                                                     tint = Color(0xFF38BDF8),
                                                     modifier = Modifier.size(10.dp)
                                                 )
@@ -556,16 +556,16 @@ fun NuxAboutDialog(
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Proyek ini dilisensikan di bawah ketentuan GNU General Public License versi 3.0.\n\n" +
-                                                "Prinsip 4 Kebebasan Perangkat Lunak Bebas:\n" +
-                                                "1. Kebebasan untuk menjalankan program untuk keperluan apa pun.\n" +
-                                                "2. Kebebasan untuk mempelajari cara kerja program dan menyesuaikannya dengan kebutuhan Anda.\n" +
-                                                "3. Kebebasan untuk mendistribusikan kembali salinan untuk membantu sesama.\n" +
-                                                "4. Kebebasan untuk menyempurnakan program dan merilis penyempurnaan tersebut kepada publik.\n\n" +
-                                                "Ketentuan Tambahan Sesuai GPLv3 Pasal 7:\n" +
-                                                "• Modifikasi tidak boleh menyalahgunakan nama dagang 'ZalithLauncher' atau 'ZL'.\n" +
-                                                "• Modifikasi wajib menampilkan keterangan bahwa ini adalah 'Unofficial Modified Version'.\n" +
-                                                "• Hak cipta penulis asli (Copyright © MovTery & PojavLauncherTeam) tidak boleh dihapus.",
+                                        text = "This project is licensed under the GNU General Public License version 3.0.\n\n" +
+                                                "The 4 Essential Freedoms of Free Software:\n" +
+                                                "1. The freedom to run the program for any purpose.\n" +
+                                                "2. The freedom to study how the program works and adapt it to your needs.\n" +
+                                                "3. The freedom to redistribute copies so you can help others.\n" +
+                                                "4. The freedom to improve the program and release improvements to the public.\n\n" +
+                                                "Additional Terms Pursuant to GPLv3 Section 7:\n" +
+                                                "• Modifications must not misuse the trademarks 'ZalithLauncher' or 'ZL'.\n" +
+                                                "• Modifications must prominently display that this is an 'Unofficial Modified Version'.\n" +
+                                                "• Original authors' copyright notices (Copyright © MovTery & PojavLauncherTeam) must not be removed.",
                                         color = Color(0xFFD4D4D8),
                                         fontSize = 8.5.sp,
                                         lineHeight = 12.5.sp
@@ -588,7 +588,7 @@ fun NuxAboutDialog(
                             ) {
                                 Icon(Icons.Outlined.OpenInNew, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(13.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("BACA TEKS LISENSI RESMI GNU GPL-3.0 LENGKAP", color = Color(0xFF38BDF8), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
+                                Text("READ FULL OFFICIAL GNU GPL-3.0 LICENSE TEXT", color = Color(0xFF38BDF8), fontSize = 8.5.sp, fontWeight = FontWeight.Bold)
                             }
 
                             Spacer(modifier = Modifier.height(16.dp))

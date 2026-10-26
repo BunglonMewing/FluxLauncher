@@ -88,8 +88,8 @@ object NuxRendererPluginManager {
                         displayName = des,
                         badge = "Plugin: $appLabel",
                         summary = if (pkg == "top.mobilegl.plugin" || des.equals("MobileGL", ignoreCase = true)) 
-                            "Pustaka grafis MobileGL (Vulkan & GLES backend)" 
-                        else "Renderer eksternal dari APK: $appLabel ($pkg)",
+                            "MobileGL graphics library (Vulkan & GLES backend)" 
+                        else "External renderer from APK: $appLabel ($pkg)",
                         compatibility = "Minecraft (APK Plugin)",
                         rendererId = rendererId,
                         libraryName = glName,

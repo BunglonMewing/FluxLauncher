@@ -90,12 +90,32 @@ object NuxSocialManager {
 
     fun getCurrentUser(): AuthUser? = AccountManager.launcherUser.value
 
-    fun notifyGameExitSync() {
+    @Volatile var serverTimeOffset: Long = 0L
+    private var lastTimeOffsetSync: Long = 0L
+
+    suspend fun syncServerTimeOffset() = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        if (now - lastTimeOffsetSync < 60_000L && serverTimeOffset != 0L) return@withContext
+        try {
+            val res = AuthService.getApi("/api/presence")
+            res.onSuccess { jsonStr ->
+                val json = JSONObject(jsonStr)
+                if (json.has("serverTime")) {
+                    val sTime = json.getLong("serverTime")
+                    serverTimeOffset = sTime - System.currentTimeMillis()
+                    lastTimeOffsetSync = System.currentTimeMillis()
+                    Log.d(TAG, "Server time offset updated: ${serverTimeOffset}ms")
+                }
+            }
+        } catch (_: Exception) {}
+    }
+
+    fun notifyGameExitSync(explicitUid: String? = null) {
         isInGame = false
-        val user = getCurrentUser() ?: return
+        val targetUid = explicitUid ?: getCurrentUser()?.uid ?: return
         try {
             val payload = org.json.JSONObject().apply {
-                put("uid", user.uid)
+                put("uid", targetUid)
                 put("status", "online")
                 put("platform", "android")
             }
@@ -165,14 +185,20 @@ object NuxSocialManager {
         if (syncJob?.isActive == true) return
         syncJob = scope.launch {
             try {
+                syncServerTimeOffset()
                 syncProfileToPublic()
                 updateMyPresence()
             } catch (e: Exception) {
                 Log.w(TAG, "Initial sync failed", e)
             }
 
+            var loopCount = 0
             while (isActive) {
                 try {
+                    if (loopCount % 20 == 0) {
+                        syncServerTimeOffset()
+                    }
+                    loopCount++
                     fetchFriends()
                     fetchVoiceRooms()
                 } catch (e: Exception) {
@@ -370,7 +396,7 @@ object NuxSocialManager {
             val friendsMap: Map<String, String> = gson.fromJson(body, type) ?: emptyMap()
 
             val friendList = mutableListOf<NuxFriend>()
-            val now = System.currentTimeMillis()
+            val now = System.currentTimeMillis() + serverTimeOffset
 
             for ((fUid, relStatus) in friendsMap) {
                 val profile = fetchUserProfile(fUid, token)
@@ -392,7 +418,10 @@ object NuxSocialManager {
 
                 val pStatus = profile?.status ?: "offline"
                 val pLastOnline = profile?.lastOnline
-                val isFresh = if (pLastOnline != null) (now - pLastOnline) < 75_000L else false
+                val isFresh = if (pLastOnline != null) {
+                    val diff = now - pLastOnline
+                    diff in -30_000L..85_000L
+                } else false
                 val isOnline = (pStatus == "online" || pStatus == "in_game") && isFresh
                 val isInGame = pStatus == "in_game" && isFresh
 
@@ -411,7 +440,8 @@ object NuxSocialManager {
                         platform = profile?.platform ?: "windows",
                         isAndroid = profile?.isAndroid ?: false,
                         isVerified = profile?.isVerified ?: false,
-                        isPremium = profile?.isPremium ?: false
+                        isPremium = profile?.isPremium ?: false,
+                        inGameInstance = if (isInGame) profile?.inGameInstance else null
                     )
                 )
             }
@@ -477,6 +507,7 @@ object NuxSocialManager {
                         json.optString("badge", "").equals("verified", ignoreCase = true)
                 val isPremium = json.optBoolean("isPremium", false) ||
                         json.has("subscription") && json.optJSONObject("subscription")?.has("tier") == true
+                val inGameInstance = if (json.has("inGameInstance") && !json.isNull("inGameInstance")) json.optString("inGameInstance") else null
 
                 // Fallback avatar jika photo kosong: Cek akun Minecraft user di Firebase
                 if (photo.isBlank()) {
@@ -535,7 +566,8 @@ object NuxSocialManager {
                         platform = platform,
                         isAndroid = isAndroid,
                         isVerified = isVerified,
-                        isPremium = isPremium
+                        isPremium = isPremium,
+                        inGameInstance = inGameInstance
                     )
                     profileCache[uid] = CachedProfile(prof, now)
                     return@withContext prof
@@ -670,8 +702,12 @@ object NuxSocialManager {
 
                     val pStatus = uObj.optString("status", "offline")
                     val pLastOnline = if (uObj.has("lastOnline")) uObj.optLong("lastOnline") else 0L
-                    val isFresh = if (pLastOnline > 0L) (now - pLastOnline) < 300_000L else false
-                    val isOnline = (pStatus == "online" || pStatus == "in_game") && (isFresh || pLastOnline == 0L)
+                    val isFresh = if (pLastOnline > 0L) {
+                        val diff = now - pLastOnline
+                        diff in -30_000L..85_000L
+                    } else false
+                    val isOnline = (pStatus == "online" || pStatus == "in_game") && isFresh
+                    val inGameInst = if (isOnline && pStatus == "in_game" && uObj.has("inGameInstance") && !uObj.isNull("inGameInstance")) uObj.optString("inGameInstance") else null
 
                     val isVerified = uObj.optBoolean("verified", false) || uObj.optBoolean("isVerified", false)
                     val isPremium = uObj.optBoolean("isPremium", false)
@@ -687,7 +723,8 @@ object NuxSocialManager {
                         platform = pPlatform,
                         isAndroid = isAndroid,
                         isVerified = isVerified,
-                        isPremium = isPremium
+                        isPremium = isPremium,
+                        inGameInstance = inGameInst
                     )
                     processedUids.add(key)
                     if (isOnline) {
@@ -999,7 +1036,7 @@ object NuxSocialManager {
         replyTo: NuxChatReply? = null
     ): Result<Unit> = withContext(Dispatchers.IO) {
         val user = getCurrentUser() ?: return@withContext Result.failure(Exception("Belum login"))
-        val friend = _activeChatFriend.value ?: return@withContext Result.failure(Exception("Ruang obrolan belum terbuka"))
+        val friend = _activeChatFriend.value ?: return@withContext Result.failure(Exception("Chat room is not open"))
         val token = getAuthToken()
         val chatId = if (user.uid < friend.uid) "${user.uid}_${friend.uid}" else "${friend.uid}_${user.uid}"
 
@@ -1009,7 +1046,7 @@ object NuxSocialManager {
             if (uploadRes.isSuccess) {
                 uploadedUrl = uploadRes.getOrNull()
             } else {
-                return@withContext Result.failure(uploadRes.exceptionOrNull() ?: Exception("Gagal mengunggah gambar"))
+                return@withContext Result.failure(uploadRes.exceptionOrNull() ?: Exception("Failed to upload image"))
             }
         }
 
@@ -1060,7 +1097,7 @@ object NuxSocialManager {
             resp.close()
 
             if (!isSuccess) {
-                return@withContext Result.failure(Exception("Gagal mengirim pesan (HTTP $code)"))
+                return@withContext Result.failure(Exception("Failed to send message (HTTP $code)"))
             }
 
             // Dapatkan unreadCount saat ini di pihak teman
@@ -1168,7 +1205,7 @@ object NuxSocialManager {
             }
         } catch (_: Exception) {}
 
-        Result.failure(Exception("Gagal mengunggah lampiran gambar."))
+        Result.failure(Exception("Failed to upload image attachment."))
     }
 
     // =========================================================
@@ -1297,7 +1334,7 @@ object NuxSocialManager {
             token = getAuthToken(forceRefresh = true)
         }
         if (token.isNullOrBlank()) {
-            return@withContext Result.failure(Exception("Sesi login berakhir. Harap login kembali."))
+            return@withContext Result.failure(Exception("Session expired. Please log in again."))
         }
 
         val now = System.currentTimeMillis()
@@ -1381,7 +1418,7 @@ object NuxSocialManager {
                 fetchVoiceRooms()
                 Result.success(newRoom)
             } else {
-                Result.failure(Exception("Gagal membuat room ($code)"))
+                Result.failure(Exception("Failed to create room ($code)"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -1397,7 +1434,7 @@ object NuxSocialManager {
         }
 
         if (room.isFull && !room.participants.containsKey(user.uid)) {
-            return@withContext Result.failure(Exception("Voice room sudah penuh!"))
+            return@withContext Result.failure(Exception("Voice room is already full!"))
         }
 
         try {
@@ -1433,7 +1470,7 @@ object NuxSocialManager {
             resp.close()
 
             if (!isSuccess) {
-                return@withContext Result.failure(Exception("Gagal bergabung ke room ($code)"))
+                return@withContext Result.failure(Exception("Failed to join room ($code)"))
             }
 
             joinVoiceRoomInternal(room)
@@ -1571,7 +1608,7 @@ object NuxSocialManager {
 
     suspend fun sendVoiceRoomMessage(text: String): Result<Unit> = withContext(Dispatchers.IO) {
         val user = getCurrentUser() ?: return@withContext Result.failure(Exception("Belum login"))
-        val room = _activeVoiceRoom.value ?: return@withContext Result.failure(Exception("Tidak dalam voice room"))
+        val room = _activeVoiceRoom.value ?: return@withContext Result.failure(Exception("Not in a voice room"))
         var token = getAuthToken()
 
         val payload = JSONObject().apply {
@@ -1607,7 +1644,7 @@ object NuxSocialManager {
             resp.close()
 
             if (!isSuccess) {
-                return@withContext Result.failure(Exception("Gagal mengirim pesan room (HTTP $code)"))
+                return@withContext Result.failure(Exception("Failed to send room message (HTTP $code)"))
             }
 
             fetchVoiceRoomMessages(room.id)

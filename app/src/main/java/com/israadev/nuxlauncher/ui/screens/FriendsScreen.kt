@@ -1,5 +1,9 @@
 package com.israadev.nuxlauncher.ui.screens
 
+import com.israadev.nuxlauncher.core.lang.tr
+import com.israadev.nuxlauncher.core.lang.trStr
+import com.israadev.nuxlauncher.core.lang.NuxLanguageManager
+
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +66,7 @@ fun FriendsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
     val scope = rememberCoroutineScope()
 
     DisposableEffect(Unit) {
@@ -142,7 +148,7 @@ fun FriendsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "Kembali",
+                            contentDescription = tr("common.back"),
                             tint = NuxColors.ForestGreen,
                             modifier = Modifier.size(12.dp)
                         )
@@ -184,7 +190,7 @@ fun FriendsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.PersonAdd, contentDescription = null, tint = NuxColors.ForestGreen, modifier = Modifier.size(12.dp))
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text("+ CARI TEMAN", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                        Text("+ FIND FRIENDS", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                     }
                 }
 
@@ -197,7 +203,7 @@ fun FriendsScreen(
                         .border(1.dp, NuxColors.ForestGreen.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
                         .clickable {
                             if (launcherUser?.isActivated != true) {
-                                premiumInitialPrompt = "Voice Rooms real-time mabar (LiveKit WebRTC) adalah fitur eksklusif NUX Premium. Upgrade akun Anda untuk membuat dan bergabung ke ruang suara mabar!"
+                                premiumInitialPrompt = "Real-time voice rooms (LiveKit WebRTC) are exclusive to NUX Premium. Upgrade your account to create and join voice rooms!"
                                 showPremiumDialog = true
                             } else {
                                 showCreateRoomDialog = true
@@ -209,7 +215,7 @@ fun FriendsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Mic, contentDescription = null, tint = NuxColors.MintGreen, modifier = Modifier.size(12.dp))
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text("+ BUAT ROOM", color = NuxColors.MintGreen, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                        Text("+ CREATE ROOM", color = NuxColors.MintGreen, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                     }
                 }
             }
@@ -251,7 +257,7 @@ fun FriendsScreen(
                             modifier = Modifier.weight(1.1f)
                         )
                         PillTab(
-                            title = "TEMAN",
+                            title = "FRIENDS",
                             count = acceptedFriends.size,
                             isSelected = selectedTab == "friends",
                             onClick = { selectedTab = "friends" },
@@ -279,7 +285,7 @@ fun FriendsScreen(
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         PillTab(
-                            title = "TEMAN",
+                            title = "FRIENDS",
                             count = acceptedFriends.size,
                             isSelected = selectedTab == "friends",
                             onClick = { selectedTab = "friends" },
@@ -293,7 +299,7 @@ fun FriendsScreen(
                             modifier = Modifier.weight(1f)
                         )
                         PillTab(
-                            title = "REQUEST",
+                            title = "REQUESTS",
                             count = pendingReceived.size,
                             isSelected = selectedTab == "requests",
                             badgeColor = if (pendingReceived.isNotEmpty()) Color(0xFFEF4444) else null,
@@ -321,7 +327,7 @@ fun FriendsScreen(
                                 scope.launch { NuxSocialManager.searchUser(it) }
                             }
                         },
-                        placeholder = if (selectedTab == "rooms") "Cari nama voice room..." else "Cari teman..."
+                        placeholder = if (selectedTab == "rooms") "Search voice rooms..." else "Search friends..."
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -338,16 +344,16 @@ fun FriendsScreen(
                                 if (filtered.isEmpty()) {
                                     EmptyIndicator(
                                         icon = Icons.Outlined.Group,
-                                        title = if (searchQuery.isNotBlank()) "Tidak ada hasil" else "Belum Ada Teman",
-                                        subtitle = if (searchQuery.isNotBlank()) "Tidak menemukan teman dengan nama \"$searchQuery\""
-                                        else "Gunakan tombol \"+ CARI TEMAN\" di atas untuk menambah teman!"
+                                        title = if (searchQuery.isNotBlank()) "No results found" else "No Friends Yet",
+                                        subtitle = if (searchQuery.isNotBlank()) "No friends match \"$searchQuery\""
+                                        else "Use the \"+ FIND FRIENDS\" button above to add friends!"
                                     )
                                 } else {
                                     LazyColumn(
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
-                                        items(filtered, key = { it.uid }) { friend ->
+                                        itemsIndexed(filtered, key = { index, friend -> "${friend.uid}_$index" }) { _, friend ->
                                             FriendItem(
                                                 friend = friend,
                                                 isSelected = activeFriend?.uid == friend.uid,
@@ -367,21 +373,21 @@ fun FriendsScreen(
                                 if (filtered.isEmpty()) {
                                     EmptyIndicator(
                                         icon = Icons.Outlined.RecordVoiceOver,
-                                        title = "Belum Ada Room",
-                                        subtitle = "Klik \"+ BUAT ROOM\" di kanan atas untuk membuat voice room baru!"
+                                        title = "No Voice Rooms",
+                                        subtitle = "Click \"+ CREATE ROOM\" at top right to start a voice room!"
                                     )
                                 } else {
                                     LazyColumn(
                                         modifier = Modifier.fillMaxSize(),
                                         verticalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
-                                        items(filtered, key = { it.id }) { room ->
+                                        itemsIndexed(filtered, key = { index, room -> "${room.id}_$index" }) { _, room ->
                                             VoiceRoomItem(
                                                 room = room,
                                                 isJoined = activeVoiceRoom?.id == room.id,
                                                 onJoin = {
                                                     if (launcherUser?.isActivated != true) {
-                                                        premiumInitialPrompt = "Voice Rooms real-time mabar (LiveKit WebRTC) adalah fitur eksklusif NUX Premium. Upgrade akun Anda untuk mengobrol suara bersama teman!"
+                                                        premiumInitialPrompt = "Multiplayer Voice Rooms (LiveKit WebRTC) are exclusive to NUX Premium. Upgrade your account to voice chat with friends!"
                                                         showPremiumDialog = true
                                                         return@VoiceRoomItem
                                                     }
@@ -391,7 +397,7 @@ fun FriendsScreen(
                                                         scope.launch {
                                                             val res = NuxSocialManager.joinVoiceRoom(room)
                                                             if (res.isFailure) {
-                                                                Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal gabung", Toast.LENGTH_SHORT).show()
+                                                                Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to join", Toast.LENGTH_SHORT).show()
                                                             }
                                                         }
                                                     }
@@ -406,8 +412,8 @@ fun FriendsScreen(
                                 if (pendingReceived.isEmpty() && pendingSent.isEmpty()) {
                                     EmptyIndicator(
                                         icon = Icons.Outlined.MarkEmailRead,
-                                        title = "Tidak Ada Permintaan",
-                                        subtitle = "Permintaan pertemanan masuk atau menunggu konfirmasi akan muncul di sini."
+                                        title = "No Requests",
+                                        subtitle = "Incoming friend requests and pending invites will appear here."
                                     )
                                 } else {
                                     LazyColumn(
@@ -417,14 +423,14 @@ fun FriendsScreen(
                                         if (pendingReceived.isNotEmpty()) {
                                             item {
                                                 Text(
-                                                    text = "PERMINTAAN MASUK (${pendingReceived.size})",
+                                                    text = "INCOMING REQUESTS (${pendingReceived.size})",
                                                     fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = NuxColors.ForestGreen,
                                                     modifier = Modifier.padding(vertical = 2.dp, horizontal = 4.dp)
                                                 )
                                             }
-                                            items(pendingReceived, key = { it.uid }) { req ->
+                                            itemsIndexed(pendingReceived, key = { index, req -> "${req.uid}_$index" }) { _, req ->
                                                 RequestReceivedItem(
                                                     friend = req,
                                                     onAccept = { scope.launch { NuxSocialManager.acceptFriendRequest(req.uid) } },
@@ -436,14 +442,14 @@ fun FriendsScreen(
                                         if (pendingSent.isNotEmpty()) {
                                             item {
                                                 Text(
-                                                    text = "MENUNGGU KONFIRMASI (${pendingSent.size})",
+                                                    text = "PENDING INVITES (${pendingSent.size})",
                                                     fontSize = 10.sp,
                                                     fontWeight = FontWeight.Bold,
                                                     color = NuxColors.GrayNeutral,
                                                     modifier = Modifier.padding(top = 8.dp, bottom = 2.dp, start = 4.dp)
                                                 )
                                             }
-                                            items(pendingSent, key = { it.uid }) { req ->
+                                            itemsIndexed(pendingSent, key = { index, req -> "${req.uid}_$index" }) { _, req ->
                                                  RequestSentItem(
                                                     friend = req,
                                                     onCancel = { scope.launch { NuxSocialManager.removeFriend(req.uid) } }
@@ -539,9 +545,9 @@ fun FriendsScreen(
                 scope.launch {
                     val res = NuxSocialManager.sendFriendRequest(targetUid)
                     if (res.isSuccess) {
-                        Toast.makeText(context, "Permintaan pertemanan terkirim!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Friend request sent!", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal mengirim", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to send", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -549,9 +555,9 @@ fun FriendsScreen(
                 scope.launch {
                     val res = NuxSocialManager.acceptFriendRequest(targetUid)
                     if (res.isSuccess) {
-                        Toast.makeText(context, "Permintaan pertemanan diterima!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Friend request accepted!", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal menerima", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to accept", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -559,9 +565,9 @@ fun FriendsScreen(
                 scope.launch {
                     val res = NuxSocialManager.blockUser(targetUid)
                     if (res.isSuccess) {
-                        Toast.makeText(context, "Pengguna berhasil diblokir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "User blocked successfully", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal memblokir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to block", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -569,9 +575,9 @@ fun FriendsScreen(
                 scope.launch {
                     val res = NuxSocialManager.unblockUser(targetUid)
                     if (res.isSuccess) {
-                        Toast.makeText(context, "Blokir dibuka", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "User unblocked", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal membuka blokir", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to unblock", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -592,7 +598,7 @@ fun FriendsScreen(
                         selectedTab = "rooms"
                         showCreateRoomDialog = false
                     } else {
-                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal membuat room", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to create room", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -610,7 +616,7 @@ fun FriendsScreen(
                     if (res.isSuccess) {
                         roomToJoinWithPassword = null
                     } else {
-                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Password salah", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, res.exceptionOrNull()?.message ?: "Incorrect password", Toast.LENGTH_SHORT).show()
                     }
                 }
             },
@@ -807,7 +813,7 @@ private fun FriendItem(
             }
 
             val statusText = when {
-                friend.isInGame -> "Sedang bermain"
+                friend.isInGame -> if (!friend.inGameInstance.isNullOrBlank()) "Sedang bermain (${friend.inGameInstance})" else "Sedang bermain"
                 friend.isOnline -> "Online"
                 friend.lastOnline != null -> {
                     val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(friend.lastOnline))
@@ -816,10 +822,16 @@ private fun FriendItem(
                 else -> "Offline"
             }
 
+            val statusColor = when {
+                friend.isInGame -> Color(0xFF06B6D4) // Cyan
+                friend.isOnline -> NuxColors.MintGreen
+                else -> NuxColors.GrayNeutral
+            }
+
             Text(
                 text = statusText,
                 fontSize = 9.5.sp,
-                color = if (friend.isOnline) NuxColors.MintGreen else NuxColors.GrayNeutral,
+                color = statusColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -905,7 +917,7 @@ private fun VoiceRoomItem(
             }
 
             Text(
-                text = "${room.participantCount}/${room.maxUsers} Peserta",
+                text = "${room.participantCount}/${room.maxUsers} Members",
                 fontSize = 9.5.sp,
                 color = NuxColors.GrayNeutral
             )
@@ -921,7 +933,7 @@ private fun VoiceRoomItem(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = if (isJoined) "AKTIF" else "MASUK",
+                text = if (isJoined) "ACTIVE" else "JOIN",
                 color = if (isJoined) Color.White else NuxColors.MintGreen,
                 fontSize = 9.sp,
                 fontWeight = FontWeight.Bold
@@ -958,7 +970,7 @@ private fun RequestReceivedItem(
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(text = friend.username, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text(text = "Ingin berteman", fontSize = 9.5.sp, color = NuxColors.GrayNeutral)
+            Text(text = "Friend Request", fontSize = 9.5.sp, color = NuxColors.GrayNeutral)
         }
         Box(
             modifier = Modifier
@@ -968,7 +980,7 @@ private fun RequestReceivedItem(
                 .clickable { onAccept() }
                 .padding(4.dp)
         ) {
-            Icon(Icons.Default.Check, contentDescription = "Terima", tint = Color.White, modifier = Modifier.size(12.dp))
+            Icon(Icons.Default.Check, contentDescription = "Accept", tint = Color.White, modifier = Modifier.size(12.dp))
         }
         Spacer(modifier = Modifier.width(4.dp))
         Box(
@@ -979,7 +991,7 @@ private fun RequestReceivedItem(
                 .clickable { onReject() }
                 .padding(4.dp)
         ) {
-            Icon(Icons.Default.Close, contentDescription = "Tolak", tint = Color(0xFFFCA5A5), modifier = Modifier.size(12.dp))
+            Icon(Icons.Default.Close, contentDescription = "Decline", tint = Color(0xFFFCA5A5), modifier = Modifier.size(12.dp))
         }
     }
 }
@@ -1008,7 +1020,7 @@ private fun RequestSentItem(
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(text = friend.username, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            Text(text = "Menunggu konfirmasi...", fontSize = 9.5.sp, color = NuxColors.GrayNeutral)
+            Text(text = "Pending approval...", fontSize = 9.5.sp, color = NuxColors.GrayNeutral)
         }
         Box(
             modifier = Modifier
@@ -1018,7 +1030,7 @@ private fun RequestSentItem(
                 .clickable { onCancel() }
                 .padding(horizontal = 6.dp, vertical = 3.dp)
         ) {
-            Text("Batal", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+            Text("Cancel", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
         }
     }
 }
@@ -1038,6 +1050,7 @@ private fun DirectChatView(
     onStartVoiceWithFriend: () -> Unit
 ) {
     val context = LocalContext.current
+    val langVersion by NuxLanguageManager.languageVersion.collectAsState()
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
     var inputMessage by remember { mutableStateOf("") }
@@ -1087,9 +1100,20 @@ private fun DirectChatView(
                         NuxUserBadge(isVerified = friend.isVerified, isPremium = friend.isPremium, size = 11.dp)
                     }
 
+                    val headerStatusText = when {
+                        friend.isInGame -> if (!friend.inGameInstance.isNullOrBlank()) "🎮 In-Game (${friend.inGameInstance})" else "🎮 In-Game"
+                        friend.isOnline -> "🟢 Online"
+                        else -> "Offline"
+                    }
+                    val headerStatusColor = when {
+                        friend.isInGame -> Color(0xFF06B6D4)
+                        friend.isOnline -> NuxColors.MintGreen
+                        else -> NuxColors.GrayNeutral
+                    }
+
                     Text(
-                        text = if (friend.isOnline) "🟢 Online" else "Offline",
-                        color = if (friend.isOnline) NuxColors.MintGreen else NuxColors.GrayNeutral,
+                        text = headerStatusText,
+                        color = headerStatusColor,
                         fontSize = 9.sp
                     )
                 }
@@ -1140,8 +1164,8 @@ private fun DirectChatView(
             if (messages.isEmpty()) {
                 EmptyIndicator(
                     icon = Icons.Outlined.Forum,
-                    title = "Belum Ada Pesan",
-                    subtitle = "Sapa ${friend.username} sekarang!"
+                    title = "No Messages Yet",
+                    subtitle = "Say hello to ${friend.username}!"
                 )
             } else {
                 LazyColumn(
@@ -1151,7 +1175,7 @@ private fun DirectChatView(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     val myUid = AccountManager.launcherUser.value?.uid ?: ""
-                    items(messages, key = { it.id }) { msg ->
+                    itemsIndexed(messages, key = { index, msg -> "${msg.id}_$index" }) { _, msg ->
                         ChatBubble(
                             message = msg,
                             isMine = msg.senderId == myUid,
@@ -1173,7 +1197,7 @@ private fun DirectChatView(
                         .padding(horizontal = 8.dp, vertical = 3.dp)
                 ) {
                     Text(
-                        text = "✍️ ${friend.username} sedang mengetik...",
+                        text = "✍️ ${friend.username} is typing...",
                         fontSize = 9.5.sp,
                         fontWeight = FontWeight.Medium,
                         color = NuxColors.MintGreen
@@ -1196,11 +1220,11 @@ private fun DirectChatView(
                 Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Reply, contentDescription = null, tint = NuxColors.MintGreen, modifier = Modifier.size(13.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Membalas: ${replyingTo.text.take(60)}", fontSize = 9.5.sp, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(text = "Replying to: ${replyingTo.text.take(60)}", fontSize = 9.5.sp, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Batal",
+                    contentDescription = "Cancel",
                     tint = NuxColors.GrayNeutral,
                     modifier = Modifier
                         .size(13.dp)
@@ -1219,10 +1243,10 @@ private fun DirectChatView(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("📷 Foto siap dikirim", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
+                Text("📷 Photo ready to send", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Hapus",
+                    contentDescription = "Delete",
                     tint = NuxColors.GrayNeutral,
                     modifier = Modifier
                         .size(13.dp)
@@ -1251,7 +1275,7 @@ private fun DirectChatView(
                     .clickable { imagePickerLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Image, contentDescription = "Foto", tint = NuxColors.GrayNeutral, modifier = Modifier.size(15.dp))
+                Icon(Icons.Default.Image, contentDescription = "Photo", tint = NuxColors.GrayNeutral, modifier = Modifier.size(15.dp))
             }
 
             // Message text input box
@@ -1266,7 +1290,7 @@ private fun DirectChatView(
             ) {
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     if (inputMessage.isEmpty()) {
-                        Text("Ketik pesan...", fontSize = 11.sp, color = NuxColors.GrayNeutral)
+                        Text("Type a message...", fontSize = 11.sp, color = NuxColors.GrayNeutral)
                     }
                     BasicTextField(
                         value = inputMessage,
@@ -1325,7 +1349,7 @@ private fun DirectChatView(
                                 selectedImageUri = null
                                 onCancelReply()
                             } else {
-                                Toast.makeText(context, res.exceptionOrNull()?.message ?: "Gagal kirim pesan", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, res.exceptionOrNull()?.message ?: "Failed to send message", Toast.LENGTH_SHORT).show()
                             }
                         }
                     },
@@ -1334,7 +1358,7 @@ private fun DirectChatView(
                 if (isSending) {
                     CircularProgressIndicator(modifier = Modifier.size(14.dp), color = Color.White, strokeWidth = 1.8.dp)
                 } else {
-                    Icon(Icons.Default.Send, contentDescription = "Kirim", tint = if (inputMessage.isNotBlank() || selectedImageUri != null) Color.White else NuxColors.GrayNeutral, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.Send, contentDescription = "Send", tint = if (inputMessage.isNotBlank() || selectedImageUri != null) Color.White else NuxColors.GrayNeutral, modifier = Modifier.size(14.dp))
                 }
             }
         }
@@ -1399,7 +1423,7 @@ private fun ChatBubble(
                     ) {
                         Column {
                             Text(
-                                text = message.replyTo.senderName.ifBlank { "Pengguna" },
+                                text = message.replyTo.senderName.ifBlank { "User" },
                                 fontSize = 8.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = NuxColors.MintGreen
@@ -1529,7 +1553,7 @@ private fun VoiceRoomChatPanel(
             if (messages.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        text = "Belum ada obrolan di room.\nKetik pesan di bawah!",
+                        text = "No messages in room yet.\nType a message below!",
                         fontSize = 10.sp,
                         color = NuxColors.GrayNeutral,
                         textAlign = TextAlign.Center
@@ -1542,7 +1566,7 @@ private fun VoiceRoomChatPanel(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(messages, key = { it.id }) { msg ->
+                    itemsIndexed(messages, key = { index, msg -> "${msg.id}_$index" }) { _, msg ->
                         val isMine = msg.senderId == myUid
                         val senderDisplayName = if (msg.senderName.length > 8) "${msg.senderName.take(8)}..." else msg.senderName
                         val timeStr = if (msg.timestamp > 0) {
@@ -1611,7 +1635,7 @@ private fun VoiceRoomChatPanel(
         ) {
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                 if (textInput.isEmpty()) {
-                    Text("Kirim pesan di room...", fontSize = 10.sp, color = NuxColors.GrayNeutral)
+                    Text("Send message in room...", fontSize = 10.sp, color = NuxColors.GrayNeutral)
                 }
                 BasicTextField(
                     value = textInput,
@@ -1623,7 +1647,7 @@ private fun VoiceRoomChatPanel(
             }
             Icon(
                 imageVector = Icons.Default.Send,
-                contentDescription = "Kirim",
+                contentDescription = "Send",
                 tint = if (textInput.isNotBlank()) NuxColors.ForestGreen else NuxColors.GrayNeutral,
                 modifier = Modifier
                     .size(15.dp)
@@ -1698,7 +1722,7 @@ private fun VoiceRoomView(
                         }
                     }
                     Text(
-                        text = "${room.participantCount}/${room.maxUsers} Peserta Aktif",
+                        text = "${room.participantCount}/${room.maxUsers} Active Members",
                         color = NuxColors.GrayNeutral,
                         fontSize = 9.sp
                     )
@@ -1719,7 +1743,7 @@ private fun VoiceRoomView(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.CallEnd, contentDescription = null, tint = Color(0xFFFCA5A5), modifier = Modifier.size(12.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("KELUAR", color = Color(0xFFFCA5A5), fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
+                    Text("LEAVE", color = Color(0xFFFCA5A5), fontSize = 9.5.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -1777,7 +1801,7 @@ private fun VoiceRoomView(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (isMuted) "MIC BISU (MUTED)" else "MIC AKTIF (BERBICARA)",
+                        text = if (isMuted) "MIC MUTED" else "MIC ACTIVE (SPEAKING)",
                         color = Color.White,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
@@ -1858,7 +1882,7 @@ private fun ParticipantBadge(
         // Status Label: Bicara or Platform (Setara seperti versi Windows)
         if (isSpeaking) {
             Text(
-                text = "Bicara",
+                text = "Talk",
                 color = NuxColors.MintGreen,
                 fontSize = 8.sp,
                 fontWeight = FontWeight.Bold
@@ -1912,7 +1936,7 @@ private fun EmptySocialHubView(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "PUSAT KOMUNIKASI & VOICE",
+            text = "COMMUNICATION & VOICE HUB",
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -1922,7 +1946,7 @@ private fun EmptySocialHubView(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Terhubung dengan teman lintas platform PC Windows & Android.\nObrolan langsung dan suara jernih berkecepatan tinggi via LiveKit WebRTC.",
+            text = "Connect with friends across PC Windows & Android.\nDirect chat and low-latency voice via LiveKit WebRTC.",
             fontSize = 10.5.sp,
             color = NuxColors.GrayNeutral,
             textAlign = TextAlign.Center,
@@ -1940,7 +1964,7 @@ private fun EmptySocialHubView(
                     .border(1.dp, NuxColors.CardBorder, RoundedCornerShape(6.dp))
                     .padding(horizontal = 10.dp, vertical = 5.dp)
             ) {
-                Text("👥 $friendsCount Teman Terdaftar", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("👥 $friendsCount Friends Added", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
 
             Box(
@@ -1950,7 +1974,7 @@ private fun EmptySocialHubView(
                     .border(1.dp, NuxColors.CardBorder, RoundedCornerShape(6.dp))
                     .padding(horizontal = 10.dp, vertical = 5.dp)
             ) {
-                Text("🎙️ $roomsCount Voice Room Aktif", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
+                Text("🎙️ $roomsCount Active Voice Rooms", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
             }
         }
 
@@ -1971,7 +1995,7 @@ private fun EmptySocialHubView(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.PersonAdd, contentDescription = null, tint = NuxColors.ForestGreen, modifier = Modifier.size(13.dp))
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text("CARI TEMAN BARU", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                    Text("FIND NEW FRIENDS", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                 }
             }
 
@@ -1988,7 +2012,7 @@ private fun EmptySocialHubView(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Mic, contentDescription = null, tint = NuxColors.MintGreen, modifier = Modifier.size(13.dp))
                     Spacer(modifier = Modifier.width(5.dp))
-                    Text("BUAT VOICE ROOM", color = NuxColors.MintGreen, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                    Text("CREATE VOICE ROOM", color = NuxColors.MintGreen, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                 }
             }
         }
@@ -2062,7 +2086,7 @@ private fun AddFriendDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "CARI & TAMBAH TEMAN", fontSize = 12.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "SEARCH & ADD FRIENDS", fontSize = 12.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 Box(
                     modifier = Modifier
                         .size(22.dp)
@@ -2084,7 +2108,7 @@ private fun AddFriendDialog(
                     query = it
                     onSearch(it)
                 },
-                placeholder = "Ketik username teman untuk mencari..."
+                placeholder = "Type username to search..."
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -2102,7 +2126,7 @@ private fun AddFriendDialog(
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = NuxColors.ForestGreen, strokeWidth = 2.dp)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Mencari \"$query\"...",
+                            text = "Searching \"$query\"...",
                             fontSize = 10.sp,
                             color = NuxColors.GrayNeutral
                         )
@@ -2115,7 +2139,7 @@ private fun AddFriendDialog(
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), color = NuxColors.ForestGreen, strokeWidth = 2.dp)
                         Spacer(modifier = Modifier.height(6.dp))
                         Text(
-                            text = "Memuat rekomendasi online...",
+                            text = "Loading online recommendations...",
                             fontSize = 10.sp,
                             color = NuxColors.GrayNeutral
                         )
@@ -2126,7 +2150,7 @@ private fun AddFriendDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = if (isShowingRecommendations) "Belum ada rekomendasi pengguna online saat ini." else "Tidak ada pengguna ditemukan.",
+                            text = if (isShowingRecommendations) "No online recommendations available right now." else "No users found.",
                             fontSize = 10.5.sp,
                             color = NuxColors.GrayNeutral,
                             textAlign = TextAlign.Center
@@ -2141,7 +2165,7 @@ private fun AddFriendDialog(
                                     .clickable { onRefreshRecommendations() }
                                     .padding(horizontal = 10.dp, vertical = 4.dp)
                             ) {
-                                Text("Cari Ulang", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
+                                Text("Search Again", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
                             }
                         }
                     }
@@ -2165,7 +2189,7 @@ private fun AddFriendDialog(
                                     )
                                     Spacer(modifier = Modifier.width(5.dp))
                                     Text(
-                                        text = "REKOMENDASI ONLINE (${recommendations.size})",
+                                        text = "ONLINE RECOMMENDATIONS (${recommendations.size})",
                                         fontSize = 9.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = NuxColors.MintGreen
@@ -2180,13 +2204,13 @@ private fun AddFriendDialog(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Refresh,
-                                        contentDescription = "Acak ulang",
+                                        contentDescription = "Shuffle",
                                         tint = NuxColors.MintGreen,
                                         modifier = Modifier.size(11.dp)
                                     )
                                     Spacer(modifier = Modifier.width(3.dp))
                                     Text(
-                                        text = "Acak",
+                                        text = "Shuffle",
                                         fontSize = 8.5.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = NuxColors.MintGreen
@@ -2199,7 +2223,7 @@ private fun AddFriendDialog(
                             modifier = Modifier.weight(1f).fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
-                            items(activeList, key = { it.uid }) { user ->
+                            itemsIndexed(activeList, key = { index, user -> "${user.uid}_$index" }) { _, user ->
                             val isMe = user.uid == currentMyUid
                             val friendEntry = friends.find { it.uid == user.uid }
                             val isPendingSent = (friendEntry?.isPendingSent == true || sentRequestUids.contains(user.uid)) && friendEntry?.isAccepted != true
@@ -2262,7 +2286,7 @@ private fun AddFriendDialog(
                                             .border(1.dp, NuxColors.CardBorder, RoundedCornerShape(6.dp))
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
                                     ) {
-                                        Text("Kamu", color = NuxColors.GrayNeutral, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                        Text("You", color = NuxColors.GrayNeutral, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                     }
                                 } else if (isAccepted) {
                                     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -2279,7 +2303,7 @@ private fun AddFriendDialog(
                                                 }
                                                 .padding(horizontal = 7.dp, vertical = 3.dp)
                                         ) {
-                                            Text("✓ Teman", color = NuxColors.MintGreen, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                            Text("✓ Friends", color = NuxColors.MintGreen, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                         }
                                         Box(
                                             modifier = Modifier
@@ -2303,7 +2327,7 @@ private fun AddFriendDialog(
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(Icons.Default.Schedule, contentDescription = null, tint = NuxColors.GrayNeutral, modifier = Modifier.size(10.dp))
                                             Spacer(modifier = Modifier.width(3.dp))
-                                            Text("Menunggu", color = NuxColors.GrayNeutral, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                            Text("Pending", color = NuxColors.GrayNeutral, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                         }
                                     }
                                 } else if (isPendingReceived) {
@@ -2315,7 +2339,7 @@ private fun AddFriendDialog(
                                             .clickable { onAcceptRequest(user.uid) }
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
                                     ) {
-                                        Text("Terima", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                        Text("Accept", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                     }
                                 } else if (isBlocked) {
                                     Box(
@@ -2326,7 +2350,7 @@ private fun AddFriendDialog(
                                             .clickable { onUnblockUser(user.uid) }
                                             .padding(horizontal = 7.dp, vertical = 3.dp)
                                         ) {
-                                            Text("Buka Block", color = Color(0xFFFCA5A5), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                            Text("Unblock", color = Color(0xFFFCA5A5), fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                         }
                                 } else {
                                     Box(
@@ -2340,7 +2364,7 @@ private fun AddFriendDialog(
                                             }
                                             .padding(horizontal = 8.dp, vertical = 3.dp)
                                     ) {
-                                        Text("+ Tambah", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                                        Text("+ Add", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -2384,7 +2408,7 @@ private fun CreateVoiceRoomDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "BUAT VOICE ROOM BARU", fontSize = 12.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(text = "CREATE NEW VOICE ROOM", fontSize = 12.5.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 Box(
                     modifier = Modifier
                         .size(22.dp)
@@ -2407,7 +2431,7 @@ private fun CreateVoiceRoomDialog(
             ) {
                 // Kolom Kiri: Input Nama & Password
                 Column(modifier = Modifier.weight(1.1f)) {
-                    Text("NAMA ROOM:", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                    Text("ROOM NAME:", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
                     Spacer(modifier = Modifier.height(3.dp))
                     Row(
                         modifier = Modifier
@@ -2420,7 +2444,7 @@ private fun CreateVoiceRoomDialog(
                     ) {
                         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                             if (roomName.isEmpty()) {
-                                Text("Contoh: Mabar Survival", fontSize = 10.5.sp, color = NuxColors.GrayNeutral)
+                                Text("e.g. Survival Session", fontSize = 10.5.sp, color = NuxColors.GrayNeutral)
                             }
                             BasicTextField(
                                 value = roomName,
@@ -2434,7 +2458,7 @@ private fun CreateVoiceRoomDialog(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Text("PASSWORD (OPSIONAL):", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                    Text("PASSWORD (OPTIONAL):", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
                     Spacer(modifier = Modifier.height(3.dp))
                     Row(
                         modifier = Modifier
@@ -2447,7 +2471,7 @@ private fun CreateVoiceRoomDialog(
                     ) {
                         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                             if (roomPassword.isEmpty()) {
-                                Text("Kosongkan jika publik", fontSize = 10.5.sp, color = NuxColors.GrayNeutral)
+                                Text("Leave blank if public", fontSize = 10.5.sp, color = NuxColors.GrayNeutral)
                             }
                             BasicTextField(
                                 value = roomPassword,
@@ -2470,8 +2494,8 @@ private fun CreateVoiceRoomDialog(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("KAPASITAS PESERTA:", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
-                            Text("$maxUsers Pemain", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
+                            Text("PARTICIPANT CAPACITY:", fontSize = 9.sp, fontWeight = FontWeight.Bold, color = NuxColors.GrayNeutral)
+                            Text("$maxUsers Players", fontSize = 9.5.sp, fontWeight = FontWeight.Bold, color = NuxColors.MintGreen)
                         }
                         Slider(
                             value = maxUsers.toFloat(),
@@ -2503,7 +2527,7 @@ private fun CreateVoiceRoomDialog(
                                 .clickable { onDismiss() },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("BATAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                            Text("CANCEL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                         }
 
                         Box(
@@ -2522,7 +2546,7 @@ private fun CreateVoiceRoomDialog(
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("BUAT ROOM", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                            Text("CREATE ROOM", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                         }
                     }
                 }
@@ -2555,9 +2579,9 @@ private fun JoinPasswordDialog(
                 .border(1.dp, NuxColors.CardBorder, RoundedCornerShape(8.dp))
                 .padding(14.dp)
         ) {
-            Text(text = "ROOM DILINDUNGI PASSWORD", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Text(text = "PASSWORD PROTECTED ROOM", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Masukkan kata sandi untuk masuk ke room \"${room.name}\".", fontSize = 9.5.sp, color = NuxColors.GrayNeutral)
+            Text(text = "Enter password to join \"${room.name}\".", fontSize = 9.5.sp, color = NuxColors.GrayNeutral)
 
             Spacer(modifier = Modifier.height(10.dp))
 
@@ -2600,7 +2624,7 @@ private fun JoinPasswordDialog(
                         .clickable { onDismiss() },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("BATAL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                    Text("CANCEL", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                 }
 
                 Box(
@@ -2613,7 +2637,7 @@ private fun JoinPasswordDialog(
                         .clickable { onJoin(passInput) },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("GABUNG", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
+                    Text("JOIN", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 9.5.sp)
                 }
             }
         }

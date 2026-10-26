@@ -45,7 +45,7 @@ fun NuxAccountDialog(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "MANAJEMEN AKUN",
+                        text = "ACCOUNT MANAGEMENT",
                         color = NuxColors.DarkGray,
                         fontWeight = FontWeight.Black,
                         fontSize = 17.sp,
@@ -88,7 +88,7 @@ fun NuxAccountDialog(
                         .fillMaxHeight()
                 ) {
                     Text(
-                        text = "AKUN TERSIMPAN (${accounts.size})",
+                        text = "SAVED ACCOUNTS (${accounts.size})",
                         color = NuxColors.GrayNeutral,
                         fontWeight = FontWeight.Black,
                         fontSize = 11.sp,
@@ -111,14 +111,14 @@ fun NuxAccountDialog(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "Belum Ada Akun",
+                                        text = "No Accounts Yet",
                                         color = NuxColors.DarkGray,
                                         fontWeight = FontWeight.Black,
                                         fontSize = 13.sp
                                     )
                                     Spacer(modifier = Modifier.height(2.dp))
                                     Text(
-                                        text = "Tambah akun di samping untuk mulai bermain.",
+                                        text = "Add an account on the side to start playing.",
                                         color = NuxColors.GrayNeutral,
                                         fontSize = 10.sp
                                     )
@@ -177,7 +177,7 @@ fun NuxAccountDialog(
                                         }
 
                                         if (isSelected) {
-                                            NuxBadge(text = "AKTIF", backgroundColor = NuxColors.ForestGreen, textColor = Color.White)
+                                            NuxBadge(text = "ACTIVE", backgroundColor = NuxColors.ForestGreen, textColor = Color.White)
                                         }
                                     }
                                 }
@@ -195,7 +195,7 @@ fun NuxAccountDialog(
                 ) {
                     Column {
                         Text(
-                            text = "TAMBAH AKUN OFFLINE",
+                            text = "ADD OFFLINE ACCOUNT",
                             color = NuxColors.GrayNeutral,
                             fontWeight = FontWeight.Black,
                             fontSize = 11.sp,
@@ -206,13 +206,13 @@ fun NuxAccountDialog(
                         NuxTextField(
                             value = newUsername,
                             onValueChange = { newUsername = it },
-                            placeholder = "Username Minecraft..."
+                            placeholder = "Minecraft username..."
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Mode offline memungkinkan Anda bermain tanpa akun Microsoft resmi.",
+                            text = "Offline mode allows you to play without an official Microsoft account.",
                             color = NuxColors.GrayNeutral,
                             fontSize = 10.sp,
                             lineHeight = 14.sp
@@ -238,7 +238,7 @@ fun NuxAccountDialog(
                         contentColor = Color.White
                     ) {
                         Text(
-                            text = "SIMPAN AKUN >",
+                            text = "SAVE ACCOUNT >",
                             color = Color.White,
                             fontWeight = FontWeight.Black,
                             fontSize = 12.sp

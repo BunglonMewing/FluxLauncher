@@ -12,6 +12,9 @@ class NuxApplication : Application() {
 
         org.lwjgl.glfw.CallbackBridge.sContext = this
         com.movtery.zalithlauncher.bridge.ZLNativeInvoker.appContext = this
+        com.israadev.nuxlauncher.core.settings.SettingsManager.init(this)
+        com.israadev.nuxlauncher.core.lang.NuxLanguageManager.init(this)
+        com.israadev.nuxlauncher.core.account.AccountManager.init(this)
 
         val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->

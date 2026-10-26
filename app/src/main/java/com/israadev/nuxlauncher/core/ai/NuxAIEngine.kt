@@ -62,8 +62,8 @@ object NuxAIEngine {
         actManager?.getMemoryInfo(memInfo)
         val totalRamGb = memInfo.totalMem / (1024 * 1024 * 1024)
 
-        sb.appendLine("=== KONTEKS PERANGKAT PENGGUNA ===")
-        sb.appendLine("- Perangkat: ${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE}, API ${Build.VERSION.SDK_INT})")
+        sb.appendLine("=== USER DEVICE CONTEXT ===")
+        sb.appendLine("- Device: ${Build.MANUFACTURER} ${Build.MODEL} (Android ${Build.VERSION.RELEASE}, API ${Build.VERSION.SDK_INT})")
         sb.appendLine("- RAM Fisik HP: ~$totalRamGb GB | Alokasi RAM Game: ${settings.ramMb} MB")
         sb.appendLine("- Renderer Terpilih: ${settings.selectedRenderer.uppercase()}")
         sb.appendLine("- Vulkan Driver: ${settings.vulkanDriver}")
@@ -89,7 +89,7 @@ object NuxAIEngine {
                 val modPreview = installedModFiles.take(30).joinToString(", ")
                 sb.appendLine("- Daftar Mod (sampel 30 mod): $modPreview")
             } else {
-                sb.appendLine("- Daftar Mod: Tidak ada mod (Vanilla)")
+                sb.appendLine("- Mod List: No mods (Vanilla)")
             }
             sb.appendLine()
 
@@ -123,7 +123,7 @@ object NuxAIEngine {
             }
         } else {
             sb.appendLine("=== KONTEKS INSTANCE ===")
-            sb.appendLine("- Tidak ada instance aktif yang dipilih.")
+            sb.appendLine("- No active instance selected.")
             sb.appendLine()
         }
 
@@ -199,7 +199,7 @@ object NuxAIEngine {
         }
 
         var streamSucceeded = false
-        var lastErrorMessage = "Gagal menghubungi AI server."
+        var lastErrorMessage = "Failed to connect to AI server."
 
         outer@ for (modelCandidate in candidateModels) {
             payload.addProperty("model", modelCandidate)
@@ -227,7 +227,7 @@ object NuxAIEngine {
                                 errBody.contains("No endpoints", ignoreCase = true)
 
                         if (isModelUnavailable && modelCandidate != AICrashAnalyzer.DEFAULT_MODEL) {
-                            android.util.Log.w("NuxAIEngine", "Model $modelCandidate tidak tersedia ($code), otomatis beralih ke model cadangan ${AICrashAnalyzer.DEFAULT_MODEL}...")
+                            android.util.Log.w("NuxAIEngine", "Model $modelCandidate is unavailable ($code), automatically falling back to ${AICrashAnalyzer.DEFAULT_MODEL}...")
                             lastErrorMessage = parseErrorMessage(errBody)
                             break // Langsung beralih ke kandidat model berikutnya di outer loop
                         }
@@ -237,7 +237,7 @@ object NuxAIEngine {
                             android.util.Log.w("NuxAIEngine", "Key #${index + 1} terkena limit ($code). Mengalihkan ke Key cadangan #${index + 2}...")
                             continue
                         } else {
-                            lastErrorMessage = "Gagal menghubungi server AI (HTTP $code): ${parseErrorMessage(errBody)}"
+                            lastErrorMessage = "Failed to reach AI server (HTTP $code): ${parseErrorMessage(errBody)}"
                             if (index < keysToTry.size - 1) continue else break
                         }
                     }
@@ -280,7 +280,7 @@ object NuxAIEngine {
                         break@outer
                     } else {
                         if (index < keysToTry.size - 1) continue
-                        lastErrorMessage = "AI tidak mengembalikan respon untuk pertanyaan ini."
+                        lastErrorMessage = "AI returned no response for this query."
                     }
                 } catch (e: Exception) {
                     if (index < keysToTry.size - 1) {
@@ -311,7 +311,7 @@ object NuxAIEngine {
                 jsonStr
             }
         } catch (_: Exception) {
-            jsonStr.ifBlank { "Kesalahan jaringan" }
+            jsonStr.ifBlank { "Network error" }
         }
     }
 }

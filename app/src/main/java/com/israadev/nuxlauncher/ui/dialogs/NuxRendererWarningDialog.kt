@@ -108,14 +108,14 @@ fun NuxRendererWarningDialog(
 
                             Column {
                                 Text(
-                                    text = "PERINGATAN PERENDER",
+                                    text = "RENDERER WARNING",
                                     color = Color(0xFFFBBF24),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 7.5.sp,
                                     letterSpacing = 1.sp
                                 )
                                 Text(
-                                    text = "Inkompatibilitas Render",
+                                    text = "Render Incompatibility",
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
@@ -136,7 +136,7 @@ fun NuxRendererWarningDialog(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Close,
-                                contentDescription = "Tutup",
+                                contentDescription = "Close",
                                 tint = Color(0xFFA1A1AA),
                                 modifier = Modifier.size(13.dp)
                             )
@@ -156,21 +156,21 @@ fun NuxRendererWarningDialog(
                     ) {
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                             Text(
-                                text = "Perender saat ini \"${renderer.displayName}\" tidak didukung resmi untuk Minecraft $mcVersion.",
+                                text = "Current renderer \"${renderer.displayName}\" is not officially verified for Minecraft $mcVersion.",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.5.sp,
                                 lineHeight = 15.sp
                             )
                             Text(
-                                text = "Memaksakan render ini dapat mengakibatkan visual artifact, freeze layar, atau crash. Apakah Anda yakin ingin melanjutkan?",
+                                text = "Forcing this renderer may cause visual artifacts, screen freezes, or crashes. Are you sure you want to proceed?",
                                 color = Color(0xFFD4D4D8),
                                 fontSize = 9.sp,
                                 lineHeight = 13.5.sp
                             )
                             if (renderer.compatibility.isNotBlank()) {
                                 Text(
-                                    text = "Dukungan resmi: ${renderer.compatibility}",
+                                    text = "Official support: ${renderer.compatibility}",
                                     color = Color(0xFFFBBF24),
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.Bold
@@ -196,7 +196,7 @@ fun NuxRendererWarningDialog(
                                 .height(34.dp)
                         ) {
                             Text(
-                                text = "BATAL",
+                                text = "CANCEL",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 10.sp,
@@ -214,7 +214,7 @@ fun NuxRendererWarningDialog(
                                 .height(34.dp)
                         ) {
                             Text(
-                                text = "TETAP JALANKAN",
+                                text = "LAUNCH ANYWAY",
                                 color = Color(0xFF18181B),
                                 fontWeight = FontWeight.Black,
                                 fontSize = 10.sp,

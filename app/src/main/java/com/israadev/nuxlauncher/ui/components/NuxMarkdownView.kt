@@ -95,7 +95,7 @@ fun NuxMarkdownView(
                     val borderColor = if (isBug) Color(0xFFF43F5E) else Color(0xFF10B981)
                     val textColor = if (isBug) Color(0xFFFF6482) else Color(0xFF34D399)
                     val icon = if (isBug) Icons.Default.BugReport else Icons.Default.Build
-                    val label = if (isBug) "BUG DEVELOPER / LAUNCHER (PERLU PERBAIKAN TIM)" else "BISA DISELESAIKAN SENDIRI"
+                    val label = if (isBug) "BUG DEVELOPER / LAUNCHER (PERLU PERBAIKAN TIM)" else "CAN BE SOLVED INDEPENDENTLY"
 
                     Box(
                         modifier = Modifier
@@ -126,7 +126,7 @@ fun NuxMarkdownView(
                             }
                             Column {
                                 Text(
-                                    text = "KLASIFIKASI CRASH",
+                                    text = "CRASH CLASSIFICATION",
                                     fontSize = 7.5.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = textColor.copy(alpha = 0.75f),
@@ -269,7 +269,7 @@ fun NuxMarkdownView(
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
-                        text = "BUKA TIKET PENGADUAN DI DISCORD RESMI",
+                        text = "OPEN SUPPORT TICKET ON OFFICIAL DISCORD",
                         color = Color.White,
                         fontWeight = FontWeight.Black,
                         fontSize = 9.sp,
@@ -311,7 +311,7 @@ private fun openUrl(context: Context, url: String) {
         }
         context.startActivity(intent)
     } catch (_: Exception) {
-        Toast.makeText(context, "Tidak dapat membuka tautan: $url", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Unable to open link: $url", Toast.LENGTH_SHORT).show()
     }
 }
 
@@ -363,7 +363,7 @@ private fun parseMarkdownBlocks(content: String): List<MarkdownBlock> {
         if (trimmed.contains("[BUG DEVELOPER", ignoreCase = true) || trimmed.contains("BUG DEVELOPER / LAUNCHER", ignoreCase = true)) {
             blocks.add(MarkdownBlock.StatusBadge(isDeveloperBug = true))
             continue
-        } else if (trimmed.contains("[BISA DISELESAIKAN SENDIRI", ignoreCase = true)) {
+        } else if (trimmed.contains("[RESOLVABLE MANUALLY", ignoreCase = true) || trimmed.contains("[BISA DISELESAIKAN SENDIRI", ignoreCase = true)) {
             blocks.add(MarkdownBlock.StatusBadge(isDeveloperBug = false))
             continue
         }

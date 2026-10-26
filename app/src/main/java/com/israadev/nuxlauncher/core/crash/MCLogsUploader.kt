@@ -70,7 +70,7 @@ object MCLogsUploader {
 
             if (!response.isSuccessful) {
                 return@withContext Result.failure(
-                    RuntimeException("Gagal mengunggah log (HTTP ${response.code}): $responseBody")
+                    RuntimeException("Failed to upload log (HTTP ${response.code}): $responseBody")
                 )
             }
 
@@ -78,7 +78,7 @@ object MCLogsUploader {
             if (jsonResponse != null && jsonResponse.success && !jsonResponse.url.isNullOrBlank()) {
                 Result.success(jsonResponse.url.replace("\\/", "/"))
             } else {
-                val err = jsonResponse?.error ?: "Server mclo.gs tidak mengembalikan URL."
+                val err = jsonResponse?.error ?: "mclo.gs server returned no URL."
                 Result.failure(RuntimeException(err))
             }
         } catch (e: Exception) {
@@ -92,7 +92,7 @@ object MCLogsUploader {
     suspend fun uploadLogFile(file: File): Result<String> {
         return try {
             if (!file.exists()) {
-                return Result.failure(java.io.FileNotFoundException("File log tidak ditemukan: ${file.absolutePath}"))
+                return Result.failure(java.io.FileNotFoundException("Log file not found: ${file.absolutePath}"))
             }
             val content = file.readText(Charsets.UTF_8)
             uploadLog(content)

@@ -33,7 +33,7 @@ object PrivacyMasker {
      * Contoh: NUX-1234-5678-ABCD -> NUX-••••-••••-••••
      */
     fun maskKey(key: String?): String {
-        if (key.isNullOrBlank()) return "VIP-AKTIF-SERVER"
+        if (key.isNullOrBlank()) return "PREMIUM-ACTIVE-SERVER"
         val clean = key.trim().uppercase()
         val prefix = if (clean.length >= 3) clean.take(3) else clean
         return "$prefix-••••-••••-••••"

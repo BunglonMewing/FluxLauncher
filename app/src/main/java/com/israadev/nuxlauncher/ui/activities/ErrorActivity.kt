@@ -116,10 +116,10 @@ class ErrorActivity : ComponentActivity() {
                     if (lines.size > 300) lines.takeLast(300).joinToString("\n")
                     else lines.joinToString("\n")
                 } catch (e: Exception) {
-                    "Gagal membaca file log: ${e.message}"
+                    "Failed to read log file: ${e.message}"
                 }
             }
-            else -> "Tidak ada rincian log yang tersedia."
+            else -> "No log details available."
         }
 
         setContent {
@@ -185,7 +185,7 @@ private fun ErrorContent(
     val isLauncherCrash = crashType == GameCrashInfo.CRASH_TYPE_LAUNCHER
     val exitDetailMessage = remember(isLauncherCrash, isSignal, exitCode) {
         if (isLauncherCrash) {
-            "Peluncur mengalami kesalahan internal pada komponen UI atau proses background. Silakan laporkan log stacktrace ini ke tim pengembang NUX."
+            "Launcher encountered an internal exception in UI component or background process. Please report this stacktrace to NUX development team."
         } else {
             CrashUtils.getExitMessage(exitCode, isSignal)
         }
@@ -201,9 +201,9 @@ private fun ErrorContent(
 
     val mainMessage = remember(isLauncherCrash, isSignal, exitCode) {
         when {
-            isLauncherCrash -> "Peluncur mengalami kesalahan tak terduga (Uncaught Exception)."
+            isLauncherCrash -> "Launcher encountered an unexpected uncaught exception."
             isSignal -> "JVM dihentikan karena sinyal fatal $exitCode (${CrashUtils.getSignalName(exitCode)})."
-            else -> "JVM keluar dengan kode $exitCode (${CrashUtils.getExitCodeDescription(exitCode)})."
+            else -> "JVM exited with code $exitCode (${CrashUtils.getExitCodeDescription(exitCode)})."
         }
     }
 
@@ -222,7 +222,7 @@ private fun ErrorContent(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = if (isLauncherCrash) "PELUNCUR MENGALAMI KESALAHAN" else "GAME MENGALAMI CRASH",
+                    text = if (isLauncherCrash) "LAUNCHER CRASH DETECTED" else "GAME CRASH DETECTED",
                     color = NuxColors.DarkGray,
                     fontWeight = FontWeight.Black,
                     fontSize = 16.sp,
@@ -247,7 +247,7 @@ private fun ErrorContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ScreenRotation,
-                        contentDescription = "Rotasi Layar",
+                        contentDescription = "Rotate Screen",
                         tint = NuxColors.DarkGray,
                         modifier = Modifier.size(18.dp)
                     )
@@ -330,7 +330,7 @@ private fun ErrorContent(
                                         uploadSuccessUrl = url
                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                         clipboard.setPrimaryClip(ClipData.newPlainText("mclo.gs link", url))
-                                        Toast.makeText(context, "Tautan berhasil diunggah & disalin!", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, "Link uploaded & copied to clipboard!", Toast.LENGTH_LONG).show()
                                         try {
                                             val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                                                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -339,7 +339,7 @@ private fun ErrorContent(
                                         } catch (_: Exception) {}
                                     },
                                     onFailure = { err ->
-                                        Toast.makeText(context, "Gagal mengunggah: ${err.message}", Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, "Failed to upload: ${err.message}", Toast.LENGTH_LONG).show()
                                     }
                                 )
                             }
@@ -350,7 +350,7 @@ private fun ErrorContent(
                         onCopyLogClick = {
                             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             clipboard.setPrimaryClip(ClipData.newPlainText("Crash Log", logContent))
-                            Toast.makeText(context, "Log berhasil disalin ke clipboard!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Log copied to clipboard!", Toast.LENGTH_SHORT).show()
                         },
                         onRestartClick = onRestart,
                         onExitClick = onExit
@@ -414,7 +414,7 @@ private fun ErrorContent(
                                     uploadSuccessUrl = url
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                     clipboard.setPrimaryClip(ClipData.newPlainText("mclo.gs link", url))
-                                    Toast.makeText(context, "Tautan berhasil diunggah & disalin!", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Link uploaded & copied to clipboard!", Toast.LENGTH_LONG).show()
                                     try {
                                         val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
                                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -423,7 +423,7 @@ private fun ErrorContent(
                                     } catch (_: Exception) {}
                                 },
                                 onFailure = { err ->
-                                    Toast.makeText(context, "Gagal mengunggah: ${err.message}", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Failed to upload: ${err.message}", Toast.LENGTH_LONG).show()
                                 }
                             )
                         }
@@ -434,7 +434,7 @@ private fun ErrorContent(
                     onCopyLogClick = {
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                         clipboard.setPrimaryClip(ClipData.newPlainText("Crash Log", logContent))
-                        Toast.makeText(context, "Log berhasil disalin ke clipboard!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Log copied to clipboard!", Toast.LENGTH_SHORT).show()
                     },
                     onRestartClick = onRestart,
                     onExitClick = onExit
@@ -461,7 +461,7 @@ private fun CrashDetailCard(
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                text = if (isLauncherCrash) "STATUS PELUNCUR" else "INFORMASI SESI GAME",
+                text = if (isLauncherCrash) "LAUNCHER STATUS" else "GAME SESSION INFO",
                 color = NuxColors.GrayNeutral,
                 fontWeight = FontWeight.Black,
                 fontSize = 9.sp,
@@ -481,7 +481,7 @@ private fun CrashDetailCard(
             )
             if (logPath.isNotBlank()) {
                 Text(
-                    text = "Lokasi Log: $logPath",
+                    text = "Log Path: $logPath",
                     color = NuxColors.GrayNeutral,
                     fontSize = 9.sp,
                     fontFamily = FontFamily.Monospace,
@@ -503,10 +503,10 @@ private fun DiagnosisCard(diagnosis: String) {
     ) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("⚠️", fontSize = 12.sp)
+                Icon(painter = androidx.compose.ui.res.painterResource(com.israadev.nuxlauncher.R.drawable.ic_warning_triangle), contentDescription = null, tint = Color(0xFFFBBF24), modifier = Modifier.size(14.dp))
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "STATUS PENGHENTIAN PROSES",
+                    text = "PROCESS EXIT STATUS",
                     color = NuxColors.ErrorRed,
                     fontWeight = FontWeight.Black,
                     fontSize = 10.sp,
@@ -539,7 +539,7 @@ private fun EducationNoteCard() {
                 Text("📄", fontSize = 12.sp)
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "CATATAN ANALISIS LOG",
+                    text = "LOG ANALYSIS NOTES",
                     color = NuxColors.DarkGray,
                     fontWeight = FontWeight.Black,
                     fontSize = 9.5.sp,
@@ -587,7 +587,7 @@ private fun ActionButtonsGrid(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "MENGUNGGAH LOG KE MCLO.GS...",
+                        text = "UPLOADING LOG TO MCLO.GS...",
                         fontWeight = FontWeight.Black,
                         fontSize = 11.sp
                     )
@@ -595,7 +595,7 @@ private fun ActionButtonsGrid(
                     Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "BUKA TAUTAN MCLO.GS",
+                        text = "OPEN MCLO.GS LINK",
                         fontWeight = FontWeight.Black,
                         fontSize = 11.sp
                     )
@@ -603,7 +603,7 @@ private fun ActionButtonsGrid(
                     Icon(imageVector = Icons.Default.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "UNGGAH TAUTAN (MCLO.GS)",
+                        text = "UPLOAD LINK (MCLO.GS)",
                         fontWeight = FontWeight.Black,
                         fontSize = 11.sp
                     )
@@ -626,7 +626,7 @@ private fun ActionButtonsGrid(
                     Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "BAGIKAN LOG",
+                        text = "SHARE LOG",
                         fontWeight = FontWeight.Black,
                         fontSize = 10.5.sp
                     )
@@ -644,7 +644,7 @@ private fun ActionButtonsGrid(
                     Icon(imageVector = Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "SALIN TEKS",
+                        text = "COPY TEXT",
                         fontWeight = FontWeight.Black,
                         fontSize = 10.5.sp
                     )
@@ -667,7 +667,7 @@ private fun ActionButtonsGrid(
                     Icon(imageVector = Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "MULAI ULANG",
+                        text = "RESTART",
                         fontWeight = FontWeight.Black,
                         fontSize = 10.5.sp
                     )
@@ -682,7 +682,7 @@ private fun ActionButtonsGrid(
                 contentColor = Color.White
             ) {
                 Text(
-                    text = "TUTUP",
+                    text = "CLOSE",
                     fontWeight = FontWeight.Black,
                     fontSize = 10.5.sp
                 )
@@ -703,7 +703,7 @@ private fun TerminalLogViewer(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "TERMINAL LOG / STACK TRACE",
+                text = "LOG TERMINAL / STACK TRACE",
                 color = NuxColors.GrayNeutral,
                 fontWeight = FontWeight.Black,
                 fontSize = 10.sp,

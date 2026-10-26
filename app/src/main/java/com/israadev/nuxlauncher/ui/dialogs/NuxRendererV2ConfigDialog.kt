@@ -146,7 +146,7 @@ fun NuxRendererV2ConfigDialog(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
                                 Text(
-                                    text = "KONFIGURASI RENDERER",
+                                    text = "RENDERER CONFIGURATION",
                                     color = Color.White,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 14.sp,
@@ -205,7 +205,7 @@ fun NuxRendererV2ConfigDialog(
                                                 launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                                 context.startActivity(launchIntent)
                                             } else {
-                                                Toast.makeText(context, "Tidak dapat membuka panel aplikasi", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Cannot open application panel", Toast.LENGTH_SHORT).show()
                                             }
                                         } catch (e: Exception) {
                                             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -239,13 +239,13 @@ fun NuxRendererV2ConfigDialog(
                                         Spacer(modifier = Modifier.width(10.dp))
                                         Column {
                                             Text(
-                                                text = "Buka Panel Aplikasi ${v2Data?.config?.displayName ?: rendererInfo?.displayName ?: "MobileGL"}",
+                                                text = "Open App Panel for ${v2Data?.config?.displayName ?: rendererInfo?.displayName ?: "MobileGL"}",
                                                 color = Color.White,
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 12.sp
                                             )
                                             Text(
-                                                text = "Akses pengaturan driver native, benchmark, dan preferensi aplikasi",
+                                                text = "Access native driver settings, benchmarks, and preferences",
                                                 color = Color(0xFFA1A1AA),
                                                 fontSize = 10.sp
                                             )
@@ -272,14 +272,14 @@ fun NuxRendererV2ConfigDialog(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "Tidak ada environment variable yang dapat dikonfigurasi untuk renderer ini.",
+                                    text = "No environment variables configurable for this renderer.",
                                     color = Color(0xFF71717A),
                                     fontSize = 11.sp
                                 )
                             }
                         } else {
                             Text(
-                                text = "PENGATURAN ENVIRONMENT VARIABLES",
+                                text = "ENVIRONMENT VARIABLES SETTINGS",
                                 color = Color(0xFF71717A),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
@@ -320,7 +320,7 @@ fun NuxRendererV2ConfigDialog(
                                 .clip(RoundedCornerShape(8.dp))
                                 .clickable {
                                     v2Data?.resetAll()
-                                    Toast.makeText(context, "Pengaturan direset ke default", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Settings reset to defaults", Toast.LENGTH_SHORT).show()
                                 }
                                 .padding(horizontal = 12.dp, vertical = 8.dp)
                         ) {
@@ -333,7 +333,7 @@ fun NuxRendererV2ConfigDialog(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "RESET DEFAULT",
+                                    text = "RESET DEFAULTS",
                                     color = Color(0xFFA1A1AA),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 11.sp
@@ -349,7 +349,7 @@ fun NuxRendererV2ConfigDialog(
                             modifier = Modifier.height(36.dp)
                         ) {
                             Text(
-                                text = "SIMPAN & TUTUP",
+                                text = "SAVE & CLOSE",
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.sp
@@ -422,7 +422,7 @@ private fun SelectableEnvItemCard(unit: EnvSettingUnit.Selectable) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Nilai aktif: ",
+                            text = "Active value: ",
                             color = Color(0xFF71717A),
                             fontSize = 10.sp
                         )
@@ -601,7 +601,7 @@ private fun CustomizableEnvItemCard(unit: EnvSettingUnit.Customizable) {
                     fontFamily = FontFamily.Monospace
                 ),
                 placeholder = {
-                    Text(text = "Masukkan nilai (opsional)", color = Color(0xFF52525B), fontSize = 11.sp)
+                    Text(text = "Enter value (optional)", color = Color(0xFF52525B), fontSize = 11.sp)
                 },
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = NuxColors.ForestGreen,
