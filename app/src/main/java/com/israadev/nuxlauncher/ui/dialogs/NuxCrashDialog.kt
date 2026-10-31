@@ -273,7 +273,7 @@ fun NuxCrashDialog(
                                     )
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
-                                        text = if (crashInfo.isLauncherCrash) "NUX Launcher Android Engine" else "${crashInfo.instanceName} (MC ${crashInfo.mcVersion})",
+                                        text = if (crashInfo.isLauncherCrash) "Flux Launcher Android Engine" else "${crashInfo.instanceName} (MC ${crashInfo.mcVersion})",
                                         color = Color.White,
                                         fontWeight = FontWeight.Black,
                                         fontSize = 12.5.sp

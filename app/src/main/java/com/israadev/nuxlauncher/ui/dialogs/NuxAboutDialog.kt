@@ -338,7 +338,7 @@ fun NuxAboutDialog(
                                     }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "NUX Launcher is an Unofficial Modified Version built and adapted based on Zalith Launcher 2 and PojavLauncher. This program is NOT an official application from Zalith Launcher Team or Mojang Studios.",
+                                        text = "Flux Launcher is an Unofficial Modified Version built and adapted based on Zalith Launcher 2 and PojavLauncher. This program is NOT an official application from Zalith Launcher Team or Mojang Studios.",
                                         color = Color(0xFFE4E4E7),
                                         fontSize = 8.5.sp,
                                         lineHeight = 12.5.sp
@@ -394,12 +394,12 @@ fun NuxAboutDialog(
                                 }
                             )
 
-                            // 3. NUX Launcher Open Source Repository
+                            // 3. Flux Launcher Open Source Repository
                             UpstreamProjectCard(
-                                title = "NUX Launcher (Source Code)",
+                                title = "Flux Launcher (Source Code)",
                                 copyright = "Copyright © 2026 IsraaDeveloper & Contributors",
                                 license = "GNU General Public License v3.0 (GPL-3.0)",
-                                description = "Open-source codebase repository of NUX Launcher. Freely licensed under GNU GPL-3.0 terms.",
+                                description = "Open-source codebase repository of Flux Launcher. Freely licensed under GNU GPL-3.0 terms.",
                                 url = "https://github.com/IsraaDeveloper/nuxlabs",
                                 onOpenUrl = { url ->
                                     try {

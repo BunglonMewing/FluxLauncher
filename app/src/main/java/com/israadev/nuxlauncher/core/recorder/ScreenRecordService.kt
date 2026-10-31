@@ -162,10 +162,10 @@ class ScreenRecordService : Service() {
 
             Log.d(TAG, "Recording dimensions: ${recWidth}x${recHeight} @ $fps FPS ($bitrate bps)")
 
-            // 3. Prepare output file in Movies/NUX-Launcher
+            // 3. Prepare output file in Movies/Flux-Launcher
             val moviesDir = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-                "NUX-Launcher"
+                "Flux-Launcher"
             )
             if (!moviesDir.exists()) {
                 moviesDir.mkdirs()
@@ -380,7 +380,7 @@ class ScreenRecordService : Service() {
                 "Screen Recorder [Premium]",
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "NUX Launcher Screen Recording Service"
+                description = "Flux Launcher Screen Recording Service"
                 setShowBadge(false)
             }
             val manager = getSystemService(NotificationManager::class.java)
@@ -434,7 +434,7 @@ class ScreenRecordService : Service() {
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Recording Saved!")
-            .setContentText("Gameplay video saved to Movies/NUX-Launcher (${file.name})")
+            .setContentText("Gameplay video saved to Movies/Flux-Launcher (${file.name})")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

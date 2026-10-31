@@ -193,7 +193,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
 
     fun requestStopScreenRecording() {
         ScreenRecordManager.stopRecording(this)
-        Toast.makeText(this, "Recording stopped and saved to Movies/NUX-Launcher!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Recording stopped and saved to Movies/Flux-Launcher!", Toast.LENGTH_SHORT).show()
     }
 
     private val liveLogs = mutableStateListOf<String>()
@@ -566,7 +566,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
 
         try {
             LoggerBridge.start(logFile.absolutePath)
-            LoggerBridge.appendTitle("NUX Launcher Game Session")
+            LoggerBridge.appendTitle("Flux Launcher Game Session")
             LoggerBridge.append("▷ Starting $instanceName ($mcVersion) on $runtimeName")
         } catch (e: Throwable) {
             liveLogs.add("[LoggerBridge Init] ${e.message}")
@@ -666,7 +666,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                 val gameDir = File(gameDirPath)
                 val assetsDir = File(assetsDirPath)
 
-                liveLogs.add("[NUX Launcher] Menyiapkan environment JVM...")
+                liveLogs.add("[Flux Launcher] Menyiapkan environment JVM...")
 
                 val activeSettings = SettingsManager.settings.value
                 val (targetWidth, targetHeight) = getScaledDisplayDimensions()
@@ -1137,7 +1137,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                 jvmArgs.add("-Dos.name=Linux")
                 jvmArgs.add("-Dos.version=Android-${Build.VERSION.RELEASE}")
                 jvmArgs.add("-Duser.home=${gameDir.parentFile?.absolutePath ?: gameDir.absolutePath}")
-                jvmArgs.add("-Dnet.minecraft.clientmodname=NUX-Launcher")
+                jvmArgs.add("-Dnet.minecraft.clientmodname=Flux-Launcher")
                 jvmArgs.add("-Dlog4j2.formatMsgNoLookups=true")
                 jvmArgs.add("-Djava.rmi.server.useCodebaseOnly=true")
                 jvmArgs.add("-Dcom.sun.jndi.rmi.object.trustURLCodebase=false")

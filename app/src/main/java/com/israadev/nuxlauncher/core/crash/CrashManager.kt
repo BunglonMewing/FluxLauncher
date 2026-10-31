@@ -35,7 +35,7 @@ data class GameCrashInfo(
 
     fun getDisplayTitle(): String {
         return if (isLauncherCrash) {
-            "NUX LAUNCHER CRASH"
+            "FLUX LAUNCHER CRASH"
         } else {
             "MINECRAFT MENGALAMI CRASH"
         }
@@ -216,14 +216,14 @@ object CrashManager {
             val launcherCrashFile = File(filesDir, "launcher-crash.txt")
             val stackTrace = android.util.Log.getStackTraceString(throwable)
             launcherCrashFile.writeText(
-                "=== NUX Launcher Crash Report ===\n" +
+                "=== Flux Launcher Crash Report ===\n" +
                 "Time: ${java.text.DateFormat.getDateTimeInstance().format(java.util.Date())}\n" +
                 "Device: ${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL} (Android ${android.os.Build.VERSION.RELEASE})\n\n" +
                 stackTrace
             )
 
             val crashInfo = GameCrashInfo(
-                instanceName = "NUX Launcher",
+                instanceName = "Flux Launcher",
                 mcVersion = "App",
                 exitCode = -1,
                 isSignal = false,

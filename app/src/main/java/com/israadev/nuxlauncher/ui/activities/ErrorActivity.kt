@@ -468,7 +468,7 @@ private fun CrashDetailCard(
                 letterSpacing = 0.5.sp
             )
             Text(
-                text = if (isLauncherCrash) "Aplikasi NUX Launcher Android" else "$instanceName (Minecraft $mcVersion)",
+                text = if (isLauncherCrash) "Aplikasi Flux Launcher Android" else "$instanceName (Minecraft $mcVersion)",
                 color = NuxColors.DarkGray,
                 fontWeight = FontWeight.Black,
                 fontSize = 12.5.sp

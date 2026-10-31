@@ -26,7 +26,7 @@ untuk tahu "di mana mengubah apa" dan "apa yang sudah diubah".
 | Bahasa | Kotlin + sedikit Java (Bridge SDL/LWJGL) |
 | UI | 100% Jetpack Compose, Material 3 |
 | Package / applicationId | `com.israadev.nuxlauncher` (**sengaja belum di-rename**) |
-| Root project Gradle | `NUX-Launcher-Android` (**sengaja belum di-rename**) |
+| Root project Gradle | `Flux-Launcher-Android` |
 | versionName / versionCode | 1.1.5 / 16 |
 | compileSdk / targetSdk / minSdk | 37 / 34 / 26 |
 | AGP / Gradle / Kotlin | 9.3.0 / 9.5.0 / 2.4.10 |
@@ -152,6 +152,8 @@ Format: `ID | Tanggal | Area | File | Perubahan | Alasan`
 | CI-003 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | `TAG` nama APK di-sanitasi (`tr '/ ' '--'`) sebelum dipakai di path | Branch ber-`/` membuat `cp` gagal dengan *No such file or directory* |
 | CI-002 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Paket SDK jadi `platforms;android-37.0` (fallback `android-37`) | Id `android-37` tidak ada di repo SDK → warning tiap build |
 | CI-001 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Workflow build Android: debug+release, artifact 14 hari, publish ke GitHub Release saat tag `v*`; JDK 21, SDK 37, `chmod +x gradlew` | Build otomatis tanpa setup lokal |
+| FLX-009 | 2026-10-31 | Auth | `ui/screens/AuthScreen.kt` | Rombak total alur login: hanya input Username tanpa akun/password/OTP/lisensi | Login instan langsung ke dashboard |
+| FLX-008 | 2026-10-31 | Branding | `settings.gradle.kts`, `res/values/strings.xml`, `AndroidManifest.xml`, `lang/*.json`, `res/drawable/nux_icon.png`, `res/mipmap-*/` | Merombak nama aplikasi, manifest alias, i18n, serta icon/logo ke Flux Launcher | Transformasi identitas produk ke Flux Launcher |
 | FLX-007 | 2026-10-31 | UI | `ui/components/NuxComponents.kt` | `FluxPill` & `FluxIconButton` tidak lagi pakai `clickable(indication=…)`; cukup `clickable(onClick=…)` | Overload itu wajib `interactionSource` → `compileDebugKotlin` gagal |
 | FLX-006 | 2026-10-31 | UI | `ui/screens/AuthScreen.kt` | Panel pakai `SurfaceLow` + `OutlineVariant`, segmented control pakai `Background`/`SurfaceHigh`/`Outline`, CTA pakai `OnPrimary` | Menghilangkan gradient ganda, kontras teks CTA naik |
 | FLX-005 | 2026-10-31 | UI | `ui/screens/DashboardScreen.kt` | Frame hijau → `Background`; rail 82dp; kartu utama `SurfaceLow` + 1dp outline; top bar & launch dock jadi surface tonal (bukan gradient); chip loader/versi/JRE pakai `SurfaceHigh` + outline | Konsistensi M3, mengurangi ornamen |
@@ -165,8 +167,8 @@ Format: `ID | Tanggal | Area | File | Perubahan | Alasan`
 
 ## 6. Status Verifikasi
 
-- `./gradlew compileDebugKotlin` **lulus** (Temurin 21 + SDK platform `android-37.0`, repo sudah pernah gagal di CI karena `clickable(indication=…)` → lihat FLX-007).
-- `assembleDebug` **lulus** dan menghasilkan `app/build/outputs/apk/debug/app-debug.apk`. `assembleRelease` belum dijalankan lokal.
+- `./gradlew compileDebugKotlin`, `./gradlew testDebugUnitTest`, dan `./gradlew assembleDebug` **lulus**.
+- Menghasilkan `app/build/outputs/apk/debug/app-debug.apk` (263MB).
 - Sisa output build hanya warning deprecation lama (`Icons.*`, `Locale`), bukan error.
 - Reproduksi lokal cepat: JDK 21 + `ANDROID_HOME` berisi `platforms;android-37.0`, lalu `bash gradlew compileDebugKotlin`.
 

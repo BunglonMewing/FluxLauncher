@@ -63,7 +63,7 @@ object ScreenRecordManager {
     fun getRecordingsDir(): File {
         val moviesDir = File(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES),
-            "NUX-Launcher"
+            "Flux-Launcher"
         )
         if (!moviesDir.exists()) {
             moviesDir.mkdirs()

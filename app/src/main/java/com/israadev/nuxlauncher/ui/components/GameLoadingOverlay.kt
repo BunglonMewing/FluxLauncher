@@ -259,7 +259,7 @@ fun GameLoadingOverlay(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "NUX LAUNCHER TIPS",
+                                    text = "FLUX LAUNCHER TIPS",
                                     color = Color(0xFFFBBF24),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 10.sp,
