@@ -117,12 +117,8 @@ fun AuthScreen(
                 .weight(0.38f)
                 .fillMaxHeight()
                 .clip(leftPanelShape)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color(0xFF141722), Color(0xFF0C0E14))
-                    )
-                )
-                .border(1.dp, Color(0x2EFFFFFF), leftPanelShape)
+                .background(NuxColors.SurfaceLow)
+                .border(1.dp, NuxColors.OutlineVariant, leftPanelShape)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // Background Wallpaper with gradient overlay
@@ -141,8 +137,8 @@ fun AuthScreen(
                             Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color(0xFF0C0E14).copy(alpha = 0.8f),
-                                    Color(0xFF0C0E14)
+                                    NuxColors.Background.copy(alpha = 0.8f),
+                                    NuxColors.Background
                                 )
                             )
                         )
@@ -259,12 +255,8 @@ fun AuthScreen(
                 .weight(0.62f)
                 .fillMaxHeight()
                 .clip(rightPanelShape)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(Color(0xFF141722), Color(0xFF0C0E14))
-                    )
-                )
-                .border(1.dp, Color(0x2EFFFFFF), rightPanelShape)
+                .background(NuxColors.SurfaceLow)
+                .border(1.dp, NuxColors.OutlineVariant, rightPanelShape)
         ) {
             Column(
                 modifier = Modifier
@@ -280,8 +272,8 @@ fun AuthScreen(
                             .fillMaxWidth()
                             .height((36.dp).resp())
                             .clip(RoundedCornerShape((9.dp).resp()))
-                            .background(Color(0xFF090B10))
-                            .border(1.dp, Color(0x1AFFFFFF), RoundedCornerShape((9.dp).resp()))
+                            .background(NuxColors.Background)
+                            .border(1.dp, NuxColors.OutlineVariant, RoundedCornerShape((9.dp).resp()))
                             .padding((3.dp).resp())
                     ) {
                         Row(
@@ -294,10 +286,10 @@ fun AuthScreen(
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isLogin) Color(0xFF181C26) else Color.Transparent)
+                                    .background(if (isLogin) NuxColors.SurfaceHigh else Color.Transparent)
                                     .border(
                                         width = if (isLogin) 1.dp else 0.dp,
-                                        color = if (isLogin) Color(0x33FFFFFF) else Color.Transparent,
+                                        color = if (isLogin) NuxColors.Outline else Color.Transparent,
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable {
@@ -321,10 +313,10 @@ fun AuthScreen(
                                     .weight(1f)
                                     .fillMaxHeight()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isRegister) Color(0xFF181C26) else Color.Transparent)
+                                    .background(if (isRegister) NuxColors.SurfaceHigh else Color.Transparent)
                                     .border(
                                         width = if (isRegister) 1.dp else 0.dp,
-                                        color = if (isRegister) Color(0x33FFFFFF) else Color.Transparent,
+                                        color = if (isRegister) NuxColors.Outline else Color.Transparent,
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .clickable {
@@ -473,16 +465,16 @@ fun AuthScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             backgroundColor = NuxColors.ForestGreen,
-                            contentColor = Color.White,
+                            contentColor = NuxColors.OnPrimary,
                             enabled = !isLoading
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(Icons.Default.SportsEsports, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Default.SportsEsports, contentDescription = null, tint = NuxColors.OnPrimary, modifier = Modifier.size(18.dp))
                                 Text(
                                     text = if (isLoading) tr("common.loading") else tr("auth.btn_sign_in"),
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
-                                    color = Color.White
+                                    color = NuxColors.OnPrimary
                                 )
                             }
                         }
@@ -591,16 +583,16 @@ fun AuthScreen(
                             },
                             modifier = Modifier.fillMaxWidth(),
                             backgroundColor = NuxColors.ForestGreen,
-                            contentColor = Color.White,
+                            contentColor = NuxColors.OnPrimary,
                             enabled = !isLoading
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(Icons.Default.PersonAdd, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.PersonAdd, contentDescription = null, tint = NuxColors.OnPrimary, modifier = Modifier.size(16.dp))
                                 Text(
                                     text = if (isLoading) tr("common.loading") else tr("auth.btn_create_account"),
                                     fontWeight = FontWeight.Black,
                                     fontSize = 12.sp,
-                                    color = Color.White
+                                    color = NuxColors.OnPrimary
                                 )
                             }
                         }

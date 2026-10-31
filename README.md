@@ -1,205 +1,286 @@
 <div align="center">
 
-# 🚀 NUX Launcher Android
+# ⚡ FluxLauncher
 
-### *An Unofficial, Modern & Feature-Rich Minecraft Java Edition Launcher for Android*
+### *Minecraft Java Edition launcher untuk Android — Material 3, dibuat untuk main, bukan untuk mainan.*
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Android Version](https://img.shields.io/badge/Android-8.0%2B%20(API%2026%2B)-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0%2B-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
-[![Upstream: ZalithLauncher2](https://img.shields.io/badge/Forked%20From-ZalithLauncher2-purple.svg)](https://github.com/ZalithLauncher/ZalithLauncher2)
-
-> **⚠️ PEMBERITAHUAN RESMI / IMPORTANT NOTICE:**  
-> **NUX Launcher Android adalah proyek independen dan TIDAK RESMI (UNOFFICIAL FORK).**  
-> Proyek ini dibangun dengan mengadaptasi dan memodifikasi basis kode terbuka dari **[ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)** dan **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**.  
-> Proyek ini **TIDAK berafiliasi, didukung, disponsori, atau disetujui** oleh Tim Pengembang Zalith (Movtery & tim), Tim PojavLauncher, Mojang Studios, maupun Microsoft Corporation.
+[![Android](https://img.shields.io/badge/Android-8.0%2B%20(API%2026%2B)-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20%2B%20Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Upstream](https://img.shields.io/badge/Basis%20Kode-ZalithLauncher2-purple.svg)](https://github.com/ZalithLauncher/ZalithLauncher2)
 
 </div>
+
+> **⚠️ CATATAN PENTING**
+> **FluxLauncher adalah proyek independen dan TIDAK RESMI.** Proyek ini dibangun dari basis kode
+> sumber terbuka **[ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)** dan
+> **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** di bawah lisensi
+> **GNU General Public License v3.0 (GPL-3.0)**.
+> FluxLauncher **tidak berafiliasi, tidak didukung, dan tidak disetujui** oleh tim ZalithLauncher,
+> tim PojavLauncher, Mojang Studios, maupun Microsoft Corporation.
 
 ---
 
 ## 📋 Daftar Isi
-- [📜 Kepatuhan Lisensi Open Source (GPL-3.0 Compliance)](#-kepatuhan-lisensi-open-source-gpl-30-compliance)
-- [💖 Ucapan Terima Kasih & Kredit Hulu (Upstream Credits)](#-ucapan-terima-kasih--kredit-hulu-upstream-credits)
-- [✨ Fitur Utama NUX Launcher Android](#-fitur-utama-nux-launcher-android)
-- [🛠️ Arsitektur & Teknologi](#️-arsitektur--teknologi)
-- [📂 Struktur Proyek](#-struktur-proyek)
-- [🚀 Panduan Kompilasi & Build Sendiri](#-panduan-kompilasi--build-sendiri)
-- [🔒 Keamanan & Perlindungan Privasi](#-keamanan--perlindungan-privasi)
-- [⚠️ Penafian Hukum & Merek Dagang (Legal Disclaimer)](#️-penafian-hukum--merek-dagang-legal-disclaimer)
+
+- [Tentang FluxLauncher](#-tentang-fluxlauncher)
+- [Desain Antarmuka (Material 3 + Gaming)](#-desain-antarmuka-material-3--gaming)
+- [Fitur](#-fitur)
+- [Arsitektur & Teknologi](#️-arsitektur--teknologi)
+- [Struktur Proyek](#-struktur-proyek)
+- [Panduan Build](#-panduan-build)
+- [Catatan untuk Kontributor & AI](#-catatan-untuk-kontributor--ai)
+- [Keamanan & Privasi](#-keamanan--privasi)
+- [Kepatuhan Lisensi (GPL-3.0)](#-kepatuhan-lisensi-gpl-30)
+- [Kredit Hulu](#-kredit-hulu-upstream-credits)
+- [Penafian Hukum](#️-penafian-hukum)
 
 ---
 
-## 📜 Kepatuhan Lisensi Open Source (GPL-3.0 Compliance)
+## ⚡ Tentang FluxLauncher
 
-Sebagai turunan dari proyek berlisensi **GNU General Public License v3.0 (GPL-3.0)**:
-1. **100% Sumber Kode Terbuka**: Seluruh kode sumber dari aplikasi client NUX Launcher Android ini dipublikasikan secara utuh dan transparan di repositori publik ini tanpa ada komponen biner/eksekusi inti yang disembunyikan.
-2. **Kebebasan Pengguna (Free Software Freedom)**: Siapa pun bebas menginspeksi, memodifikasi, mengompilasi, dan mendistribusikan ulang kode ini dengan mematuhi ketentuan lisensi GNU GPL v3.
-3. **Inti Peluncur & Game Tetap Gratis**: Fungsi inti peluncur game—termasuk pengunduhan Minecraft Java Edition resmi dari Mojang, manajemen modloader (Fabric, Forge, NeoForge, Quilt), instalasi mod, dan eksekusi runtime Java di Android—bersifat 100% gratis, bebas, dan mandiri.
-4. **Fitur Ekstra / Layanan Cloud**: Fitur premium opsional (seperti skin custom resolver, integrasi cloud backup, dan styling kosmetik profil) hanyalah layanan bernilai tambah independen yang tidak membatasi atau mengunci kebebasan fungsionalitas inti GPL game launcher.
+FluxLauncher menjalankan **Minecraft Java Edition** di Android: unduh versi resmi dari manifest Mojang,
+pasang modloader, kelola instance, lalu mainkan lewat runtime Java + renderer translasi OpenGL.
+Semua fungsi inti gratis dan terbuka.
 
----
+Repositori ini adalah kelanjutan internal dari basis kode ZalithLauncher2/PojavLauncher dengan
+**lapisan antarmuka baru**: Material 3, satu bahasa visual, dan identitas visual bergaya gaming yang
+tidak mengorbankan keterbacaan.
 
-## 💖 Ucapan Terima Kasih & Kredit Hulu (Upstream Credits)
-
-Kami menyampaikan rasa hormat dan terima kasih sebesar-besarnya kepada para pengembang pionir di komunitas open source Minecraft Android:
-
-- **[ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)** — Dibuat oleh **Movtery** dan para kontributor hebat ZalithLauncher. Merupakan basis arsitektur dan sistem runtime Android modern berlisensi **GNU GPL-3.0**.
-- **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** — Dibuat oleh **artdeell**, **khanhtran**, dan **PojavLauncherTeam**. Proyek pionir yang memungkinkan eksekusi Minecraft Java Edition di Android menggunakan LWJGL, GLFW, dan Android NDK bridge berlisensi **GNU GPL-3.0**.
-- **[MobileGlues](https://github.com/MobileGlues/MobileGlues)** — Pustaka penerjemah grafis modern (OpenGL ES ke DirectGLES / OpenGL 4.x) untuk eksekusi Minecraft versi modern di Android berlisensi **GNU LGPL-2.1**.
-- **[GL4ES](https://github.com/ptitSeb/gl4es)** — Dibuat oleh **ptitSeb**. Pustaka penerjemah OpenGL ke OpenGL ES berlisensi **MIT**.
-- **[Fold Craft Launcher (FCL)](https://github.com/FCL-Team/FoldCraftLauncher)** — Tim FCL atas inspirasi integrasi modul dan utilitas launcher Minecraft Android berlisensi **GNU GPL-3.0**.
-- **[Ely.by](https://ely.by)** — Atas infrastruktur sistem skin dan autentikasi alternatif komunitas yang stabil.
-- **[Modrinth](https://modrinth.com)** — Atas API publik yang cepat dan bersih untuk penelusuran Mod, Resource Pack, dan Shader komunitas.
-- **[LiveKit](https://livekit.io)** — Infrastruktur WebRTC real-time untuk fitur voice room.
+- **Aplikasi:** FluxLauncher
+- **Repository:** [BunglonMewing/FluxLauncher](https://github.com/BunglonMewing/FluxLauncher)
+- **Package / applicationId:** `com.israadev.nuxlauncher` (identifier internal dipertahankan agar
+  kompatibel dengan data, skin server, dan konfigurasi yang sudah ada)
+- **Versi:** 1.1.5 (versionCode 16)
 
 ---
 
-## ✨ Fitur Utama NUX Launcher Android
+## 🎨 Desain Antarmuka (Material 3 + Gaming)
 
-### 🎮 Antarmuka Pengguna Modern (Next-Gen UI)
-- **100% Jetpack Compose & Material 3**: Tampilan modern, bersih, dan bertema gelap (*Dark Tech Gaming Aesthetics*) dengan transisi halus dan animasi berkinerja tinggi.
-- **Label Unofficial Transparan**: Dilengkapi dengan tanda pengenal transparan dan layar *About & Lisensi* lengkap demi menjunjung etika dan transparansi kepada komunitas open source.
-- **Responsif**: Dioptimalkan untuk ponsel pintar, perangkat layar lipat (*foldable*), tablet, dan emulator Android.
+Flux memakai sistem desain **"Reactor"**: Material 3 murni, dengan detail HUD secukupnya.
 
-### ⚡ Mesin Eksekusi & Graphics Renderer Canggih
-- **Multi-Java Runtime**: Dukungan Java Runtime Environment terisolasi (**Java 8, Java 17, hingga Java 21**) untuk kompatibilitas versi Minecraft lama (1.7 - 1.16) maupun rilis modern (1.17 - 1.21+).
-- **Pilihan Graphics Backend Lengkap**:
-  - **MobileGlues (DirectGLES / OpenGL 4.0 - 4.6)**: Pilihan utama untuk Minecraft modern dengan performa tinggi.
-  - **Holy GL4ES**: Sangat stabil untuk versi lama dan perangkat dengan kompatibilitas GLES 2/3 terbatas.
-  - **VirGL / Zink / ANGLE**: Rendering berbasis Vulkan dan Gallium untuk GPU Adreno (Turnip driver) dan Mali.
-- **Kustomisasi Runtime**: Alokasi RAM fleksibel, flag optimasi JVM kustom, batas FPS, dan skala resolusi render layar dinamis.
+**Prinsip**
+1. **Surface tonal, bukan gradient bertumpuk.** Kedalaman dibentuk lewat tangga surface
+   (`#070A08` → `#0E1411` → `#19231C` → `#1F2A22`) dan outline tipis 1dp.
+2. **Satu aksen utama.** Primary emerald `#10C98A`. Aksen lain hanya untuk status (amber) dan error.
+3. **Detail gaming tanpa ornamen.** Chip metadata memakai sudut terpotong (*dog-tag*) dan label
+   monospace (`FABRIC`, `JRE 21`, `1.21.4`) — bahasa visual HUD, bukan stiker.
+4. **Navigasi jelas.** Navigation rail Material 3 dengan indikator pill, label selalu terlihat.
 
-### 📦 Manajemen Versi, Mod & Instance
-- **Pemasang Modloader 1-Klik**: Instalasi instan dan otomatis untuk **Fabric**, **Forge**, **NeoForge**, dan **Quilt**.
-- **Integrasi API Modrinth**: Cari, unduh, dan pasang ribuan Mod, Modpack, Resource Pack, serta Shaderpack langsung dari dalam aplikasi tanpa perlu browser eksternal.
-- **Multi-Instance Terisolasi**: Buat profil permainan terpisah dengan versi dan set mod yang berbeda tanpa tumpang tindih.
+**Peta file desain**
 
-### 🕹️ Kontrol Sentuh Kustom & Gamepad
-- **Visual Control Editor**: Atur posisi, ukuran, transparansi, warna, dan pemetaan tombol virtual di layar dengan presisi tinggi.
-- **Emulasi Mouse & Giroskop**: Kontrol kursor dan pembidikan menggunakan drag sentuh atau sensor giroskop perangkat.
-- **Dukungan Controller / Gamepad Fisik**: Kompatibel dengan controller Bluetooth dan USB OTG (Xbox, PlayStation DualShock/DualSense, dan controller generic).
+| File | Isi |
+|---|---|
+| `ui/theme/NuxDesignTokens.kt` | Palet `NuxColors` + `NuxSizes` (satu-satunya sumber warna) |
+| `ui/theme/FluxTheme.kt` | `FluxNuxTheme`: ColorScheme, Typography, Shapes Material 3 |
+| `ui/components/NuxComponents.kt` | `NuxCard`, `NuxButton`, `NuxBadge`, `NuxTextField`, `NuxDialog`, `FluxPill`, `FluxIconButton` |
+| `ui/components/NuxSidebar.kt` | Navigation rail |
+| `ui/screens/DashboardScreen.kt` | Shell: rail, hero banner, top bar, launch dock |
 
-### 👥 Fitur Komunitas & Autentikasi
-- **Dukungan Akun Resmi Microsoft**: Login aman menggunakan OAuth Microsoft resmi.
-- **Dukungan Akun Ely.by & Akun Offline**: Login skin alternatif atau pengujian lokal tanpa internet.
-- **Status Bermain & Komunitas**: Indikator status real-time untuk bermain bersama teman.
+Detail token, guardrail, dan riwayat perubahan ada di **[AI_NOTES.md](AI_NOTES.md)**.
+
+---
+
+## ✨ Fitur
+
+### 🎮 Antarmuka
+- 100% Jetpack Compose + Material 3, tema gelap "Reactor Graphite".
+- Layout landscape adaptif: ponsel, foldable, tablet, dan emulator (skala DPI otomatis).
+- Hero banner dinamis: gambar bawaan atau video latar pilihan sendiri (maks. 20 detik) dengan rotasi.
+- Dialog seragam untuk seluruh alur (instance, renderer, akun, unduhan, crash, lisensi).
+
+### ⚡ Runtime & Renderer
+- **Multi-Java Runtime** (Java 8, 17, 21) dengan pemilihan otomatis sesuai versi Minecraft.
+- **Renderer:** MobileGlues (DirectGLES), Holy GL4ES, VirGL, Zink, serta ANGLE — tinggal pilih profil.
+- Alokasi RAM, initial heap, argumen JVM kustom, rasio resolusi render, dan batas performa.
+
+### 📦 Instance, Mod & Konten
+- **Multi-instance terisolasi** — versi & set mod terpisah tanpa tumpang tindih.
+- **Modloader 1-klik**: Fabric, Forge, NeoForge, Quilt.
+- **Integrasi Modrinth**: cari & pasang mod, modpack, resource pack, shader, datapack dari dalam app.
+- Import file `.jar` / `.mrpack` / `.zip` langsung dari file manager (*open with*).
+
+### 🕹️ Kontrol
+- Editor kontrol visual: posisi, ukuran, transparansi, warna, dan keycode per tombol.
+- Emulasi mouse sentuh + giroskop; dukungan gamepad Bluetooth/USB (Xbox, PlayStation, generic).
+- Dukungan mouse fisik.
+
+### 👥 Akun & Komunitas
+- Login **Microsoft OAuth 2.0** resmi, **Ely.by**, dan akun offline.
+- Wardrobe skin, profil launcher (username & avatar), presence "in-game".
+- Voice room berbasis LiveKit dan daftar teman.
+
+### 🧰 Utilitas
+- AI assistant bawaan untuk bantuan & analisis crash.
+- Perekam layar in-game (resolusi & FPS dapat diatur).
+- Cek update APK otomatis + pengumuman dari server.
 
 ---
 
 ## 🛠️ Arsitektur & Teknologi
 
-| Lapisan | Komponen & Teknologi |
+| Lapisan | Teknologi |
 |---|---|
-| **Bahasa Pemrograman** | Kotlin 2.0+, Java (OpenJDK 8/17/21) |
-| **User Interface** | Jetpack Compose, Material 3, Compose Navigation, Coroutine Flows |
-| **Mesin Render & Native** | Android NDK (C/C++), JNI Bridge, MobileGlues, GL4ES, LWJGL Mobile |
-| **Jaringan & Unduhan** | OkHttp 4, Gson, Custom Dns Resolver (`NuxDns`) |
-| **Autentikasi Akun** | Microsoft OAuth 2.0 PKCE, Ely.by Authlib, Firebase REST Client |
-| **Voice Streaming** | LiveKit WebRTC via Android WebView Secure Asset Bridge |
+| Bahasa | Kotlin 2.4, Java (bridge SDL/LWJGL), C/C++ native (prebuilt `.so`) |
+| UI | Jetpack Compose, Material 3, Compose Animation, Coroutines/Flow |
+| Runtime | Android NDK bridge, LWJGL Mobile, OpenJDK 8/17/21 |
+| Renderer | MobileGlues, GL4ES, VirGL, Zink, ANGLE, SPIRV-Cross |
+| Jaringan | OkHttp, Gson, resolver DNS kustom |
+| Autentikasi | Microsoft OAuth 2.0 (PKCE), Ely.by Authlib |
+| Voice | LiveKit WebRTC via WebView bridge |
+| Build | AGP 9.3.0, Gradle 9.5.0, Kotlin 2.4.10 |
 
 ---
 
 ## 📂 Struktur Proyek
 
 ```text
-Launcher-Android-Final/
+FluxLauncher/
 ├── app/
-│   ├── src/main/
-│   │   ├── java/com/israadev/nuxlauncher/
-│   │   │   ├── core/
-│   │   │   │   ├── account/      # Manajemen akun (Microsoft, Ely.by, Offline)
-│   │   │   │   ├── auth/         # Autentikasi sesi & validasi lisensi
-│   │   │   │   ├── controls/     # Tata letak & pemrosesan input sentuh/gamepad
-│   │   │   │   ├── download/     # Engine pengunduh aset Minecraft & pustaka JVM
-│   │   │   │   ├── game/         # Pengelola siklus hidup proses game Minecraft
-│   │   │   │   ├── instance/     # Manajemen profil instance & direktori game
-│   │   │   │   ├── launch/       # Penyusun argumen baris perintah peluncuran JVM
-│   │   │   │   ├── mods/         # Integrasi API Modrinth & pengelola modpack
-│   │   │   │   ├── network/      # NuxConfig, DNS kustom, dan utilitas HTTP
-│   │   │   │   ├── renderer/     # Konfigurasi backend grafis (MobileGlues, GL4ES, Zink)
-│   │   │   │   ├── runtime/      # Manajemen paket Java Runtime (OpenJDK 8/17/21)
-│   │   │   │   ├── social/       # Chat real-time, status teman & voice room
-│   │   │   │   └── update/       # Pengecekan pembaruan APK otomatis
-│   │   │   └── ui/
-│   │   │       ├── components/   # Komponen atomik Jetpack Compose
-│   │   │       ├── dialogs/      # Dialog kustom (Add Instance, About, Renderer Config)
-│   │   │       ├── screens/      # Layar utama (Dashboard, Akun, Mods, Pengaturan, dsb.)
-│   │   │       └── theme/        # Skema tema warna Material 3 & tipografi
-│   │   ├── assets/               # Aset statis & jembatan LiveKit WebRTC
-│   │   └── AndroidManifest.xml   # Konfigurasi permission & aktivitas Android
-│   └── build.gradle.kts          # Konfigurasi Gradle modul app
-├── local.properties.example      # Template konfigurasi rahasia untuk developer
-├── LICENSE                       # Salinan teks lengkap lisensi GNU GPL-3.0
-└── README.md                     # Dokumentasi resmi proyek
+│   ├── build.gradle.kts
+│   ├── libs/                          # AAR/JAR native (LWJGL, GL4ES, SDL, Zink, OpenAL)
+│   └── src/main/
+│       ├── AndroidManifest.xml
+│       ├── assets/                    # Aset statis & jembatan LiveKit
+│       ├── jniLibs/arm64-v8a/         # Library native (.so)
+│       ├── res/                       # Tema window, ikon, drawable
+│       └── java/
+│           ├── com/israadev/nuxlauncher/
+│           │   ├── MainActivity.kt        # Auth gate → Dashboard
+│           │   ├── GameActivity.kt        # Surface game & input
+│           │   ├── core/                  # Logika: account, auth, download, launch,
+│           │   │                          #   instance, mods, renderer, runtime, social,
+│           │   │                          #   crash, settings, update, skin, recorder
+│           │   └── ui/
+│           │       ├── theme/             # NuxDesignTokens, FluxTheme, NuxResponsive
+│           │       ├── components/        # NuxCard, NuxButton, NuxSidebar, PlayerSkin, ...
+│           │       ├── screens/           # Dashboard, Auth, Accounts, Mods, AI, Settings, Friends
+│           │       ├── dialogs/           # 19 dialog (instance, renderer, akun, crash, ...)
+│           │       ├── control/           # Layout mouse & kontrol in-game
+│           │       └── activities/        # ErrorActivity
+│           ├── com/movtery/...            # Bridge ZalithLauncher (SDL, input, native)
+│           └── org/lwjgl, org/libsdl      # Bridge LWJGL/GLFW & SDL
+├── AI_NOTES.md                        # Peta kode, design system, change log untuk AI
+├── gradle/libs.versions.toml
+├── local.properties.example
+├── LICENSE                            # GPL-3.0
+└── README.md
 ```
 
 ---
 
-## 🚀 Panduan Kompilasi & Build Sendiri
+## 🚀 Panduan Build
 
-### Prasyarat Pengembangan
-1. **Android Studio**: Android Studio Ladybug (2024.2.1) atau versi lebih baru disarankan.
-2. **Java Development Kit (JDK)**: JDK 17 (disarankan Eclipse Temurin atau OpenJDK bawaan Android Studio).
-3. **Android SDK**:
-   - Compile SDK: `37`
-   - Target SDK: `34`
-   - Min SDK: `26` (Android 8.0 Oreo ke atas)
-4. **Android NDK**: NDK r25+ untuk mengompilasi jembatan native C/C++.
+### Prasyarat
 
-### Langkah-Langkah Kompilasi:
+| Kebutuhan | Versi |
+|---|---|
+| Android Studio | Ladybug (2024.2.1) atau lebih baru |
+| JDK | 17 |
+| Android SDK | compileSdk `37`, targetSdk `34`, minSdk `26` |
+| Android NDK | r25+ (hanya bila menyentuh kode native) |
+| Perangkat/emulator | arm64-v8a (satu-satunya ABI yang dibundel) |
 
-1. **Clone Repositori**:
+### Langkah
+
+1. **Clone**
    ```bash
-   git clone https://github.com/IsraaDeveloper/nuxlabs.git
-   cd nuxlabs
+   git clone https://github.com/BunglonMewing/FluxLauncher.git
+   cd FluxLauncher
    ```
 
-2. **Siapkan `local.properties`**:
-   Salin file `local.properties.example` menjadi `local.properties`:
+2. **Siapkan `local.properties`**
    ```bash
    cp local.properties.example local.properties
    ```
-   Buka file `local.properties` dan tentukan lokasi direktori Android SDK Anda:
+   Isi lokasi Android SDK:
    ```properties
-   sdk.dir=C\:\\Users\\NamaUser\\AppData\\Local\\Android\\Sdk
-
-   # Opsional: Tentukan server kustom Anda jika menggunakan server sendiri
-   # nux.server.url=https://domain-server-anda.com
+   sdk.dir=/path/ke/Android/Sdk
    ```
 
-3. **Kompilasi APK (Debug Build)**:
-   - **Windows (Command Prompt / PowerShell)**:
-     ```cmd
-     .\gradlew.bat assembleDebug
-     ```
-   - **Linux / macOS**:
-     ```bash
-     chmod +x gradlew
-     ./gradlew assembleDebug
-     ```
+   Opsional, kalau memakai server sendiri:
+   ```properties
+   # nux.server.url=https://domain-server-anda.com
+   # nux.server.api.key=...
+   ```
 
-4. **Hasil Kompilasi File APK**:
-   File APK hasil kompilasi akan berada di:
+3. **Build debug**
+   ```bash
+   ./gradlew assembleDebug
+   ```
+   Windows:
+   ```cmd
+   gradlew.bat assembleDebug
+   ```
+
+4. **Hasil**
    ```text
    app/build/outputs/apk/debug/app-debug.apk
    ```
 
----
-
-## 🔒 Keamanan & Perlindungan Privasi
-
-- **Pemisahan Kredensial (Zero Leaks)**: Seluruh rahasia, signature key, dan variabel environment terisolasi di luar git history dan diamankan oleh file `.gitignore`.
-- **Koneksi Terenkripsi**: Semua transmisi data akun, mod, dan unduhan aset game dienkripsi menggunakan protokol HTTPS/TLS modern.
-- **Kepatuhan Privasi Data**: NUX Launcher tidak pernah mencatat atau menyimpan kata sandi akun Microsoft Anda; proses autentikasi ditangani langsung melalui jendela login resmi Microsoft OAuth.
+> Build release saat ini memakai signing config debug (`isMinifyEnabled = false`). Untuk distribusi
+> publik, siapkan keystore sendiri dan jangan pernah commit file keystore.
 
 ---
 
-## ⚠️ Penafian Hukum & Merek Dagang (Legal Disclaimer)
+## 🤖 Catatan untuk Kontributor & AI
+
+- Semua warna, radius, dan tipografi berasal dari `ui/theme/`. Jangan menulis hex baru di screen.
+- Gunakan komponen yang sudah ada (`NuxCard`, `NuxButton`, `NuxBadge`, `NuxTextField`, `NuxDialog`)
+  sebelum membuat yang baru.
+- Perubahan visual **tidak boleh** mengubah logika di `core/` (launch, download, auth, renderer).
+- Setiap perubahan UI dicatat satu baris di `AI_NOTES.md` (bagian Change Log).
+- Teks UI memakai `tr("key")` / `trStr("key", ...)` agar tetap multi-bahasa.
+
+---
+
+## 🔒 Keamanan & Privasi
+
+- **Tanpa commit rahasia**: API key server dan AI dibaca dari `local.properties` (tidak masuk git).
+- **Tidak menyimpan password**: autentikasi Microsoft berjalan di halaman resmi Microsoft (OAuth).
+- **HTTPS/TLS** untuk seluruh komunikasi akun, katalog mod, dan unduhan aset.
+- **Izin minimum**: storage (unduhan & instance), audio (voice room), media (rekam layar).
+
+---
+
+## 📜 Kepatuhan Lisensi (GPL-3.0)
+
+1. **Sumber terbuka penuh** — seluruh kode klien FluxLauncher tersedia di repositori ini.
+2. **Bebas dimodifikasi & didistribusikan ulang** sesuai ketentuan GNU GPL v3.
+3. **Fungsi inti gratis** — unduh Minecraft, modloader, mod, dan runtime Java tidak dikunci.
+4. Fitur tambahan opsional (mis. layanan cloud) tidak membatasi kebebasan fungsional inti GPL.
+
+---
+
+## 💖 Kredit Hulu (Upstream Credits)
+
+- **[ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)** — Movtery & kontributor.
+  Basis arsitektur dan runtime Android modern (GPL-3.0).
+- **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** — artdeell, khanhtran, dan tim.
+  Pelopor eksekusi Minecraft Java di Android via LWJGL/GLFW (GPL-3.0).
+- **[MobileGlues](https://github.com/MobileGlues/MobileGlues)** — penerjemah OpenGL ES → DirectGLES (LGPL-2.1).
+- **[GL4ES](https://github.com/ptitSeb/gl4es)** — ptitSeb. Penerjemah OpenGL → OpenGL ES (MIT).
+- **[Fold Craft Launcher](https://github.com/FCL-Team/FoldCraftLauncher)** — inspirasi integrasi modul (GPL-3.0).
+- **[Ely.by](https://ely.by)** — infrastruktur skin & autentikasi komunitas.
+- **[Modrinth](https://modrinth.com)** — API publik katalog mod, resource pack, dan shader.
+- **[LiveKit](https://livekit.io)** — infrastruktur WebRTC untuk voice room.
+
+---
+
+## ⚠️ Penafian Hukum
 
 - **BUKAN PRODUK RESMI MINECRAFT.**
 - **NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED WITH MOJANG OR MICROSOFT.**
-- *Minecraft* adalah merek dagang terdaftar milik **Mojang AB / Microsoft Corporation**.
-- Aplikasi ini adalah perangkat lunak pihak ketiga independen. Seluruh aset, file pustaka Java, dan client game Minecraft yang diunduh melalui aplikasi ini diambil langsung dari server distribusi resmi Mojang sesuai dengan lisensi kepemilikan akun pengguna.
-- Proyek ini dirilis dan dilindungi secara legal di bawah ketentuan **GNU General Public License v3.0 (GPL-3.0)**.
+- *Minecraft* adalah merek dagang **Mojang AB / Microsoft Corporation**.
+- FluxLauncher adalah perangkat lunak pihak ketiga independen. Aset dan file game diunduh langsung
+  dari server distribusi resmi Mojang sesuai lisensi akun pengguna.
+- Proyek ini dirilis di bawah **GNU General Public License v3.0 (GPL-3.0)**.
+
+---
+
+<div align="center">
+
+**FluxLauncher** — fork tidak resmi. Dibuat oleh komunitas, untuk komunitas.
+
+</div>
