@@ -13,7 +13,6 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -30,6 +29,7 @@ import com.israadev.nuxlauncher.core.mods.PendingAddonImport
 import com.israadev.nuxlauncher.core.settings.SettingsManager
 import com.israadev.nuxlauncher.ui.screens.AuthScreen
 import com.israadev.nuxlauncher.ui.screens.DashboardScreen
+import com.israadev.nuxlauncher.ui.theme.FluxNuxTheme
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.israadev.nuxlauncher.ui.theme.NuxResponsiveTheme
 
@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
             val isLoggedIn = launcherUser != null
 
             NuxResponsiveTheme {
-                MaterialTheme {
+                FluxNuxTheme {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = NuxColors.Background

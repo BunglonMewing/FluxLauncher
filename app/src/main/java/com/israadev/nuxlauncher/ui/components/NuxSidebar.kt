@@ -4,18 +4,30 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.Extension
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Psychology
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,11 +40,9 @@ import androidx.compose.ui.unit.sp
 import com.israadev.nuxlauncher.R
 import com.israadev.nuxlauncher.core.auth.AuthUser
 import com.israadev.nuxlauncher.core.models.UserAccount
-import com.israadev.nuxlauncher.core.social.NuxSocialManager
+import com.israadev.nuxlauncher.core.lang.tr
 import com.israadev.nuxlauncher.ui.theme.NuxColors
 import com.israadev.nuxlauncher.ui.theme.resp
-
-import com.israadev.nuxlauncher.core.lang.tr
 
 data class NuxNavItem(
     val id: String,
@@ -49,7 +59,11 @@ val NUX_NAV_ITEMS = listOf(
 )
 
 /**
- * NUX Black Sidebar with right-side radius and flush left side, matching reference screenshot
+ * Navigation rail gaya Material 3: indikator pill di belakang ikon aktif,
+ * label selalu terlihat, dan pemisah tipis sebelum tombol About.
+ *
+ * Sengaja tanpa gradient dan tanpa border ganda — kedalaman dibentuk oleh
+ * surface tonal + satu indikator primary.
  */
 @Composable
 fun NuxSidebar(
@@ -61,110 +75,133 @@ fun NuxSidebar(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    val sidebarShape = RoundedCornerShape(
-        topStart = 0.dp,
-        bottomStart = 0.dp,
-        topEnd = (24.dp).resp(),
-        bottomEnd = (24.dp).resp()
+    val railShape = RoundedCornerShape(
+        topEnd = (28.dp).resp(),
+        bottomEnd = (28.dp).resp()
     )
 
     Column(
         modifier = modifier
             .fillMaxHeight()
-            .clip(sidebarShape)
-            .background(Color(0xFF101216), sidebarShape)
-            .padding(top = (10.dp).resp(), bottom = (10.dp).resp(), start = (6.dp).resp(), end = (6.dp).resp()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+            .clip(railShape)
+            .background(NuxColors.SurfaceLow)
+            .border(1.dp, NuxColors.OutlineVariant, railShape)
+            .padding(top = (12.dp).resp(), bottom = (12.dp).resp()),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // TOP BRAND LOGO (Official NUX Icon)
-        val logoShape = RoundedCornerShape((10.dp).resp())
+        // Brand mark
+        val logoShape = RoundedCornerShape((14.dp).resp())
         Box(
             modifier = Modifier
-                .size((36.dp).resp())
+                .size((44.dp).resp())
                 .clip(logoShape)
-                .background(Color(0xFF181A20))
-                .border(1.dp, Color(0x26FFFFFF), logoShape)
+                .background(NuxColors.SurfaceHigh)
+                .border(1.dp, NuxColors.OutlineVariant, logoShape)
                 .clickable { onTabSelected("home") },
             contentAlignment = Alignment.Center
         ) {
             Image(
                 painter = painterResource(id = R.drawable.nux_icon),
-                contentDescription = "NUX Logo",
-                modifier = Modifier.size((24.dp).resp())
+                contentDescription = "Flux Launcher",
+                modifier = Modifier.size((26.dp).resp())
             )
         }
 
-        Spacer(modifier = Modifier.height((6.dp).resp()))
+        Spacer(modifier = Modifier.height((16.dp).resp()))
 
-        // CENTER: NAV ITEMS (Icon + Label)
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(scrollState),
-            verticalArrangement = Arrangement.spacedBy((8.dp).resp()),
+            verticalArrangement = Arrangement.spacedBy((4.dp).resp()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             NUX_NAV_ITEMS.forEach { item ->
                 val isSelected = activeTab == item.id
-                val pillShape = RoundedCornerShape((14.dp).resp())
-
-                Column(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape((10.dp).resp()))
-                        .clickable { onTabSelected(item.id) }
-                        .padding(horizontal = (2.dp).resp(), vertical = (2.dp).resp()),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(width = (44.dp).resp(), height = (26.dp).resp())
-                            .background(
-                                color = if (isSelected) NuxColors.ForestGreen else Color.Transparent,
-                                shape = pillShape
-                            )
-                            .clip(pillShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = item.icon,
-                            contentDescription = tr(item.labelKey),
-                            tint = if (isSelected) Color(0xFF09090B) else Color(0xFFA1A1AA),
-                            modifier = Modifier.size((17.dp).resp())
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height((3.dp).resp()))
-
-                    Text(
-                        text = tr(item.labelKey),
-                        color = if (isSelected) NuxColors.ForestGreen else Color(0xFFA1A1AA),
-                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
-                        fontSize = (8.5.sp).resp(),
-                        maxLines = 1
-                    )
-                }
+                NuxRailItem(
+                    item = item,
+                    isSelected = isSelected,
+                    onClick = { onTabSelected(item.id) }
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height((6.dp).resp()))
+        Spacer(modifier = Modifier.height((10.dp).resp()))
 
-        // BOTTOM: INFO (i) ICON
+        // Divider tipis sebelum About
         Box(
             modifier = Modifier
-                .size((28.dp).resp())
+                .width((28.dp).resp())
+                .height(1.dp)
+                .background(NuxColors.OutlineVariant)
+        )
+
+        Spacer(modifier = Modifier.height((10.dp).resp()))
+
+        Box(
+            modifier = Modifier
+                .size((36.dp).resp())
                 .clip(CircleShape)
-                .background(Color(0xFF181A20))
-                .border(1.dp, Color(0x33FFFFFF), CircleShape)
+                .background(NuxColors.SurfaceElevated)
+                .border(1.dp, NuxColors.OutlineVariant, CircleShape)
                 .clickable { onOpenAbout() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Outlined.Info,
                 contentDescription = "About & License",
-                tint = Color(0xFFA1A1AA),
-                modifier = Modifier.size((15.dp).resp())
+                tint = NuxColors.GrayNeutral,
+                modifier = Modifier.size((17.dp).resp())
             )
         }
+    }
+}
+
+/**
+ * Satu baris navigasi rail: pill indikator + ikon + label.
+ */
+@Composable
+private fun NuxRailItem(
+    item: NuxNavItem,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val indicatorShape = RoundedCornerShape((16.dp).resp())
+    val iconColor = if (isSelected) NuxColors.OnPrimary else NuxColors.GrayNeutral
+    val labelColor = if (isSelected) NuxColors.MintGreen else NuxColors.GrayNeutral
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = (6.dp).resp())
+            .clip(RoundedCornerShape((12.dp).resp()))
+            .clickable(onClick = onClick)
+            .padding(vertical = (3.dp).resp()),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = (52.dp).resp(), height = (30.dp).resp())
+                .clip(indicatorShape)
+                .background(if (isSelected) NuxColors.ForestGreen else Color.Transparent, indicatorShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = tr(item.labelKey),
+                tint = iconColor,
+                modifier = Modifier.size((19.dp).resp())
+            )
+        }
+
+        Spacer(modifier = Modifier.height((2.dp).resp()))
+
+        Text(
+            text = tr(item.labelKey),
+            color = labelColor,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+            fontSize = (9.sp).resp(),
+            maxLines = 1
+        )
     }
 }

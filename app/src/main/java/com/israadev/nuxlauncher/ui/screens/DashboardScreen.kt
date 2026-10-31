@@ -74,6 +74,7 @@ import com.israadev.nuxlauncher.core.announcement.AnnouncementManager
 import com.israadev.nuxlauncher.core.announcement.NuxAnnouncement
 import com.israadev.nuxlauncher.ui.dialogs.NuxAnnouncementDialog
 import com.israadev.nuxlauncher.ui.theme.NuxColors
+import com.israadev.nuxlauncher.ui.theme.NuxSizes
 import com.israadev.nuxlauncher.ui.theme.resp
 import com.israadev.nuxlauncher.ui.theme.LocalNuxScale
 import com.israadev.nuxlauncher.core.lang.tr
@@ -227,11 +228,11 @@ fun DashboardScreen() {
             modifier = Modifier.fillMaxSize()
         )
     } else {
-        // Outer Container: NUX Launcher Cyber-Emerald Green space
+        // Outer Container: Flux surface — rail dan konten duduk di atas background M3
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(NuxColors.ForestGreen)
+                .background(NuxColors.Background)
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
@@ -251,7 +252,7 @@ fun DashboardScreen() {
                     currentAccount = currentAccount,
                     launcherUser = launcherUser,
                     modifier = Modifier
-                        .width((64.dp).resp())
+                        .width((82.dp).resp())
                         .fillMaxHeight()
                 )
 
@@ -264,10 +265,10 @@ fun DashboardScreen() {
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
-                        .padding(top = (8.dp).resp(), bottom = (8.dp).resp(), end = (8.dp).resp())
+                        .padding(top = (10.dp).resp(), bottom = (10.dp).resp(), end = (10.dp).resp())
                         .clip(mainCardShape)
-                        .background(Color(0xFF09090B), mainCardShape)
-                        .border(2.dp, Color(0xFF14171E), mainCardShape)
+                        .background(NuxColors.SurfaceLow, mainCardShape)
+                        .border(1.dp, NuxColors.OutlineVariant, mainCardShape)
                 ) {
                     val hasValidHeroVideo = launcherSettings.heroAnimationEnabled &&
                             launcherSettings.heroAnimationVideoPath.isNotBlank() &&
@@ -380,23 +381,12 @@ fun DashboardScreen() {
                                 val initialLetter = activeUsername.firstOrNull()?.uppercase() ?: "U"
 
                                 Box {
-                                    val accPillShape = RoundedCornerShape((20.dp).resp())
+                                    val accPillShape = NuxSizes.ShapePill
                                     Row(
                                         modifier = Modifier
                                             .clip(accPillShape)
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0xA6181B22), Color(0xBF0E1015))
-                                                ),
-                                                accPillShape
-                                            )
-                                            .border(
-                                                1.dp,
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0x66FFFFFF), Color(0x1F000000))
-                                                ),
-                                                accPillShape
-                                            )
+                                            .background(NuxColors.SurfaceElevated, accPillShape)
+                                            .border(1.dp, NuxColors.OutlineVariant, accPillShape)
                                             .clickable { isAccountDropdownExpanded = true }
                                             .padding(horizontal = (8.dp).resp(), vertical = (5.dp).resp()),
                                         verticalAlignment = Alignment.CenterVertically,
@@ -516,23 +506,12 @@ fun DashboardScreen() {
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy((8.dp).resp())
                                 ) {
-                                    val badgeShape = RoundedCornerShape((16.dp).resp())
+                                    val badgeShape = NuxSizes.ShapePill
                                     Box(
                                         modifier = Modifier
                                             .clip(badgeShape)
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0xA6181B22), Color(0xBF0E1015))
-                                                ),
-                                                badgeShape
-                                            )
-                                            .border(
-                                                1.dp,
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0x66FFFFFF), Color(0x1F000000))
-                                                ),
-                                                badgeShape
-                                            )
+                                            .background(NuxColors.SurfaceElevated, badgeShape)
+                                            .border(1.dp, NuxColors.OutlineVariant, badgeShape)
                                             .clickable { showAboutDialog = true }
                                             .padding(horizontal = (10.dp).resp(), vertical = (5.5.dp).resp()),
                                         contentAlignment = Alignment.Center
@@ -566,21 +545,10 @@ fun DashboardScreen() {
                                     val rotateBtnShape = RoundedCornerShape((12.dp).resp())
                                     Box(
                                         modifier = Modifier
-                                            .size((32.dp).resp())
+                                            .size((38.dp).resp())
                                             .clip(rotateBtnShape)
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0xA6181B22), Color(0xBF0E1015))
-                                                ),
-                                                rotateBtnShape
-                                            )
-                                            .border(
-                                                1.dp,
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0x66FFFFFF), Color(0x1F000000))
-                                                ),
-                                                rotateBtnShape
-                                            )
+                                            .background(NuxColors.SurfaceElevated, rotateBtnShape)
+                                            .border(1.dp, NuxColors.OutlineVariant, rotateBtnShape)
                                             .clickable {
                                                 val nextRotation = (launcherSettings.heroAnimationRotation + 90) % 360
                                                 SettingsManager.updateSettings(
@@ -602,21 +570,10 @@ fun DashboardScreen() {
                                     val imgBtnShape = RoundedCornerShape((12.dp).resp())
                                     Box(
                                         modifier = Modifier
-                                            .size((32.dp).resp())
+                                            .size((38.dp).resp())
                                             .clip(imgBtnShape)
-                                            .background(
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0xA6181B22), Color(0xBF0E1015))
-                                                ),
-                                                imgBtnShape
-                                            )
-                                            .border(
-                                                1.dp,
-                                                Brush.verticalGradient(
-                                                    listOf(Color(0x66FFFFFF), Color(0x1F000000))
-                                                ),
-                                                imgBtnShape
-                                            )
+                                            .background(NuxColors.SurfaceElevated, imgBtnShape)
+                                            .border(1.dp, NuxColors.OutlineVariant, imgBtnShape)
                                             .clickable {
                                                 videoPickerLauncher.launch("video/*")
                                             },
@@ -639,24 +596,13 @@ fun DashboardScreen() {
                                     .fillMaxWidth()
                                     .padding(horizontal = (16.dp).resp(), vertical = (12.dp).resp())
                             ) {
-                                val launchBarShape = RoundedCornerShape((32.dp).resp())
+                                val launchBarShape = RoundedCornerShape((24.dp).resp())
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(launchBarShape)
-                                        .background(
-                                            Brush.verticalGradient(
-                                                listOf(Color(0xB3181B22), Color(0xCC0E1015))
-                                            ),
-                                            launchBarShape
-                                        )
-                                        .border(
-                                            1.dp,
-                                            Brush.verticalGradient(
-                                                listOf(Color(0x66FFFFFF), Color(0x1F000000))
-                                            ),
-                                            launchBarShape
-                                        )
+                                        .background(NuxColors.SurfaceElevated, launchBarShape)
+                                        .border(1.dp, NuxColors.OutlineVariant, launchBarShape)
                                         .padding(horizontal = (12.dp).resp(), vertical = (8.dp).resp()),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -746,8 +692,8 @@ fun DashboardScreen() {
                                                     // Version tag
                                                     Box(
                                                         modifier = Modifier
-                                                            .background(Color(0x2EFFFFFF), RoundedCornerShape((8.dp).resp()))
-                                                            .border(1.dp, Color(0x26FFFFFF), RoundedCornerShape((8.dp).resp()))
+                                                            .background(NuxColors.SurfaceHigh, RoundedCornerShape((8.dp).resp()))
+                                                            .border(1.dp, NuxColors.OutlineVariant, RoundedCornerShape((8.dp).resp()))
                                                             .padding(horizontal = (7.dp).resp(), vertical = (2.dp).resp())
                                                     ) {
                                                         Text(
@@ -764,8 +710,8 @@ fun DashboardScreen() {
                                                     val jreLabel = activeRuntime.replace("jre-", "Java ")
                                                     Box(
                                                         modifier = Modifier
-                                                            .background(Color(0x2EFFFFFF), RoundedCornerShape((8.dp).resp()))
-                                                            .border(1.dp, Color(0x26FFFFFF), RoundedCornerShape((8.dp).resp()))
+                                                            .background(NuxColors.SurfaceHigh, RoundedCornerShape((8.dp).resp()))
+                                                            .border(1.dp, NuxColors.OutlineVariant, RoundedCornerShape((8.dp).resp()))
                                                             .padding(horizontal = (7.dp).resp(), vertical = (2.dp).resp())
                                                     ) {
                                                         Text(
@@ -778,7 +724,7 @@ fun DashboardScreen() {
                                                 } else {
                                                     Box(
                                                         modifier = Modifier
-                                                            .background(Color(0x2EFFFFFF), RoundedCornerShape((8.dp).resp()))
+                                                            .background(NuxColors.SurfaceHigh, RoundedCornerShape((8.dp).resp()))
                                                             .padding(horizontal = (7.dp).resp(), vertical = (2.dp).resp())
                                                     ) {
                                                         Text(
