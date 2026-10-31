@@ -9,6 +9,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20%2B%20Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Upstream](https://img.shields.io/badge/Basis%20Kode-ZalithLauncher2-purple.svg)](https://github.com/ZalithLauncher/ZalithLauncher2)
+[![Android Build](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/android-build.yml/badge.svg)](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/android-build.yml)
 
 </div>
 
@@ -221,6 +222,19 @@ FluxLauncher/
 
 > Build release saat ini memakai signing config debug (`isMinifyEnabled = false`). Untuk distribusi
 > publik, siapkan keystore sendiri dan jangan pernah commit file keystore.
+
+### Continuous Integration
+
+Workflow `.github/workflows/android-build.yml` berjalan otomatis:
+
+| Trigger | Yang dilakukan |
+|---|---|
+| Push ke `main` / `feat/**`, PR ke `main`, manual | `assembleDebug` + `assembleRelease`, APK diunggah sebagai artifact (14 hari) |
+| Push tag `v*` | APK yang sama dilampirkan ke GitHub Release |
+
+Catatan: APK release dari CI masih ditandatangani debug keystore, jadi hanya untuk pengujian,
+bukan untuk Play Store. Kalau butuh build bertanda tangan rilis, tambahkan keystore lewat
+repository secrets dan sesuaikan `signingConfig` di `app/build.gradle.kts`.
 
 ---
 

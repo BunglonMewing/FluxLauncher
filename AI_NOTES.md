@@ -42,6 +42,7 @@ untuk tahu "di mana mengubah apa" dan "apa yang sudah diubah".
 
 | Path | Isi | Catatan |
 |---|---|---|
+| `.github/workflows/android-build.yml` | CI build APK + release otomatis | JDK 21, platform 37, artifact `fluxlauncher-apks` |
 | `ui/theme/NuxDesignTokens.kt` | Palet warna (`NuxColors`) + ukuran/shape (`NuxSizes`) | **Sumber tunggal warna.** Nama token lama dipertahankan |
 | `ui/theme/FluxTheme.kt` | `FluxNuxTheme`: ColorScheme + Typography + Shapes M3 | Dipasang di `MainActivity` |
 | `ui/theme/NuxResponsive.kt` | Skala DPI/font otomatis (`resp()`) | Jangan diubah tanpa alasan kuat |
@@ -148,6 +149,7 @@ Format: `ID | Tanggal | Area | File | Perubahan | Alasan`
 
 | ID | Tanggal | Area | File | Perubahan | Alasan |
 |---|---|---|---|---|---|
+| CI-001 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Workflow build Android: debug+release, artifact 14 hari, publish ke GitHub Release saat tag `v*`; JDK 21, SDK 37, `chmod +x gradlew` | Build otomatis tanpa setup lokal |
 | FLX-006 | 2026-10-31 | UI | `ui/screens/AuthScreen.kt` | Panel pakai `SurfaceLow` + `OutlineVariant`, segmented control pakai `Background`/`SurfaceHigh`/`Outline`, CTA pakai `OnPrimary` | Menghilangkan gradient ganda, kontras teks CTA naik |
 | FLX-005 | 2026-10-31 | UI | `ui/screens/DashboardScreen.kt` | Frame hijau → `Background`; rail 82dp; kartu utama `SurfaceLow` + 1dp outline; top bar & launch dock jadi surface tonal (bukan gradient); chip loader/versi/JRE pakai `SurfaceHigh` + outline | Konsistensi M3, mengurangi ornamen |
 | FLX-004 | 2026-10-31 | UI | `ui/components/NuxSidebar.kt` | Sidebar → navigation rail M3 (indikator pill, label selalu tampil, divider About) | Navigasi lebih jelas & sesuai M3 |
