@@ -108,7 +108,7 @@ object UpdateManager {
                 }
 
                 if (changelogText.isBlank()) {
-                    changelogText = "• Official NUX Launcher Android Release\n• Performance Optimizations & Game Sync Improvements"
+                    changelogText = "• Official Flux Launcher Android Release\n• Performance Optimizations & Game Sync Improvements"
                 }
 
                 // Local package info

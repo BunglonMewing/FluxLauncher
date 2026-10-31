@@ -142,7 +142,7 @@ object AICrashAnalyzer {
                         .url(OPENROUTER_ENDPOINT)
                         .addHeader("Authorization", "Bearer $key")
                         .addHeader("HTTP-Referer", "https://nuxlauncher.site")
-                        .addHeader("X-Title", "NUX Launcher")
+                        .addHeader("X-Title", "Flux Launcher")
                         .addHeader("Content-Type", "application/json")
                         .post(payload.toString().toRequestBody("application/json".toMediaType()))
                         .build()
@@ -211,7 +211,7 @@ object AICrashAnalyzer {
         }
 
         val systemPrompt = """
-            Kamu adalah AI Ahli Diagnosa Crash Minecraft Java Edition pada platform Android (NUX Launcher / Pojav runtime).
+            Kamu adalah AI Ahli Diagnosa Crash Minecraft Java Edition pada platform Android (Flux Launcher / Pojav runtime).
             Tugasmu: Analisis error log, metadata versi, mod loader, dan daftar mod yang terpasang dengan teliti.
 
             ATURAN FORMAT OUTPUT WAJIB (Gunakan Pemformatan Markdown):
@@ -224,7 +224,7 @@ object AICrashAnalyzer {
               Gunakan jika masalah berasal dari: bug internal native C/C++ engine peluncur (Pojav/NUX/Zalith), library Android NDK gagal load/missing, DEX error, segmentation fault pada GL4ES/MobileGlues renderer internal tanpa keterlibatan mod rusak, atau uncaught exception launcher itu sendiri.
 
             Jika statusnya **[BUG DEVELOPER / LAUNCHER]**, WAJIB sertakan instruksi ini tepat di bawahnya:
-            > ⚠️ **Buka Tiket Pengaduan:** Masalah ini terindikasi sebagai bug internal peluncur/engine. Silakan laporkan dan buka tiket pengaduan di Discord resmi NUX Launcher: **https://discord.gg/UW4wBQg6X5** dengan menyertakan file log ini agar segera diperbaiki oleh developer.
+            > ⚠️ **Buka Tiket Pengaduan:** Masalah ini terindikasi sebagai bug internal peluncur/engine. Silakan laporkan dan buka tiket pengaduan di Discord resmi Flux Launcher: **https://discord.gg/UW4wBQg6X5** dengan menyertakan file log ini agar segera diperbaiki oleh developer.
 
             ---
 
@@ -378,7 +378,7 @@ object AICrashAnalyzer {
                     .url(OPENROUTER_ENDPOINT)
                     .addHeader("Authorization", "Bearer $currentKey")
                     .addHeader("HTTP-Referer", "https://nuxlauncher.site")
-                    .addHeader("X-Title", "NUX Launcher")
+                    .addHeader("X-Title", "Flux Launcher")
                     .addHeader("Content-Type", "application/json")
                     .post(payload.toString().toRequestBody("application/json".toMediaType()))
                     .build()
@@ -403,7 +403,7 @@ object AICrashAnalyzer {
                                 .url(OPENROUTER_ENDPOINT)
                                 .addHeader("Authorization", "Bearer $currentKey")
                                 .addHeader("HTTP-Referer", "https://nuxlauncher.site")
-                                .addHeader("X-Title", "NUX Launcher")
+                                .addHeader("X-Title", "Flux Launcher")
                                 .addHeader("Content-Type", "application/json")
                                 .post(payload.toString().toRequestBody("application/json".toMediaType()))
                                 .build()

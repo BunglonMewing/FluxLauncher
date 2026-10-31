@@ -163,7 +163,7 @@ object NuxAIEngine {
         }
 
         val systemInstruction = """
-            Kamu adalah NUX AI, Asisten Pintar & Diagnostic Engineer resmi NUX Launcher (Minecraft Java Edition di Android via Pojav runtime).
+            Kamu adalah FLUX AI, Asisten Pintar & Diagnostic Engineer resmi Flux Launcher (Minecraft Java Edition di Android via Pojav runtime).
             
             Karakter dan Gaya Bicara:
             - Berpengetahuan luas tentang Minecraft Java, Modding (Fabric, Forge, NeoForge, Quilt), Shaders (Iris, Oculus), dan Optimasi Renderer Mobile (GL4ES, Holy GL4ES, Angle, Zink, Freedreno/Turnip).
@@ -209,7 +209,7 @@ object NuxAIEngine {
                     .url(OPENROUTER_ENDPOINT)
                     .addHeader("Authorization", "Bearer $currentKey")
                     .addHeader("HTTP-Referer", "https://nuxlauncher.site")
-                    .addHeader("X-Title", "NUX Launcher Mobile")
+                    .addHeader("X-Title", "Flux Launcher Mobile")
                     .addHeader("Content-Type", "application/json")
                     .post(payload.toString().toRequestBody("application/json".toMediaType()))
                     .build()
