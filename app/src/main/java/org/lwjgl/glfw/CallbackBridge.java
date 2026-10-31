@@ -21,7 +21,7 @@ import com.movtery.zalithlauncher.bridge.ZLBridgeStates;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import com.israadev.nuxlauncher.core.game.input.EfficientAndroidLWJGLKeycode;
+import com.israadev.fluxlauncher.core.game.input.EfficientAndroidLWJGLKeycode;
 import com.movtery.zalithlauncher.game.sdl.SdlBridge;
 import org.libsdl.app.SDLActivity;
 import org.libsdl.app.SDLSurface;

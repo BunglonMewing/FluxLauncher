@@ -19,7 +19,7 @@
 package com.movtery.zalithlauncher.game.sdl
 
 import android.view.KeyEvent
-import com.israadev.nuxlauncher.core.game.input.EfficientAndroidLWJGLKeycode
+import com.israadev.fluxlauncher.core.game.input.EfficientAndroidLWJGLKeycode
 import org.libsdl.app.SDLActivity
 
 object SdlTextSender {

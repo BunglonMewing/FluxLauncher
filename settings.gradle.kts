@@ -15,5 +15,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "NUX-Launcher-Android"
+rootProject.name = "FluxLauncher-Android"
 include(":app")

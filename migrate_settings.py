@@ -1,4 +1,4 @@
-path = r'd:\Project\antigravity\NUX-LAUNCHER\Launcher-Android-Final\app\src\main\java\com\israadev\nuxlauncher\ui\screens\SettingsScreen.kt'
+path = r'd:\Project\antigravity\FluxLauncher\FluxLauncher-Android\app\src\main\java\com\israadev\fluxlauncher\ui\screens\SettingsScreen.kt'
 
 with open(path, 'r', encoding='utf-8') as f:
     content = f.read()

@@ -31,7 +31,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 
 import com.movtery.zalithlauncher.game.sdl.SdlBridge;
-import com.israadev.nuxlauncher.core.game.input.TouchCharInput;
+import com.israadev.fluxlauncher.core.game.input.TouchCharInput;
 
 /**
  * SDL 侧软键盘的显式控制器

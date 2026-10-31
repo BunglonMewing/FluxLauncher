@@ -20,11 +20,11 @@ val rawAiApiKey2: String = localProperties.getProperty("nux.ai.api.key2") ?: ""
 val rawAiApiKey3: String = localProperties.getProperty("nux.ai.api.key3") ?: ""
 
 android {
-    namespace = "com.israadev.nuxlauncher"
+    namespace = "com.israadev.fluxlauncher"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.israadev.nuxlauncher"
+        applicationId = "com.israadev.fluxlauncher"
         minSdk = 26
         targetSdk = 34
         versionCode = 16

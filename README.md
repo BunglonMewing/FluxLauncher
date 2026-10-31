@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🚀 NUX Launcher Android
+# 🚀 FluxLauncher Android
 
 ### *An Unofficial, Modern & Feature-Rich Minecraft Java Edition Launcher for Android*
 
@@ -9,11 +9,13 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0%2B-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Upstream: ZalithLauncher2](https://img.shields.io/badge/Forked%20From-ZalithLauncher2-purple.svg)](https://github.com/ZalithLauncher/ZalithLauncher2)
+[![Upstream: FluxLauncher](https://img.shields.io/badge/Forked%20From-NUX%20Launcher-orange.svg)](https://github.com/IsraaDeveloper/nuxlabs)
 
 > **⚠️ PEMBERITAHUAN RESMI / IMPORTANT NOTICE:**  
-> **NUX Launcher Android adalah proyek independen dan TIDAK RESMI (UNOFFICIAL FORK).**  
-> Proyek ini dibangun dengan mengadaptasi dan memodifikasi basis kode terbuka dari **[ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)** dan **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**.  
-> Proyek ini **TIDAK berafiliasi, didukung, disponsori, atau disetujui** oleh Tim Pengembang Zalith (Movtery & tim), Tim PojavLauncher, Mojang Studios, maupun Microsoft Corporation.
+> **FluxLauncher Android adalah proyek independen dan TIDAK RESMI (UNOFFICIAL FORK) yang merupakan kelanjutan dari FluxLauncher Android.**  
+> Proyek ini dikembangkan sebagai fork dari **[FluxLauncher](https://github.com/IsraaDeveloper/nuxlabs)** oleh **IsraaDeveloper**, dengan melakukan perubahan nama, branding, dan penyesuaian fitur menjadi **FluxLauncher**.  
+> Basis kode ini juga dibangun dengan mengadaptasi dan memodifikasi basis kode terbuka dari **[ZalithLauncher2](https://github.com/ZalithLauncher/ZalithLauncher2)** dan **[PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher)** di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**.  
+> Proyek ini **TIDAK berafiliasi, didukung, disponsori, atau disetujui** oleh Tim Pengembang FluxLauncher, Tim Zalith (Movtery & tim), Tim PojavLauncher, Mojang Studios, maupun Microsoft Corporation.
 
 </div>
 
@@ -22,7 +24,7 @@
 ## 📋 Daftar Isi
 - [📜 Kepatuhan Lisensi Open Source (GPL-3.0 Compliance)](#-kepatuhan-lisensi-open-source-gpl-30-compliance)
 - [💖 Ucapan Terima Kasih & Kredit Hulu (Upstream Credits)](#-ucapan-terima-kasih--kredit-hulu-upstream-credits)
-- [✨ Fitur Utama NUX Launcher Android](#-fitur-utama-nux-launcher-android)
+- [✨ Fitur Utama FluxLauncher Android](#-fitur-utama-nux-launcher-android)
 - [🛠️ Arsitektur & Teknologi](#️-arsitektur--teknologi)
 - [📂 Struktur Proyek](#-struktur-proyek)
 - [🚀 Panduan Kompilasi & Build Sendiri](#-panduan-kompilasi--build-sendiri)
@@ -34,7 +36,7 @@
 ## 📜 Kepatuhan Lisensi Open Source (GPL-3.0 Compliance)
 
 Sebagai turunan dari proyek berlisensi **GNU General Public License v3.0 (GPL-3.0)**:
-1. **100% Sumber Kode Terbuka**: Seluruh kode sumber dari aplikasi client NUX Launcher Android ini dipublikasikan secara utuh dan transparan di repositori publik ini tanpa ada komponen biner/eksekusi inti yang disembunyikan.
+1. **100% Sumber Kode Terbuka**: Seluruh kode sumber dari aplikasi client FluxLauncher Android ini dipublikasikan secara utuh dan transparan di repositori publik ini tanpa ada komponen biner/eksekusi inti yang disembunyikan.
 2. **Kebebasan Pengguna (Free Software Freedom)**: Siapa pun bebas menginspeksi, memodifikasi, mengompilasi, dan mendistribusikan ulang kode ini dengan mematuhi ketentuan lisensi GNU GPL v3.
 3. **Inti Peluncur & Game Tetap Gratis**: Fungsi inti peluncur game—termasuk pengunduhan Minecraft Java Edition resmi dari Mojang, manajemen modloader (Fabric, Forge, NeoForge, Quilt), instalasi mod, dan eksekusi runtime Java di Android—bersifat 100% gratis, bebas, dan mandiri.
 4. **Fitur Ekstra / Layanan Cloud**: Fitur premium opsional (seperti skin custom resolver, integrasi cloud backup, dan styling kosmetik profil) hanyalah layanan bernilai tambah independen yang tidak membatasi atau mengunci kebebasan fungsionalitas inti GPL game launcher.
@@ -56,7 +58,7 @@ Kami menyampaikan rasa hormat dan terima kasih sebesar-besarnya kepada para peng
 
 ---
 
-## ✨ Fitur Utama NUX Launcher Android
+## ✨ Fitur Utama FluxLauncher Android
 
 ### 🎮 Antarmuka Pengguna Modern (Next-Gen UI)
 - **100% Jetpack Compose & Material 3**: Tampilan modern, bersih, dan bertema gelap (*Dark Tech Gaming Aesthetics*) dengan transisi halus dan animasi berkinerja tinggi.
@@ -95,7 +97,7 @@ Kami menyampaikan rasa hormat dan terima kasih sebesar-besarnya kepada para peng
 | **Bahasa Pemrograman** | Kotlin 2.0+, Java (OpenJDK 8/17/21) |
 | **User Interface** | Jetpack Compose, Material 3, Compose Navigation, Coroutine Flows |
 | **Mesin Render & Native** | Android NDK (C/C++), JNI Bridge, MobileGlues, GL4ES, LWJGL Mobile |
-| **Jaringan & Unduhan** | OkHttp 4, Gson, Custom Dns Resolver (`NuxDns`) |
+| **Jaringan & Unduhan** | OkHttp 4, Gson, Custom Dns Resolver (`FluxDns`) |
 | **Autentikasi Akun** | Microsoft OAuth 2.0 PKCE, Ely.by Authlib, Firebase REST Client |
 | **Voice Streaming** | LiveKit WebRTC via Android WebView Secure Asset Bridge |
 
@@ -104,10 +106,10 @@ Kami menyampaikan rasa hormat dan terima kasih sebesar-besarnya kepada para peng
 ## 📂 Struktur Proyek
 
 ```text
-Launcher-Android-Final/
+FluxLauncher-Android/
 ├── app/
 │   ├── src/main/
-│   │   ├── java/com/israadev/nuxlauncher/
+│   │   ├── java/com/israadev/fluxlauncher/
 │   │   │   ├── core/
 │   │   │   │   ├── account/      # Manajemen akun (Microsoft, Ely.by, Offline)
 │   │   │   │   ├── auth/         # Autentikasi sesi & validasi lisensi
@@ -117,7 +119,7 @@ Launcher-Android-Final/
 │   │   │   │   ├── instance/     # Manajemen profil instance & direktori game
 │   │   │   │   ├── launch/       # Penyusun argumen baris perintah peluncuran JVM
 │   │   │   │   ├── mods/         # Integrasi API Modrinth & pengelola modpack
-│   │   │   │   ├── network/      # NuxConfig, DNS kustom, dan utilitas HTTP
+│   │   │   │   ├── network/      # FluxConfig, DNS kustom, dan utilitas HTTP
 │   │   │   │   ├── renderer/     # Konfigurasi backend grafis (MobileGlues, GL4ES, Zink)
 │   │   │   │   ├── runtime/      # Manajemen paket Java Runtime (OpenJDK 8/17/21)
 │   │   │   │   ├── social/       # Chat real-time, status teman & voice room
@@ -192,7 +194,7 @@ Launcher-Android-Final/
 
 - **Pemisahan Kredensial (Zero Leaks)**: Seluruh rahasia, signature key, dan variabel environment terisolasi di luar git history dan diamankan oleh file `.gitignore`.
 - **Koneksi Terenkripsi**: Semua transmisi data akun, mod, dan unduhan aset game dienkripsi menggunakan protokol HTTPS/TLS modern.
-- **Kepatuhan Privasi Data**: NUX Launcher tidak pernah mencatat atau menyimpan kata sandi akun Microsoft Anda; proses autentikasi ditangani langsung melalui jendela login resmi Microsoft OAuth.
+- **Kepatuhan Privasi Data**: FluxLauncher tidak pernah mencatat atau menyimpan kata sandi akun Microsoft Anda; proses autentikasi ditangani langsung melalui jendela login resmi Microsoft OAuth.
 
 ---
 
