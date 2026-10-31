@@ -40,10 +40,12 @@ jobs:
           SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
           yes | "$SDKMANAGER" --licenses > /dev/null || true
           "$SDKMANAGER" --install "platform-tools" > /dev/null
-          # compileSdk proyek = 37. Kalau platform belum ada di repo SDK,
-          # biarkan Gradle/AGP yang mengunduhnya (lisensi sudah diterima).
-          "$SDKMANAGER" --install "platforms;android-37" > /dev/null \
-            || echo "::warning::platforms;android-37 tidak tersedia via sdkmanager, mengandalkan SDK auto-download AGP"
+          # compileSdk proyek = 37. Di repo SDK, platform 37 terdaftar sebagai
+          # "android-37.0" (bukan "android-37"), jadi coba id yang benar dulu.
+          # Kalau keduanya tidak ada, biarkan AGP yang mengunduh (lisensi sudah diterima).
+          "$SDKMANAGER" --install "platforms;android-37.0" > /dev/null \
+            || "$SDKMANAGER" --install "platforms;android-37" > /dev/null \
+            || echo "::warning::platform 37 tidak tersedia via sdkmanager, mengandalkan SDK auto-download AGP"
 
       - name: Build debug APK
         run: |

@@ -321,7 +321,7 @@ fun FluxPill(
 ) {
     val shape = NuxSizes.ShapePill
     val clickModifier = if (onClick != null) {
-        Modifier.clickable(indication = LocalIndication.current, onClick = onClick)
+        Modifier.clickable(onClick = onClick)
     } else {
         Modifier
     }
@@ -360,7 +360,7 @@ fun FluxIconButton(
             .clip(shape)
             .background(containerColor, shape)
             .border(1.dp, NuxColors.OutlineVariant, shape)
-            .clickable(indication = LocalIndication.current, onClick = onClick),
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         Icon(
