@@ -149,6 +149,7 @@ Format: `ID | Tanggal | Area | File | Perubahan | Alasan`
 
 | ID | Tanggal | Area | File | Perubahan | Alasan |
 |---|---|---|---|---|---|
+| CI-003 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | `TAG` nama APK di-sanitasi (`tr '/ ' '--'`) sebelum dipakai di path | Branch ber-`/` membuat `cp` gagal dengan *No such file or directory* |
 | CI-002 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Paket SDK jadi `platforms;android-37.0` (fallback `android-37`) | Id `android-37` tidak ada di repo SDK → warning tiap build |
 | CI-001 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Workflow build Android: debug+release, artifact 14 hari, publish ke GitHub Release saat tag `v*`; JDK 21, SDK 37, `chmod +x gradlew` | Build otomatis tanpa setup lokal |
 | FLX-007 | 2026-10-31 | UI | `ui/components/NuxComponents.kt` | `FluxPill` & `FluxIconButton` tidak lagi pakai `clickable(indication=…)`; cukup `clickable(onClick=…)` | Overload itu wajib `interactionSource` → `compileDebugKotlin` gagal |

@@ -62,7 +62,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          TAG="${GITHUB_REF_NAME:-local}"
+          # Nama branch mengandung garis miring (mis. feat/flux-material3-ui) dan
+          # akan dibaca cp sebagai folder. Ganti jadi tanda hubung agar jadi nama file.
+          TAG="$(printf '%s' "${GITHUB_REF_NAME:-local}" | tr '/ ' '--')"
           cp app/build/outputs/apk/debug/app-debug.apk "dist/FluxLauncher-${TAG}-debug.apk"
           cp app/build/outputs/apk/release/app-release.apk "dist/FluxLauncher-${TAG}-release.apk"
           ls -lh dist
