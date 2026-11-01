@@ -1,0 +1,71 @@
+name: Debug APK Build
+
+# Workflow khusus build APK DEBUG — terpisah penuh dari build release.
+# Hasil: satu artifact "fluxlauncher-debug-apk" berisi app-debug.apk saja.
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  debug:
+    name: Assemble Debug APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Android SDK packages
+        run: |
+          set -euo pipefail
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install "platform-tools" > /dev/null
+          # compileSdk proyek = 37. Di repo SDK, platform 37 terdaftar sebagai
+          # "android-37.0" (bukan "android-37"), jadi coba id yang benar dulu.
+          "$SDKMANAGER" --install "platforms;android-37.0" > /dev/null \
+            || "$SDKMANAGER" --install "platforms;android-37" > /dev/null \
+            || echo "::warning::platform 37 tidak tersedia via sdkmanager, mengandalkan SDK auto-download AGP"
+
+      - name: Build debug APK
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon --stacktrace assembleDebug
+
+      - name: Collect debug APK
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          TAG="$(printf '%s' "${GITHUB_REF_NAME:-local}" | tr '/ ' '--')"
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/FluxLauncher-${TAG}-debug.apk"
+          ls -lh dist
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fluxlauncher-debug-apk
+          path: dist/*.apk
+          if-no-files-found: error
+          retention-days: 14

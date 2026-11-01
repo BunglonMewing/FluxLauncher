@@ -31,7 +31,7 @@ untuk tahu "di mana mengubah apa" dan "apa yang sudah diubah".
 | compileSdk / targetSdk / minSdk | 37 / 34 / 26 |
 | AGP / Gradle / Kotlin | 9.3.0 / 9.5.0 / 2.4.10 |
 | Orientasi | Landscape, fullscreen immersive |
-| Branch kerja redesign | `feat/flux-material3-ui` |
+| Branch kerja redesign | `feat/google-m3-optifine-wallpaper` |
 | Entry point | `MainActivity` (auth gate → `DashboardScreen`), `GameActivity` (runtime game) |
 
 ---
@@ -149,6 +149,11 @@ Format: `ID | Tanggal | Area | File | Perubahan | Alasan`
 
 | ID | Tanggal | Area | File | Perubahan | Alasan |
 |---|---|---|---|---|---|
+| FLX-012 | 2026-11-01 | Theme | `ui/theme/NuxDesignTokens.kt`, `ui/theme/FluxTheme.kt`, `res/values*/themes.xml` | Retoken `NuxColors` ke palet Material 3 Google (primary `#A8C7FA`, surface `#0F1014`) + type scale M3 baku + shapes baku; window bg `#0F1014` | Mengubah seluruh gaya UI/UX ke Material 3 standar Google tanpa rename token |
+| FLX-011 | 2026-11-01 | Wallpaper | `core/wallpaper/WallpaperEngine.kt` (baru), `ui/components/FluxWallpaperView.kt` (baru), `DashboardScreen.kt`, `SettingsScreen.kt`, `LauncherSettings.kt`, `lang/*.json` | Wallpaper Minecraft otomatis dari internet (Wallhaven), fade antar gambar, interval 1–5 menit + section setting baru | Fitur ganti wallpaper otomatis yang diminta |
+| FLX-010 | 2026-11-01 | OptiFine | `core/optifine/OptiFineService.kt` (baru), `MinecraftDownloader.kt`, `GameLauncher.kt`, `GameActivity.kt`, `MinecraftModels.kt`, `NuxAddInstanceDialog.kt`, `lang/*.json` | Opsi loader OptiFine di dialog Tambah Instance + patch headless `optifine.Patcher` via runtime bawaan (HMCL-style), launchwrapper otomatis, version json `inheritsFrom`, `--tweakClass` dikirim via `EXTRA_GAME_ARGS` | Dukungan OptiFine semua versi dengan unduhan otomatis |
+| FLX-009b | 2026-11-01 | Perf | `GameActivity.kt` | Clamp `-Xmx` ke maks 85% RAM perangkat + log saat di-clamp | Jaga perangkat optimal tanpa menurunkan kualitas game |
+| CI-004 | 2026-11-01 | CI | `.github/workflows/debug-build.yml`, `.github/workflows/release-build.yml` (baru), hapus `android-build.yml` | Build debug & release dipecah jadi dua workflow terpisah (artifact terpisah) | Debug & release tidak lagi digabung satu artifact |
 | CI-003 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | `TAG` nama APK di-sanitasi (`tr '/ ' '--'`) sebelum dipakai di path | Branch ber-`/` membuat `cp` gagal dengan *No such file or directory* |
 | CI-002 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Paket SDK jadi `platforms;android-37.0` (fallback `android-37`) | Id `android-37` tidak ada di repo SDK → warning tiap build |
 | CI-001 | 2026-10-31 | CI | `.github/workflows/android-build.yml` | Workflow build Android: debug+release, artifact 14 hari, publish ke GitHub Release saat tag `v*`; JDK 21, SDK 37, `chmod +x gradlew` | Build otomatis tanpa setup lokal |
@@ -167,10 +172,11 @@ Format: `ID | Tanggal | Area | File | Perubahan | Alasan`
 
 ## 6. Status Verifikasi
 
-- `./gradlew compileDebugKotlin`, `./gradlew testDebugUnitTest`, dan `./gradlew assembleDebug` **lulus**.
-- Menghasilkan `app/build/outputs/apk/debug/app-debug.apk` (263MB).
+- `./gradlew compileDebugKotlin` **lulus** (JDK 21 + SDK `platforms;android-37.0` + build-tools 36).
 - Sisa output build hanya warning deprecation lama (`Icons.*`, `Locale`), bukan error.
 - Reproduksi lokal cepat: JDK 21 + `ANDROID_HOME` berisi `platforms;android-37.0`, lalu `bash gradlew compileDebugKotlin`.
+- ⚠️ Fitur OptiFine & wallpaper (perangkat nyata) belum diuji manual — alur sisip berpatokan
+  resep HMCL/xmcl (`optifine.Patcher` + `launchwrapper-of.txt`) dan jalur BMCLAPI.
 
 ---
 

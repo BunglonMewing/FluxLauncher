@@ -127,6 +127,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         const val EXTRA_ASSETS_DIR = "extra_assets_dir"
         const val EXTRA_ASSET_INDEX = "extra_asset_index"
         const val EXTRA_MAIN_CLASS = "extra_main_class"
+        const val EXTRA_GAME_ARGS = "extra_game_args"
         const val EXTRA_CLASSPATH = "extra_classpath"
         const val EXTRA_RUNTIME_NAME = "extra_runtime_name"
         const val EXTRA_RUNTIME_HOME = "extra_runtime_home"
@@ -360,6 +361,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
     private var useWrapper = false
     private var loader = "vanilla"
     private var loaderVersion: String? = null
+    private var extraGameArgs: List<String> = emptyList()
     private var installedMods: List<String> = emptyList()
 
     private fun getScaledDisplayDimensions(): Pair<Int, Int> {
@@ -477,6 +479,7 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
         useWrapper = intent.getBooleanExtra(EXTRA_USE_WRAPPER, false)
         loader = intent.getStringExtra(EXTRA_LOADER) ?: "vanilla"
         loaderVersion = intent.getStringExtra(EXTRA_LOADER_VERSION)
+        extraGameArgs = intent.getStringArrayListExtra(EXTRA_GAME_ARGS) ?: arrayListOf()
         installedMods = intent.getStringArrayListExtra(EXTRA_INSTALLED_MODS) ?: CrashManager.getInstalledMods(gameDirPath)
         launcherUid = intent.getStringExtra(EXTRA_LAUNCHER_UID) ?: ""
         startInGamePresenceHeartbeat()
@@ -1162,8 +1165,16 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                 jvmArgs.add("-Dio.netty.tryReflectionSetAccessible=true")
 
                 jvmArgs.add("-XX:ActiveProcessorCount=${Runtime.getRuntime().availableProcessors()}")
-                jvmArgs.add("-Xms${activeSettings.initialHeapMb}M")
-                jvmArgs.add("-Xmx${activeSettings.ramMb}M")
+                // Pengaman optimal perangkat: clamp -Xmx terhadap RAM perangkat (maks 85%)
+                val deviceRamMb = SettingsManager.getTotalDeviceMemoryMb(this)
+                val maxSafeRamMb = (deviceRamMb * 0.85f).toInt().coerceAtLeast(512)
+                val effectiveRamMb = activeSettings.ramMb.coerceAtMost(maxSafeRamMb)
+                val effectiveHeapMb = activeSettings.initialHeapMb.coerceAtMost(effectiveRamMb)
+                if (effectiveRamMb < activeSettings.ramMb) {
+                    LoggerBridge.append("▷ RAM clamp: ${activeSettings.ramMb}MB → ${effectiveRamMb}MB (batas aman perangkat ${deviceRamMb}MB)")
+                }
+                jvmArgs.add("-Xms${effectiveHeapMb}M")
+                jvmArgs.add("-Xmx${effectiveRamMb}M")
                 if (activeSettings.customJvmArgs.isNotBlank()) {
                     activeSettings.customJvmArgs.split(" ")
                         .map { it.trim() }
@@ -1282,6 +1293,8 @@ class GameActivity : ComponentActivity(), SurfaceHolder.Callback {
                 jvmArgs.add(userType)
                 jvmArgs.add("--versionType")
                 jvmArgs.add("release")
+                // Argumen game tambahan (mis. OptiFine: --tweakClass optifine.OptiFineTweaker)
+                extraGameArgs.filter { it.isNotBlank() }.forEach { jvmArgs.add(it) }
 
                 LoggerBridge.appendTitle("JVM Launch Command")
                 jvmArgs.forEach { LoggerBridge.append("▷ $it") }

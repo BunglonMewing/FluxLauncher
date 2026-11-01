@@ -180,6 +180,9 @@ fun SettingsScreen(
     var mouseSizeDp by remember(currentSettings.mouseSizeDp) { mutableIntStateOf(currentSettings.mouseSizeDp) }
     var physicalMouseMode by remember(currentSettings.physicalMouseMode) { mutableStateOf(currentSettings.physicalMouseMode) }
 
+    var wallpaperEnabled by remember(currentSettings.wallpaperEnabled) { mutableStateOf(currentSettings.wallpaperEnabled) }
+    var wallpaperIntervalMinutes by remember(currentSettings.wallpaperIntervalMinutes) { mutableIntStateOf(currentSettings.wallpaperIntervalMinutes) }
+
     var resolutionRatio by remember(currentSettings.resolutionRatio) { mutableIntStateOf(currentSettings.resolutionRatio) }
     var autoOptimizeMC by remember(currentSettings.autoOptimizeMinecraft) { mutableStateOf(currentSettings.autoOptimizeMinecraft) }
     var sustainedPerf by remember(currentSettings.sustainedPerformanceMode) { mutableStateOf(currentSettings.sustainedPerformanceMode) }
@@ -219,6 +222,8 @@ fun SettingsScreen(
             heroAnimationEnabled = currentSettings.heroAnimationEnabled,
             heroAnimationVideoPath = currentSettings.heroAnimationVideoPath,
             heroAnimationRotation = currentSettings.heroAnimationRotation,
+            wallpaperEnabled = wallpaperEnabled,
+            wallpaperIntervalMinutes = wallpaperIntervalMinutes,
             aiAutoAnalyze = aiAutoAnalyze,
             aiApiKey = aiApiKey,
             aiModel = aiModel
@@ -1684,6 +1689,101 @@ fun SettingsScreen(
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
+                        // Section: Wallpaper Minecraft Otomatis
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Outlined.Wallpaper,
+                                contentDescription = null,
+                                tint = NuxColors.ForestGreen,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = tr("settings.section_wallpaper"),
+                                fontWeight = FontWeight.Black,
+                                fontSize = 12.sp,
+                                color = Color.White
+                            )
+                        }
+
+                        // Kartu kontrol wallpaper
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(NuxColors.SurfaceInput, RoundedCornerShape(6.dp))
+                                .border(1.dp, NuxColors.CardBorder, RoundedCornerShape(6.dp))
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = tr("settings.wallpaper_auto_label"),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = tr("settings.wallpaper_auto_desc"),
+                                        fontSize = 9.5.sp,
+                                        color = NuxColors.GrayNeutral
+                                    )
+                                }
+                                Switch(
+                                    checked = wallpaperEnabled,
+                                    onCheckedChange = {
+                                        wallpaperEnabled = it
+                                        commitSettings()
+                                    },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = NuxColors.ForestGreen,
+                                        uncheckedTrackColor = NuxColors.SurfaceElevated
+                                    )
+                                )
+                            }
+
+                            if (wallpaperEnabled) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = tr("settings.wallpaper_interval_label"),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "$wallpaperIntervalMinutes minute${if (wallpaperIntervalMinutes > 1) "s" else ""}",
+                                        color = NuxColors.MintGreen,
+                                        fontSize = 9.5.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+
+                                Slider(
+                                    value = wallpaperIntervalMinutes.toFloat(),
+                                    onValueChange = {
+                                        wallpaperIntervalMinutes = it.roundToInt().coerceIn(1, 5)
+                                        commitSettings()
+                                    },
+                                    valueRange = 1f..5f,
+                                    steps = 3,
+                                    colors = SliderDefaults.colors(
+                                        thumbColor = NuxColors.MintGreen,
+                                        activeTrackColor = NuxColors.ForestGreen,
+                                        inactiveTrackColor = NuxColors.CardBorder
+                                    )
+                                )
+                            }
+                        }
+
                         // Header for Mouse settings
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(

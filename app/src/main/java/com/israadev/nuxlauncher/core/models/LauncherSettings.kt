@@ -28,6 +28,10 @@ data class LauncherSettings(
     val zinkPreferSystemDriver: Boolean = false,
     val vsyncInZink: Boolean = false,
 
+    // Wallpaper Minecraft otomatis (fade antar gambar dari internet)
+    val wallpaperEnabled: Boolean = true,
+    val wallpaperIntervalMinutes: Int = 5, // 1 - 5 menit
+
     // Hero Banner Animation (Video MP4)
     val heroAnimationEnabled: Boolean = false,
     val heroAnimationVideoPath: String = "",

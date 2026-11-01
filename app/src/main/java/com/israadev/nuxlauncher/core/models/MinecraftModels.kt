@@ -106,7 +106,7 @@ data class Instance(
     val id: String,
     val name: String,
     val mcVersion: String,
-    val loader: String = "vanilla", // "vanilla" or "fabric"
+    val loader: String = "vanilla", // "vanilla", "fabric", or "optifine"
     var loaderVersion: String = "",
     val icon: String = "crafting_table",
     val javaRuntime: String = "auto", // "auto", "jre-8", "jre-17", "jre-21", "jre-25"
@@ -163,6 +163,36 @@ data class UserAccount(
 
     fun getSkinFile(): java.io.File? = customSkinPath?.let { java.io.File(it) }?.takeIf { it.exists() }
     fun getCapeFile(): java.io.File? = customCapePath?.let { java.io.File(it) }?.takeIf { it.exists() }
+}
+
+/**
+ * OptiFine version dari BMCLAPI (endpoint per versi MC).
+ * Contoh payload: {"mcversion":"1.12.2","type":"HD_U","patch":"G5",
+ *  "filename":"OptiFine_1.12.2_HD_U_G5.jar","forge":"Forge #2847"}
+ * Preview: {"type":"HD_U_G6","patch":"pre1","filename":"preview_OptiFine_...jar"}
+ */
+data class OptiFineVersionItem(
+    val mcversion: String = "",
+    val type: String = "HD",
+    val patch: String = "",
+    val filename: String = "",
+    val forge: String? = null,
+    val date: String? = null
+) {
+    /** Edition = type + patch, contoh: "HD_U_G5" atau "HD_U_G6_pre1". */
+    val edition: String
+        get() = if (patch.isNotBlank()) "${type}_$patch" else type
+
+    val isPreview: Boolean
+        get() = patch.startsWith("pre") || patch.startsWith("alpha")
+
+    /** Id version json: "1.20.1-OptiFine_HD_U_I6". */
+    val versionId: String
+        get() = "$mcversion-OptiFine_$edition"
+
+    /** Koordinat maven: "1.20.1_HD_U_I6". */
+    val libraryVersion: String
+        get() = "${mcversion}_$edition"
 }
 
 /**

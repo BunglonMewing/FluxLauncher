@@ -54,6 +54,7 @@ import com.israadev.nuxlauncher.core.launch.GameLauncher
 import com.israadev.nuxlauncher.core.runtime.JavaRuntimeManager
 import com.israadev.nuxlauncher.core.crash.CrashManager
 import com.israadev.nuxlauncher.core.settings.SettingsManager
+import com.israadev.nuxlauncher.core.wallpaper.WallpaperEngine
 import com.israadev.nuxlauncher.ui.components.*
 import com.israadev.nuxlauncher.core.renderer.NuxRendererRegistry
 import com.israadev.nuxlauncher.core.renderer.NuxRendererInfo
@@ -222,6 +223,11 @@ fun DashboardScreen() {
         }
     }
 
+    // Wallpaper Minecraft otomatis: siklus fade bergantian tiap interval yang diatur.
+    LaunchedEffect(launcherSettings.wallpaperEnabled, launcherSettings.wallpaperIntervalMinutes) {
+        WallpaperEngine.start(context, launcherSettings.wallpaperEnabled, launcherSettings.wallpaperIntervalMinutes)
+    }
+
     if (currentTab == "gui_editor") {
         CustomGuiEditorScreen(
             onNavigateBack = { currentTab = "settings" },
@@ -290,13 +296,24 @@ fun DashboardScreen() {
                                 )
                             }
                         } else {
-                            Image(
-                                painter = painterResource(id = R.drawable.mc_hero_bg),
-                                contentDescription = "Minecraft Scenery",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize(),
-                                alpha = if (isHomeTab) 0.45f else 0.25f
-                            )
+                            // Wallpaper Minecraft otomatis (fade antar gambar dari internet).
+                            // Fallback ke gambar bawaan selama batch pertama belum siap.
+                            val currentWallpaper by WallpaperEngine.currentWallpaper.collectAsState()
+                            if (launcherSettings.wallpaperEnabled && currentWallpaper != null) {
+                                FluxWallpaperView(
+                                    wallpaperPath = currentWallpaper!!.absolutePath,
+                                    modifier = Modifier.fillMaxSize(),
+                                    alpha = if (isHomeTab) 0.80f else 0.45f
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.mc_hero_bg),
+                                    contentDescription = "Minecraft Scenery",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize(),
+                                    alpha = if (isHomeTab) 0.45f else 0.25f
+                                )
+                            }
                         }
                     }
 
