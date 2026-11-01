@@ -140,6 +140,52 @@ object GameLauncher {
             }
         }
 
+        // 3.5 OptiFine libraries (modded jar + launchwrapper) — harus sebelum client jar
+        val isOptifine = instance.loader.equals("optifine", ignoreCase = true)
+        var ofVersionDetail: VersionDetail? = null
+        if (isOptifine) {
+            val ofId = "${instance.mcVersion}-OptiFine_${instance.loaderVersion}"
+            var ofJsonFile = File(InstanceManager.getVersionsDir(context), "$ofId/$ofId.json")
+            if (!ofJsonFile.exists()) {
+                // Cari folder "<mcVersion>-OptiFine_*" sebagai fallback
+                val matches = InstanceManager.getVersionsDir(context)
+                    .listFiles { f -> f.isDirectory && f.name.startsWith("${instance.mcVersion}-OptiFine") }
+                    ?.sortedByDescending { it.name }
+                    .orEmpty()
+                val fallback = matches.firstOrNull()
+                if (fallback != null) {
+                    val candidate = File(fallback, "${fallback.name}.json")
+                    if (candidate.exists()) ofJsonFile = candidate
+                }
+            }
+            if (ofJsonFile.exists()) {
+                try {
+                    ofVersionDetail = gson.fromJson(ofJsonFile.readText(), VersionDetail::class.java)
+                    ofVersionDetail?.mainClass?.let { mainClass = it }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            if (ofJsonFile.exists() && ofVersionDetail != null) {
+                ofVersionDetail.libraries?.forEach { lib ->
+                    val relPath = com.israadev.nuxlauncher.core.fabric.FabricService.artifactToPath(lib.name)
+                    if (relPath != null) {
+                        val file = File(libDir, relPath)
+                        if (file.exists()) {
+                            classpathEntries.add(file.absolutePath)
+                        }
+                    }
+                }
+            } else {
+                android.widget.Toast.makeText(
+                    context,
+                    "OptiFine ${instance.loaderVersion} is not installed yet. Please press DOWNLOAD on the instance!",
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+        }
+
         // 4. Minecraft Client JAR
         val clientJar = File(versionDir, "${instance.mcVersion}.jar")
         if (clientJar.exists()) {
@@ -216,6 +262,13 @@ object GameLauncher {
             putExtra(GameActivity.EXTRA_ASSET_INDEX, assetIndexId)
             putExtra(GameActivity.EXTRA_MAIN_CLASS, mainClass)
             putExtra(GameActivity.EXTRA_CLASSPATH, classpath)
+            // OptiFine launchwrapper membutuhkan tweak class tambahan dalam game args
+            if (isOptifine) {
+                putStringArrayListExtra(
+                    GameActivity.EXTRA_GAME_ARGS,
+                    arrayListOf("--tweakClass", "optifine.OptiFineTweaker")
+                )
+            }
             putExtra(GameActivity.EXTRA_RUNTIME_NAME, runtimeName)
             putExtra(GameActivity.EXTRA_RUNTIME_HOME, runtimeHome.absolutePath)
             putExtra(GameActivity.EXTRA_LWJGL_NATIVES_DIR, lwjglNativesDir.absolutePath)

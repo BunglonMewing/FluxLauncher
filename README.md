@@ -9,7 +9,8 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.4-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Compose](https://img.shields.io/badge/UI-Jetpack%20Compose%20%2B%20Material%203-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
 [![Upstream](https://img.shields.io/badge/Basis%20Kode-ZalithLauncher2-purple.svg)](https://github.com/ZalithLauncher/ZalithLauncher2)
-[![Android Build](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/android-build.yml/badge.svg)](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/android-build.yml)
+[![Android Build](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/debug-build.yml/badge.svg)](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/debug-build.yml)
+[![Release Build](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/release-build.yml/badge.svg)](https://github.com/BunglonMewing/FluxLauncher/actions/workflows/release-build.yml)
 
 </div>
 
@@ -53,20 +54,21 @@ tidak mengorbankan keterbacaan.
 - **Repository:** [BunglonMewing/FluxLauncher](https://github.com/BunglonMewing/FluxLauncher)
 - **Package / applicationId:** `com.israadev.nuxlauncher` (identifier internal dipertahankan agar
   kompatibel dengan data, skin server, dan konfigurasi yang sudah ada)
-- **Versi:** 1.1.5 (versionCode 16)
+- **Versi:** 1.2.0 (versionCode 17)
 
 ---
 
-## 🎨 Desain Antarmuka (Material 3 + Gaming)
+## 🎨 Desain Antarmuka (Material 3 dari Google)
 
-Flux memakai sistem desain **"Reactor"**: Material 3 murni, dengan detail HUD secukupnya.
+Flux memakai **Jetpack Compose + Material 3 standar Google**: primary biru Google, ladder
+surface gelap betingkat, type scale baku, dan sudut baku M3.
 
 **Prinsip**
 1. **Surface tonal, bukan gradient bertumpuk.** Kedalaman dibentuk lewat tangga surface
-   (`#070A08` → `#0E1411` → `#19231C` → `#1F2A22`) dan outline tipis 1dp.
-2. **Satu aksen utama.** Primary emerald `#10C98A`. Aksen lain hanya untuk status (amber) dan error.
-3. **Detail gaming tanpa ornamen.** Chip metadata memakai sudut terpotong (*dog-tag*) dan label
-   monospace (`FABRIC`, `JRE 21`, `1.21.4`) — bahasa visual HUD, bukan stiker.
+   (`#0F1014` → `#16181D` → `#1E2026` → `#23262E`) dan outline tipis 1dp.
+2. **Satu aksen utama.** Primary Google Blue `#A8C7FA` (dark) — aksen lain hanya untuk status.
+3. **Bentuk & tipografi standar M3.** Type scale Material 3 (Roboto, bobot reguler) dan rounded
+   corners baku — tanpa ornamen HUD kustom.
 4. **Navigasi jelas.** Navigation rail Material 3 dengan indikator pill, label selalu terlihat.
 
 **Peta file desain**
@@ -77,6 +79,7 @@ Flux memakai sistem desain **"Reactor"**: Material 3 murni, dengan detail HUD se
 | `ui/theme/FluxTheme.kt` | `FluxNuxTheme`: ColorScheme, Typography, Shapes Material 3 |
 | `ui/components/NuxComponents.kt` | `NuxCard`, `NuxButton`, `NuxBadge`, `NuxTextField`, `NuxDialog`, `FluxPill`, `FluxIconButton` |
 | `ui/components/NuxSidebar.kt` | Navigation rail |
+| `ui/components/FluxWallpaperView.kt` | Latar wallpaper otomatis dengan fade |
 | `ui/screens/DashboardScreen.kt` | Shell: rail, hero banner, top bar, launch dock |
 
 Detail token, guardrail, dan riwayat perubahan ada di **[AI_NOTES.md](AI_NOTES.md)**.
@@ -86,15 +89,25 @@ Detail token, guardrail, dan riwayat perubahan ada di **[AI_NOTES.md](AI_NOTES.m
 ## ✨ Fitur
 
 ### 🎮 Antarmuka
-- 100% Jetpack Compose + Material 3, tema gelap "Reactor Graphite".
+- 100% Jetpack Compose + Material 3 standar Google (tema gelap "Google Graphite + Blue").
 - Layout landscape adaptif: ponsel, foldable, tablet, dan emulator (skala DPI otomatis).
-- Hero banner dinamis: gambar bawaan atau video latar pilihan sendiri (maks. 20 detik) dengan rotasi.
+- **Wallpaper Minecraft otomatis**: gambar diambil dari internet, lalu diputar dengan transisi fade — interval bisa diatur 1–5 menit.
+- Hero banner dinamis: wallpaper otomatis, gambar bawaan, atau video latar pilihan sendiri (maks. 20 detik).
 - Dialog seragam untuk seluruh alur (instance, renderer, akun, unduhan, crash, lisensi).
 
 ### ⚡ Runtime & Renderer
-- **Multi-Java Runtime** (Java 8, 17, 21) dengan pemilihan otomatis sesuai versi Minecraft.
+- **Multi-Java Runtime** (Java 8, 17, 21, 25) dengan pemilihan otomatis sesuai versi Minecraft.
 - **Renderer:** MobileGlues (DirectGLES), Holy GL4ES, VirGL, Zink, serta ANGLE — tinggal pilih profil.
 - Alokasi RAM, initial heap, argumen JVM kustom, rasio resolusi render, dan batas performa.
+- **Pengaman perangkat**: `-Xmx` di-clamp otomatis ke maksimal 85% RAM fisik perangkat saat
+  peluncuran — hemat baterai & bebas OOM, kualitas game tetap terjaga.
+
+### 💎 OptiFine (otomatis, semua versi)
+- Pilih versi Minecraft bebas + build OptiFine mana pun (HD/U/X serta build preview) dari
+  dialog Tambah Instance.
+- Installer OptiFine diunduh otomatis lalu dipasang tanpa GUI (patch headless via
+  `optifine.Patcher`, sama seperti HMCL), launchwrapper diekstrak otomatis dari installer.
+- Peluncuran memakai `net.minecraft.launchwrapper.Launch` dengan TweakClass OptiFine standar.
 
 ### 📦 Instance, Mod & Konten
 - **Multi-instance terisolasi** — versi & set mod terpisah tanpa tumpang tindih.
@@ -151,8 +164,9 @@ FluxLauncher/
 │           │   ├── MainActivity.kt        # Auth gate → Dashboard
 │           │   ├── GameActivity.kt        # Surface game & input
 │           │   ├── core/                  # Logika: account, auth, download, launch,
-│           │   │                          #   instance, mods, renderer, runtime, social,
-│           │   │                          #   crash, settings, update, skin, recorder
+│           │   │                          #   instance, mods, optifine, wallpaper, renderer,
+│           │   │                          #   runtime, social, crash, settings, update, skin,
+│           │   │                          #   recorder
 │           │   └── ui/
 │           │       ├── theme/             # NuxDesignTokens, FluxTheme, NuxResponsive
 │           │       ├── components/        # NuxCard, NuxButton, NuxSidebar, PlayerSkin, ...
@@ -224,13 +238,13 @@ FluxLauncher/
 > publik, siapkan keystore sendiri dan jangan pernah commit file keystore.
 
 ### Continuous Integration
+Build debug dan release kini **terpisah penuh** di dua workflow (tidak digabung jadi satu
+artifact besar):
 
-Workflow `.github/workflows/android-build.yml` berjalan otomatis:
-
-| Trigger | Yang dilakukan |
-|---|---|
-| Push ke `main` / `feat/**`, PR ke `main`, manual | `assembleDebug` + `assembleRelease`, APK diunggah sebagai artifact (14 hari) |
-| Push tag `v*` | APK yang sama dilampirkan ke GitHub Release |
+| Workflow | Trigger | Yang dilakukan |
+|---|---|---|
+| `.github/workflows/debug-build.yml` | Push ke `main` / `feat/**`, PR ke `main`, manual | `assembleDebug` → artifact `fluxlauncher-debug-apk` (14 hari) |
+| `.github/workflows/release-build.yml` | Push tag `v*`, manual | `assembleRelease` → APK diunggah ke GitHub Release |
 
 Catatan: APK release dari CI masih ditandatangani debug keystore, jadi hanya untuk pengujian,
 bukan untuk Play Store. Kalau butuh build bertanda tangan rilis, tambahkan keystore lewat

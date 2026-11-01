@@ -64,13 +64,16 @@ fun NuxAddInstanceDialog(
 ) {
     var instanceName by remember { mutableStateOf("") }
     var selectedVersion by remember { mutableStateOf("1.21.1") }
-    var selectedLoader by remember { mutableStateOf("vanilla") } // "vanilla" or "fabric"
+    var selectedLoader by remember { mutableStateOf("vanilla") } // "vanilla", "fabric" or "optifine"
     var selectedFabricVersion by remember { mutableStateOf("") }
+    var selectedOptiFineVersion by remember { mutableStateOf("") }
 
     var versionsList by remember { mutableStateOf<List<VersionItem>>(emptyList()) }
     var fabricVersionsList by remember { mutableStateOf<List<String>>(emptyList()) }
+    var optifineVersionsList by remember { mutableStateOf<List<com.israadev.nuxlauncher.core.models.OptiFineVersionItem>>(emptyList()) }
     var isLoadingVersions by remember { mutableStateOf(true) }
     var isLoadingFabric by remember { mutableStateOf(false) }
+    var isLoadingOptiFine by remember { mutableStateOf(false) }
 
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(VersionCategory.RELEASE) }
@@ -108,6 +111,17 @@ fun NuxAddInstanceDialog(
                 selectedFabricVersion = loaders.first()
             }
             isLoadingFabric = false
+        } else if (selectedLoader == "optifine") {
+            isLoadingOptiFine = true
+            optifineVersionsList = emptyList()
+            selectedOptiFineVersion = ""
+            val result = com.israadev.nuxlauncher.core.optifine.OptiFineService.getOptiFineVersions(selectedVersion)
+            val builds = result.getOrNull() ?: emptyList()
+            optifineVersionsList = builds
+            if (builds.isNotEmpty()) {
+                selectedOptiFineVersion = (builds.lastOrNull { !it.isPreview } ?: builds.last()).edition
+            }
+            isLoadingOptiFine = false
         }
     }
 
@@ -293,7 +307,7 @@ fun NuxAddInstanceDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                                     ) {
-                                        listOf("vanilla" to "Vanilla", "fabric" to "Fabric").forEach { (type, label) ->
+                                        listOf("vanilla" to "Vanilla", "fabric" to "Fabric", "optifine" to "OptiFine").forEach { (type, label) ->
                                             val isSelected = selectedLoader == type
                                             val btnBg by animateColorAsState(
                                                 targetValue = if (isSelected) Color(0xFF10B981).copy(alpha = 0.16f) else Color(0xFF0D0F15),
@@ -328,6 +342,107 @@ fun NuxAddInstanceDialog(
                                                         color = if (isSelected) NuxColors.MintGreen else Color(0xFFA1A1AA),
                                                         fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
                                                         fontSize = 10.5.sp
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    // OptiFine Version Picker
+                                    if (selectedLoader == "optifine") {
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        var showOptiFineMenu by remember { mutableStateOf(false) }
+
+                                        Box(modifier = Modifier.fillMaxWidth()) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(30.dp)
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .background(Color(0xFF0D0F15), RoundedCornerShape(6.dp))
+                                                    .border(1.dp, Color(0x2EFFFFFF), RoundedCornerShape(6.dp))
+                                                    .clickable {
+                                                        if (!isLoadingOptiFine && optifineVersionsList.isNotEmpty()) {
+                                                            showOptiFineMenu = true
+                                                        }
+                                                    }
+                                                    .padding(horizontal = 8.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                if (isLoadingOptiFine) {
+                                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                                        CircularProgressIndicator(
+                                                            modifier = Modifier.size(11.dp),
+                                                            strokeWidth = 1.5.dp,
+                                                            color = NuxColors.ForestGreen
+                                                        )
+                                                        Spacer(modifier = Modifier.width(5.dp))
+                                                        Text(
+                                                            text = tr("dialogs.loading_optifine"),
+                                                            color = Color(0xFFA1A1AA),
+                                                            fontSize = 10.sp
+                                                        )
+                                                    }
+                                                } else if (optifineVersionsList.isEmpty()) {
+                                                    Text(
+                                                        text = "⚠️ OptiFine is not yet available for $selectedVersion",
+                                                        color = Color(0xFFFB7185),
+                                                        fontSize = 9.5.sp,
+                                                        fontWeight = FontWeight.Medium
+                                                    )
+                                                } else {
+                                                    Text(
+                                                        text = "OptiFine $selectedOptiFineVersion",
+                                                        color = Color.White,
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 10.5.sp
+                                                    )
+                                                    Text(
+                                                        text = "▼",
+                                                        color = Color(0xFF71717A),
+                                                        fontSize = 8.sp
+                                                    )
+                                                }
+                                            }
+
+                                            DropdownMenu(
+                                                expanded = showOptiFineMenu,
+                                                onDismissRequest = { showOptiFineMenu = false },
+                                                modifier = Modifier
+                                                    .background(Color(0xFF181C26))
+                                                    .border(1.dp, Color(0x33FFFFFF), RoundedCornerShape(8.dp))
+                                                    .heightIn(max = 200.dp)
+                                            ) {
+                                                optifineVersionsList.forEach { build ->
+                                                    val isPicked = build.edition == selectedOptiFineVersion
+                                                    DropdownMenuItem(
+                                                        text = {
+                                                            Row(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Text(
+                                                                    text = build.edition + if (build.isPreview) " (preview)" else "",
+                                                                    fontWeight = if (isPicked) FontWeight.Black else FontWeight.Normal,
+                                                                    fontSize = 11.sp,
+                                                                    color = if (isPicked) NuxColors.MintGreen else Color.White
+                                                                )
+                                                                if (isPicked) {
+                                                                    Icon(
+                                                                        imageVector = Icons.Default.Check,
+                                                                        contentDescription = null,
+                                                                        tint = NuxColors.MintGreen,
+                                                                        modifier = Modifier.size(13.dp)
+                                                                    )
+                                                                }
+                                                            }
+                                                        },
+                                                        onClick = {
+                                                            selectedOptiFineVersion = build.edition
+                                                            showOptiFineMenu = false
+                                                        }
                                                     )
                                                 }
                                             }
@@ -470,20 +585,34 @@ fun NuxAddInstanceDialog(
                                         modifier = Modifier
                                             .clip(RoundedCornerShape(5.dp))
                                             .background(
-                                                if (selectedLoader == "fabric") Color(0xFF8B5CF6).copy(alpha = 0.2f)
-                                                else Color(0xFF10B981).copy(alpha = 0.2f)
+                                                when (selectedLoader) {
+                                                    "fabric" -> Color(0xFF8B5CF6).copy(alpha = 0.2f)
+                                                    "optifine" -> Color(0xFFF59E0B).copy(alpha = 0.2f)
+                                                    else -> Color(0xFF10B981).copy(alpha = 0.2f)
+                                                }
                                             )
                                             .border(
                                                 1.dp,
-                                                if (selectedLoader == "fabric") Color(0xFF8B5CF6).copy(alpha = 0.5f)
-                                                else Color(0xFF10B981).copy(alpha = 0.5f),
+                                                when (selectedLoader) {
+                                                    "fabric" -> Color(0xFF8B5CF6).copy(alpha = 0.5f)
+                                                    "optifine" -> Color(0xFFF59E0B).copy(alpha = 0.5f)
+                                                    else -> Color(0xFF10B981).copy(alpha = 0.5f)
+                                                },
                                                 RoundedCornerShape(5.dp)
                                             )
                                             .padding(horizontal = 7.dp, vertical = 3.dp)
                                     ) {
                                         Text(
-                                            text = if (selectedLoader == "fabric") "FABRIC" else "VANILLA",
-                                            color = if (selectedLoader == "fabric") Color(0xFFA78BFA) else NuxColors.MintGreen,
+                                            text = when (selectedLoader) {
+                                                "fabric" -> "FABRIC"
+                                                "optifine" -> "OPTIFINE"
+                                                else -> "VANILLA"
+                                            },
+                                            color = when (selectedLoader) {
+                                                "fabric" -> Color(0xFFA78BFA)
+                                                "optifine" -> Color(0xFFFBBF24)
+                                                else -> NuxColors.MintGreen
+                                            },
                                             fontWeight = FontWeight.Black,
                                             fontSize = 8.5.sp
                                         )
@@ -492,7 +621,8 @@ fun NuxAddInstanceDialog(
                             }
 
                             // 4. Island CTA Button (Bottom Anchored)
-                            val canCreate = !(selectedLoader == "fabric" && (isLoadingFabric || selectedFabricVersion.isBlank()))
+                            val canCreate = !(selectedLoader == "fabric" && (isLoadingFabric || selectedFabricVersion.isBlank())) &&
+                                    !(selectedLoader == "optifine" && (isLoadingOptiFine || selectedOptiFineVersion.isBlank()))
                             Spacer(modifier = Modifier.height(4.dp))
                             Box(
                                 modifier = Modifier
@@ -514,14 +644,32 @@ fun NuxAddInstanceDialog(
                                     .clickable(enabled = canCreate) {
                                         val defaultName = "$selectedVersion ${selectedLoader.replaceFirstChar { it.uppercase() }}"
                                         val finalName = if (instanceName.isNotBlank()) instanceName else defaultName
+                                        // Simpan build OptiFine yang dipilih untuk dipakai saat instalasi
+                                        optifineVersionsList.firstOrNull { it.edition == selectedOptiFineVersion }?.let {
+                                            com.israadev.nuxlauncher.core.optifine.OptiFineService
+                                                .pickedVersionCache["inst_temp_${selectedVersion}_$selectedOptiFineVersion"] = it
+                                        }
                                         val newInstance = Instance(
                                             id = "inst_${UUID.randomUUID()}",
                                             name = finalName,
                                             mcVersion = selectedVersion,
                                             loader = selectedLoader,
-                                            loaderVersion = if (selectedLoader == "fabric") selectedFabricVersion else "",
+                                            loaderVersion = when (selectedLoader) {
+                                                "fabric" -> selectedFabricVersion
+                                                "optifine" -> selectedOptiFineVersion
+                                                else -> ""
+                                            },
                                             icon = if (selectedLoader == "fabric") "fabric" else "crafting_table"
                                         )
+                                        // Pindahkan build yang dipilih ke id instance final
+                                        com.israadev.nuxlauncher.core.optifine.OptiFineService
+                                            .pickedVersionCache["inst_temp_${selectedVersion}_$selectedOptiFineVersion"]
+                                            ?.let { cached ->
+                                                com.israadev.nuxlauncher.core.optifine.OptiFineService
+                                                    .pickedVersionCache[newInstance.id] = cached
+                                                com.israadev.nuxlauncher.core.optifine.OptiFineService
+                                                    .pickedVersionCache.remove("inst_temp_${selectedVersion}_$selectedOptiFineVersion")
+                                            }
                                         onInstanceCreated(newInstance)
                                     }
                                     .padding(horizontal = 10.dp),
@@ -535,7 +683,9 @@ fun NuxAddInstanceDialog(
                                     Text(
                                         text = when {
                                             isLoadingFabric && selectedLoader == "fabric" -> tr("dialogs.btn_loading_fabric")
+                                            isLoadingOptiFine && selectedLoader == "optifine" -> tr("dialogs.btn_loading_optifine")
                                             selectedLoader == "fabric" && selectedFabricVersion.isBlank() -> tr("dialogs.fabric_unavailable")
+                                            selectedLoader == "optifine" && selectedOptiFineVersion.isBlank() -> tr("dialogs.optifine_unavailable")
                                             else -> tr("dialogs.btn_create_instance")
                                         },
                                         color = if (canCreate) Color.White else Color(0xFF71717A),

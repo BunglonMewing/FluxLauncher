@@ -244,6 +244,29 @@ class MinecraftDownloader(
                 }
             }
 
+            // 6. Pasang OptiFine bila instance menggunakan loader OptiFine
+            if (instance.loader.equals("optifine", ignoreCase = true)) {
+                onProgress(0.92f, "Preparing OptiFine for ${instance.mcVersion}...")
+                val picked = com.israadev.nuxlauncher.core.optifine.OptiFineService
+                    .pickBestVersion(context, instance)
+                if (picked == null) {
+                    throw IllegalStateException("Cannot find OptiFine build for version ${instance.mcVersion}")
+                }
+                val installRes = com.israadev.nuxlauncher.core.optifine.OptiFineService
+                    .installOptiFine(
+                        context = context,
+                        instance = instance,
+                        vanillaJar = File(versionDir, "${instance.mcVersion}.jar"),
+                        onProgress = { frac, msg -> onProgress(frac, msg) }
+                    )
+                if (installRes.isFailure) {
+                    throw IllegalStateException(
+                        "OptiFine installation failed: ${installRes.exceptionOrNull()?.message}"
+                    )
+                }
+                InstanceManager.updateInstance(context, instance)
+            }
+
             onProgress(1.0f, "Installation complete!")
             instance.isDownloaded = true
             InstanceManager.updateInstance(context, instance)
